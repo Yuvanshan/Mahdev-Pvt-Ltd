@@ -17,6 +17,7 @@
     "@aws-sdk/client-s3": "^3.1083.0",
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
+    "@vercel/speed-insights": "^2.0.0",
     "@vitejs/plugin-react": "^5.0.4",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
@@ -43,6 +44,7 @@
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
     "terser": "^5.49.0",
-    "tsx": "^4.23.0"
+    "tsx": "^4.23.0",
+    "typescript": "^7.0.2"
   }
 }

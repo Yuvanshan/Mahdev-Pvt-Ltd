@@ -2249,6 +2249,59 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Website Title (Browser Tab)</label>
+                  <input 
+                    type="text"
+                    value={theme.websiteTitle}
+                    onChange={(e) => setTheme({ ...theme, websiteTitle: e.target.value })}
+                    className="w-full px-4 py-2.5 text-sm rounded-xl border border-purple-500/20 bg-neutral-950/60 text-white focus:outline-none focus:border-purple-500"
+                    placeholder="e.g., Mahdev Pvt Ltd - Elite Service Suite"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Appears in browser tab and for SEO</p>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Favicon URL or Upload</label>
+                  <div className="flex gap-3 mb-2">
+                    <input 
+                      type="text"
+                      value={theme.faviconUrl}
+                      onChange={(e) => setTheme({ ...theme, faviconUrl: e.target.value })}
+                      className="flex-1 px-4 py-2.5 text-sm rounded-xl border border-purple-500/20 bg-neutral-950/60 text-white focus:outline-none focus:border-purple-500"
+                      placeholder="e.g., /favicon.ico or /favicon-32x32.png"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('favicon-file-input')?.click()}
+                      className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-wider transition-all"
+                    >
+                      Upload Favicon
+                    </button>
+                    <input
+                      id="favicon-file-input"
+                      type="file"
+                      accept="image/*,.ico"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          const file = e.target.files[0];
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            setTheme({ ...theme, faviconUrl: event.target?.result as string });
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </div>
+                  <p className="text-[10px] text-slate-400">Icon in browser tab (32x32 recommended)</p>
+                  {theme.faviconUrl && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <img src={theme.faviconUrl} alt="Favicon preview" className="w-6 h-6 border border-purple-500/30 rounded" />
+                      <span className="text-[10px] text-slate-400">Preview</span>
+                    </div>
+                  )}
+                </div>
+                <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">Brand Name</label>
                   <input 
                     type="text"

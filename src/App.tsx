@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { ActivePage } from './types';
 
 // Components
@@ -407,6 +408,7 @@ export default function App() {
   return (
     <>
       <style>{styleContent}</style>
+      <SpeedInsights />
       <AnimatePresence mode="wait">
         {loading ? (
           /* Premium Monogram Intro Preloader */

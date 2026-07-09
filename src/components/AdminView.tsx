@@ -255,6 +255,9 @@ interface AdminViewProps {
 }
 
 export default function AdminView({ isDarkMode, onDataChange, themeSettings }: AdminViewProps) {
+  const adminUsername = (import.meta.env.VITE_ADMIN_USERNAME || 'Yuvanshan875@gmail.com').trim();
+  const adminPassword = (import.meta.env.VITE_ADMIN_PASSWORD || 'Yuvan@1709').trim();
+
   // Login credentials state
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -631,12 +634,15 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username.trim().toLowerCase() === 'admin' && password === 'admin') {
+    const normalizedUsername = username.trim().toLowerCase();
+    const normalizedExpectedUsername = adminUsername.trim().toLowerCase();
+
+    if (normalizedUsername === normalizedExpectedUsername && password === adminPassword) {
       setIsAuthenticated(true);
       sessionStorage.setItem('mahdev_admin_authenticated', 'true');
       setErrorMsg('');
     } else {
-      setErrorMsg('Invalid administrative credentials. Hint: use admin/admin');
+      setErrorMsg(`Invalid administrative credentials. Use ${adminUsername} / ${adminPassword}`);
     }
   };
 

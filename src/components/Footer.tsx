@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { motion, useInView } from 'motion/react';
+import { useRef } from 'react';
 import { ActivePage, ThemeSettings } from '../types';
 import { COMPANY_CONTACT } from '../data';
 import { Phone, Mail, Clock, MapPin, ExternalLink, Globe, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
@@ -13,6 +15,23 @@ interface FooterProps {
   isDarkMode: boolean;
   contactInfo?: any;
   themeSettings?: ThemeSettings;
+}
+
+function Reveal({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+      transition={{ duration: 0.55, delay, ease: 'easeOut' }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPANY_CONTACT, themeSettings }: FooterProps) {
@@ -40,7 +59,7 @@ export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPAN
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
           
           {/* Column 1: Brand Info */}
-          <div id="footer-brand-col" className="flex flex-col space-y-4">
+          <Reveal className="flex flex-col space-y-4">
             <div 
               className="flex items-center space-x-3 cursor-pointer group"
               onClick={() => handleNavClick(ActivePage.Home)}
@@ -87,10 +106,10 @@ export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPAN
                 </a>
               ))}
             </div>
-          </div>
+          </Reveal>
 
           {/* Column 2: Quick Navigation */}
-          <div id="footer-navigation-col" className="flex flex-col space-y-4">
+          <Reveal delay={0.08} className="flex flex-col space-y-4">
             <h4 className={`text-sm font-bold uppercase tracking-wider ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               Corporate Pages
             </h4>
@@ -115,10 +134,10 @@ export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPAN
                 </li>
               ))}
             </ul>
-          </div>
+          </Reveal>
 
           {/* Column 3: Contact details */}
-          <div id="footer-contact-col" className="flex flex-col space-y-4">
+          <Reveal delay={0.12} className="flex flex-col space-y-4">
             <h4 className={`text-sm font-bold uppercase tracking-wider ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               Get In Touch
             </h4>
@@ -144,10 +163,10 @@ export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPAN
                 <span>{contactInfo.hours}</span>
               </li>
             </ul>
-          </div>
+          </Reveal>
 
           {/* Column 4: Google Map Embed */}
-          <div id="footer-map-col" className="flex flex-col space-y-4">
+          <Reveal delay={0.16} className="flex flex-col space-y-4">
             <h4 className={`text-sm font-bold uppercase tracking-wider ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               Headquarters Location
             </h4>
@@ -166,7 +185,7 @@ export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPAN
                 <ExternalLink size={10} />
               </div>
             </div>
-          </div>
+          </Reveal>
 
         </div>
 

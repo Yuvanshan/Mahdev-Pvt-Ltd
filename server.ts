@@ -147,7 +147,8 @@ function saveDb(data: any) {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
+  const HOST = process.env.HOST || "0.0.0.0";
 
   // Enable JSON body parsing
   app.use(express.json());
@@ -891,8 +892,8 @@ Keep all responses highly polished, structured, concise, and professional. Match
     });
   }
 
-  app.listen(PORT, "localhost", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
   });
 }
 

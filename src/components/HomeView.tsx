@@ -4,7 +4,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, useInView } from 'motion/react';
 import { 
   Sparkles, Camera, Cpu, Globe, ArrowRight, Shield, Award, Users, 
   Compass, Heart, Check, PartyPopper, Film, Sliders, Laptop, Smartphone, Car, Plane,
@@ -27,6 +27,23 @@ interface HomeViewProps {
   servicesList?: ServiceCard[];
   leadersList?: Leader[];
   themeSettings?: ThemeSettings;
+}
+
+function Reveal({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 28 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+      transition={{ duration: 0.6, delay, ease: 'easeOut' }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 export default function HomeView({ 
@@ -280,17 +297,21 @@ export default function HomeView({
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Visual Left Frame */}
-          <div className="lg:col-span-6 relative order-2 lg:order-1">
+          <Reveal className="lg:col-span-6 relative order-2 lg:order-1">
             <div className="absolute -inset-2 bg-gradient-to-tr from-pink-400/10 to-transparent rounded-3xl blur-2xl opacity-50" />
             
             {/* Elegant luxury stage photo container */}
-            <div className={`relative rounded-3xl p-4 shadow-2xl overflow-hidden aspect-[4/3] group transition-colors duration-500 ${
-              isDarkMode ? 'bg-neutral-900 border-pink-500/20' : 'bg-white border-pink-200/50'
-            }`}>
+            <motion.div
+              whileHover={{ scale: 1.03, y: -8, rotate: -1 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className={`relative rounded-3xl p-4 shadow-2xl overflow-hidden aspect-[4/3] group transition-colors duration-500 ${
+                isDarkMode ? 'bg-neutral-900 border-pink-500/20' : 'bg-white border-pink-200/50'
+              }`}
+            >
               <img 
                 src={swsRobotImgDynamic} 
                 alt="SWS Event Robot Designer" 
-                className="w-full h-full object-cover rounded-2xl transform group-hover:scale-[1.03] transition-transform duration-700"
+                className="w-full h-full object-cover rounded-2xl transform group-hover:scale-[1.05] transition-transform duration-700"
                 referrerPolicy="no-referrer"
                 loading="lazy"
                 decoding="async"
@@ -299,11 +320,11 @@ export default function HomeView({
               <div className="absolute top-8 left-8 px-3 py-1.5 rounded-lg bg-pink-600/90 backdrop-blur-md text-white font-mono text-[10px] tracking-widest uppercase">
                 Live Setup Simulator
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </Reveal>
 
           {/* Content Right */}
-          <div className="lg:col-span-6 space-y-6 order-1 lg:order-2 text-left">
+          <Reveal className="lg:col-span-6 space-y-6 order-1 lg:order-2 text-left">
             <span className="text-xs font-bold uppercase tracking-widest text-pink-500 font-mono flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-pink-500 animate-ping" />
               01 | WE CREATE MEMORIES
@@ -355,7 +376,11 @@ export default function HomeView({
               </div>
             </div>
 
-            <div className="pt-4">
+            <motion.div
+              whileHover={{ y: -3, scale: 1.01 }}
+              transition={{ duration: 0.25 }}
+              className="pt-4"
+            >
               <button
                 onClick={() => handleNavClick(ActivePage.Decoration)}
                 className="px-6 py-3.5 rounded-xl bg-pink-600 text-white font-bold text-xs tracking-wider uppercase hover:bg-pink-500 shadow-lg shadow-pink-600/10 hover:shadow-pink-500/30 transition-all flex items-center gap-2"
@@ -363,8 +388,8 @@ export default function HomeView({
                 <span>Explore Event Management</span>
                 <ArrowRight size={14} />
               </button>
-            </div>
-          </div>
+            </motion.div>
+          </Reveal>
 
         </div>
       </section>
@@ -384,7 +409,7 @@ export default function HomeView({
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Content Left */}
-          <div className="lg:col-span-6 space-y-6 text-left">
+          <Reveal className="lg:col-span-6 space-y-6 text-left">
             <span className={`text-xs font-bold uppercase tracking-widest font-mono flex items-center gap-2 transition-colors duration-500 ${
               isDarkMode ? 'text-purple-400' : 'text-purple-600'
             }`}>
@@ -454,7 +479,11 @@ export default function HomeView({
               </div>
             </div>
 
-            <div className="pt-4">
+            <motion.div
+              whileHover={{ y: -3, scale: 1.01 }}
+              transition={{ duration: 0.25 }}
+              className="pt-4"
+            >
               <button
                 onClick={() => handleNavClick(ActivePage.Photography)}
                 className="px-6 py-3.5 rounded-xl bg-purple-600 text-white font-bold text-xs tracking-wider uppercase hover:bg-purple-500 shadow-lg shadow-purple-600/10 hover:shadow-purple-500/30 transition-all flex items-center gap-2"
@@ -462,21 +491,25 @@ export default function HomeView({
                 <span>Explore U1 Studio</span>
                 <ArrowRight size={14} />
               </button>
-            </div>
-          </div>
+            </motion.div>
+          </Reveal>
 
           {/* Visual Right Frame */}
-          <div className="lg:col-span-6 relative">
+          <Reveal className="lg:col-span-6 relative">
             <div className="absolute -inset-2 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-3xl blur-2xl opacity-50" />
             
             {/* Camera Viewport overlay */}
-            <div className={`relative rounded-3xl p-4 shadow-2xl overflow-hidden aspect-[4/3] group transition-colors duration-500 ${
-              isDarkMode ? 'bg-neutral-900 border-purple-500/20' : 'bg-white border-purple-200'
-            }`}>
+            <motion.div
+              whileHover={{ scale: 1.03, y: -8, rotate: 1 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className={`relative rounded-3xl p-4 shadow-2xl overflow-hidden aspect-[4/3] group transition-colors duration-500 ${
+                isDarkMode ? 'bg-neutral-900 border-purple-500/20' : 'bg-white border-purple-200'
+              }`}
+            >
               <img 
                 src={u1RobotImgDynamic} 
                 alt="U1 Studio Robot Camera" 
-                className="w-full h-full object-cover rounded-2xl transform group-hover:scale-[1.03] transition-transform duration-700"
+                className="w-full h-full object-cover rounded-2xl transform group-hover:scale-[1.05] transition-transform duration-700"
                 referrerPolicy="no-referrer"
                 loading="lazy"
                 decoding="async"
@@ -489,8 +522,8 @@ export default function HomeView({
               <div className="absolute bottom-8 left-8 text-white font-mono text-[9px] tracking-wider bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-md">
                 ISO 400 | F/2.8 | 30FPS
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </Reveal>
 
         </div>
       </section>
@@ -515,13 +548,17 @@ export default function HomeView({
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Visual Left Frame */}
-          <div className="lg:col-span-6 relative order-2 lg:order-1">
+          <Reveal className="lg:col-span-6 relative order-2 lg:order-1">
             <div className="absolute -inset-2 bg-gradient-to-tr from-cyan-400/10 to-transparent rounded-3xl blur-2xl opacity-50" />
             
             {/* IT dashboard mock window frame */}
-            <div className={`relative rounded-3xl p-4 shadow-2xl overflow-hidden aspect-[4/3] group transition-colors duration-500 ${
-              isDarkMode ? 'bg-neutral-900 border-cyan-500/20' : 'bg-white border-cyan-200'
-            }`}>
+            <motion.div
+              whileHover={{ scale: 1.03, y: -8, rotate: -1 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className={`relative rounded-3xl p-4 shadow-2xl overflow-hidden aspect-[4/3] group transition-colors duration-500 ${
+                isDarkMode ? 'bg-neutral-900 border-cyan-500/20' : 'bg-white border-cyan-200'
+              }`}
+            >
               
               {/* Window controls bar */}
               <div className="absolute top-6 left-6 flex space-x-1.5 z-10">
@@ -533,7 +570,7 @@ export default function HomeView({
               <img 
                 src={itRobotImgDynamic} 
                 alt="Mahdev IT Robot Programmer" 
-                className="w-full h-full object-cover rounded-2xl transform group-hover:scale-[1.03] transition-transform duration-700"
+                className="w-full h-full object-cover rounded-2xl transform group-hover:scale-[1.05] transition-transform duration-700"
                 referrerPolicy="no-referrer"
                 loading="lazy"
                 decoding="async"
@@ -546,11 +583,11 @@ export default function HomeView({
               <div className="absolute bottom-8 right-8 px-3 py-1.5 rounded-lg bg-neutral-900/90 text-cyan-400 font-mono text-[9px] tracking-wider uppercase border border-cyan-500/30">
                 ERP_ENGINE_OK : 2ms
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </Reveal>
 
           {/* Content Right */}
-          <div className="lg:col-span-6 space-y-6 order-1 lg:order-2 text-left">
+          <Reveal className="lg:col-span-6 space-y-6 order-1 lg:order-2 text-left">
             <span className={`text-xs font-bold uppercase tracking-widest font-mono flex items-center gap-2 transition-colors duration-500 ${
               isDarkMode ? 'text-cyan-400' : 'text-cyan-600'
             }`}>
@@ -620,16 +657,20 @@ export default function HomeView({
               </div>
             </div>
 
-            <div className="pt-4">
+            <motion.div
+              whileHover={{ y: -3, scale: 1.01 }}
+              transition={{ duration: 0.25 }}
+              className="pt-4"
+            >
               <button
                 onClick={() => handleNavClick(ActivePage.ItSolutions)}
                 className="px-6 py-3.5 rounded-xl bg-cyan-600 text-white font-bold text-xs tracking-wider uppercase hover:bg-cyan-500 shadow-lg shadow-cyan-600/10 hover:shadow-cyan-500/30 transition-all flex items-center gap-2"
               >
-                <span>Explore IT Solutions</span>
+                <span>Explore IT & Solutions</span>
                 <ArrowRight size={14} />
               </button>
-            </div>
-          </div>
+            </motion.div>
+          </Reveal>
 
         </div>
       </section>
@@ -647,7 +688,7 @@ export default function HomeView({
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Content Left */}
-          <div className="lg:col-span-6 space-y-6 text-left">
+          <Reveal className="lg:col-span-6 space-y-6 text-left">
             <span className={`text-xs font-bold uppercase tracking-widest font-mono flex items-center gap-2 transition-colors duration-500 ${
               isDarkMode ? 'text-amber-400' : 'text-amber-600'
             }`}>
@@ -717,7 +758,11 @@ export default function HomeView({
               </div>
             </div>
 
-            <div className="pt-4">
+            <motion.div
+              whileHover={{ y: -3, scale: 1.01 }}
+              transition={{ duration: 0.25 }}
+              className="pt-4"
+            >
               <button
                 onClick={() => handleNavClick(ActivePage.Travels)}
                 className="px-6 py-3.5 rounded-xl bg-amber-600 text-white font-bold text-xs tracking-wider uppercase hover:bg-amber-500 shadow-lg shadow-amber-600/10 hover:shadow-amber-500/30 transition-all flex items-center gap-2"
@@ -725,21 +770,25 @@ export default function HomeView({
                 <span>Explore Travels</span>
                 <ArrowRight size={14} />
               </button>
-            </div>
-          </div>
+            </motion.div>
+          </Reveal>
 
           {/* Visual Right Frame */}
-          <div className="lg:col-span-6 relative">
+          <Reveal className="lg:col-span-6 relative">
             <div className="absolute -inset-2 bg-gradient-to-tr from-amber-400/10 to-transparent rounded-3xl blur-2xl opacity-50" />
             
             {/* Travel scenery container */}
-            <div className={`relative rounded-3xl p-4 shadow-2xl overflow-hidden aspect-[4/3] group transition-colors duration-500 ${
-              isDarkMode ? 'bg-neutral-900 border-amber-500/20' : 'bg-white border-amber-200'
-            }`}>
+            <motion.div
+              whileHover={{ scale: 1.03, y: -8, rotate: 1 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className={`relative rounded-3xl p-4 shadow-2xl overflow-hidden aspect-[4/3] group transition-colors duration-500 ${
+                isDarkMode ? 'bg-neutral-900 border-amber-500/20' : 'bg-white border-amber-200'
+              }`}
+            >
               <img 
                 src={travelsRobotImgDynamic} 
                 alt="Mahdev Travels Robot" 
-                className="w-full h-full object-cover rounded-2xl transform group-hover:scale-[1.03] transition-transform duration-700"
+                className="w-full h-full object-cover rounded-2xl transform group-hover:scale-[1.05] transition-transform duration-700"
                 referrerPolicy="no-referrer"
                 loading="lazy"
                 decoding="async"
@@ -748,8 +797,8 @@ export default function HomeView({
               <div className="absolute top-8 left-8 px-3 py-1.5 rounded-lg bg-neutral-900/90 text-amber-400 font-mono text-[10px] tracking-widest uppercase border border-amber-500/30 font-semibold shadow-md">
                 Colombo Lotus Tower Hub
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </Reveal>
 
         </div>
       </section>
@@ -761,7 +810,7 @@ export default function HomeView({
           : 'bg-slate-100 text-slate-800 border-slate-200'
       }`}>
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className={`space-y-6 text-left rounded-[2rem] border p-7 sm:p-8 shadow-2xl ${
+          <Reveal className={`space-y-6 text-left rounded-[2rem] border p-7 sm:p-8 shadow-2xl ${
             isDarkMode ? 'border-neutral-800 bg-neutral-900/70' : 'border-slate-200 bg-white/80'
           }`}>
             <span className={`text-xs font-bold uppercase tracking-widest font-mono ${
@@ -820,13 +869,17 @@ export default function HomeView({
                 </div>
               ))}
             </div>
-          </div>
+          </Reveal>
 
-          <div className="relative">
+          <Reveal className="relative">
             <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/15 to-transparent rounded-3xl blur-3xl opacity-30" />
-            <div className={`relative rounded-3xl p-3 border backdrop-blur-md overflow-hidden shadow-2xl transition-colors duration-500 ${
-              isDarkMode ? 'border-neutral-800 bg-neutral-900/40' : 'border-slate-200 bg-white/40'
-            }`}>
+            <motion.div
+              whileHover={{ scale: 1.03, y: -8, rotate: 1 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className={`relative rounded-3xl p-3 border backdrop-blur-md overflow-hidden shadow-2xl transition-colors duration-500 ${
+                isDarkMode ? 'border-neutral-800 bg-neutral-900/40' : 'border-slate-200 bg-white/40'
+              }`}
+            >
               <img 
                 src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?fm=webp&fit=crop&q=70&w=600" 
                 alt="MAHDEV Workspace Collaboration" 
@@ -835,8 +888,8 @@ export default function HomeView({
                 loading="lazy"
                 decoding="async"
               />
-            </div>
-          </div>
+            </motion.div>
+          </Reveal>
         </div>
       </section>
 
@@ -846,7 +899,7 @@ export default function HomeView({
           isDarkMode ? 'bg-neutral-950 text-white' : 'bg-white text-slate-800'
         }`}>
           <div className="max-w-7xl mx-auto">
-            <div className="text-center max-w-2xl mx-auto mb-16">
+            <Reveal className="text-center max-w-2xl mx-auto mb-16">
               <span className={`text-xs font-bold uppercase tracking-widest font-mono ${
                 isDarkMode ? 'text-amber-400' : 'text-amber-600'
               }`}>
@@ -863,19 +916,20 @@ export default function HomeView({
               }`}>
                 Meet the visionary executive leaders directing MAHDEV’s continuous technological innovations and operations.
               </p>
-            </div>
+            </Reveal>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {leadersList.map((l) => (
-                <div 
-                  key={l.id}
-                  className={`p-8 rounded-3xl border backdrop-blur-md flex flex-col sm:flex-row gap-6 items-center sm:items-start transition-all hover:scale-[1.01] shadow-xl ${
-                    isDarkMode 
-                      ? 'border-neutral-800 bg-neutral-900/60' 
-                      : 'border-slate-100 bg-slate-50/80 shadow-slate-200/50'
-                  }`}
-                >
-                  <div className="w-24 h-24 rounded-full overflow-hidden shrink-0 border-2 border-amber-500 shadow-lg">
+                <Reveal key={l.id} className={`p-8 rounded-3xl border backdrop-blur-md flex flex-col sm:flex-row gap-6 items-center sm:items-start transition-all hover:scale-[1.01] shadow-xl ${
+                  isDarkMode 
+                    ? 'border-neutral-800 bg-neutral-900/60' 
+                    : 'border-slate-100 bg-slate-50/80 shadow-slate-200/50'
+                }`}>
+                  <motion.div
+                    whileHover={{ scale: 1.04, y: -4 }}
+                    transition={{ duration: 0.25 }}
+                    className="w-24 h-24 rounded-full overflow-hidden shrink-0 border-2 border-amber-500 shadow-lg"
+                  >
                     <img 
                       src={l.image} 
                       alt={l.name} 
@@ -883,7 +937,7 @@ export default function HomeView({
                       referrerPolicy="no-referrer"
                       loading="lazy"
                     />
-                  </div>
+                  </motion.div>
                   <div className="text-center sm:text-left">
                     <h3 className={`text-xl font-bold transition-colors duration-500 ${
                       isDarkMode ? 'text-white' : 'text-slate-800'
@@ -897,7 +951,7 @@ export default function HomeView({
                       {l.bio}
                     </p>
                   </div>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>

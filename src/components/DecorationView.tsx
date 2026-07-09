@@ -14,6 +14,7 @@ import { DECORATION_CATEGORIES, DECORATION_GALLERY, CLIENT_TESTIMONIALS, COMPANY
 import { BookingDetails, DecorationGalleryItem, RentalItem, ThemeSettings } from '../types';
 import { addBooking } from '../utils/storage';
 import EmailCopySection from './EmailCopySection';
+import weddingDecorationBannerAsset from '../assets/images/wedding_decoration_1782729925686.jpg';
 
 interface DecorationViewProps {
   isDarkMode: boolean;
@@ -196,7 +197,7 @@ export default function DecorationView({
         {/* Blurred background photo */}
         <div className="absolute inset-0 z-0">
           <img 
-            src={themeSettings?.weddingDecorationBanner || "/src/assets/images/wedding_decoration_1782729925686.jpg"} 
+            src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset} 
             alt="Flagship Decor Background" 
             className="w-full h-full object-cover opacity-25 filter blur-sm scale-105"
             referrerPolicy="no-referrer"

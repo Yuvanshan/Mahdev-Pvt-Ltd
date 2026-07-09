@@ -29,6 +29,7 @@ interface PremiumHeroProps {
 
 export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHeroProps) {
   const [selected, setSelected] = useState(0);
+  const motionEase = [0.22, 1, 0.36, 1] as const;
 
   return (
     <section className={`relative w-full overflow-hidden transition-colors duration-500 ${isDarkMode ? 'bg-black' : 'bg-neutral-50'}`}>
@@ -59,7 +60,7 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
+            transition={{ duration: 0.72, ease: motionEase }}
             className="lg:col-span-5"
           >
             <div className="mb-6 inline-flex items-center gap-3 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold tracking-widest uppercase">
@@ -70,7 +71,7 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
             <motion.h1
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08, duration: 0.65 }}
+              transition={{ delay: 0.08, duration: 0.7, ease: motionEase }}
               className={`text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}
             >
               MAHDEV
@@ -83,7 +84,7 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
             <motion.p
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.16, duration: 0.65 }}
+              transition={{ delay: 0.16, duration: 0.72, ease: motionEase }}
               className={`text-lg sm:text-xl mb-8 max-w-md ${isDarkMode ? 'text-neutral-300' : 'text-neutral-600'}`}
             >
               One Vision, Four Powerful Solutions.
@@ -94,7 +95,7 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.24, duration: 0.65 }}
+              transition={{ delay: 0.24, duration: 0.72, ease: motionEase }}
               className="flex items-center gap-4"
             >
               <motion.button
@@ -122,7 +123,7 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.18, duration: 0.7 }}
+            transition={{ delay: 0.18, duration: 0.8, ease: motionEase }}
             className="lg:col-span-7"
           >
             <div className="relative w-full rounded-[2rem] overflow-hidden shadow-[0_25px_100px_rgba(0,0,0,0.35)] border border-white/10 bg-black/30 backdrop-blur-sm">
@@ -140,9 +141,8 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
                         y: isActive ? -6 : 0,
                         filter: isActive ? 'brightness(1.06)' : 'brightness(0.95)',
                       }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      transition={{ duration: 0.28, ease: motionEase }}
                       onMouseEnter={() => setSelected(idx)}
-                      onMouseLeave={() => setSelected(0)}
                     >
                       <img
                         src={card.image}
@@ -156,7 +156,7 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
                       <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: isActive ? 1 : 0.7 }}
-                        transition={{ duration: 0.25 }}
+                        transition={{ duration: 0.28, ease: motionEase }}
                         className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent"
                       />
 
@@ -173,7 +173,7 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
                           scale: isActive ? 1 : 0.96,
                           pointerEvents: isActive ? 'auto' : 'none'
                         }}
-                        transition={{ duration: 0.24, ease: 'easeOut' }}
+                        transition={{ duration: 0.26, ease: motionEase }}
                         className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/15 bg-black/70 p-3 backdrop-blur-md"
                       >
                         <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300">Featured Service</p>

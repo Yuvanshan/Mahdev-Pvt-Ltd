@@ -215,6 +215,13 @@ const DEFAULT_LEADERSHIP: Leader[] = [
   }
 ];
 
+function resolveImageValue(value: string | undefined, fallback: string): string {
+  if (typeof value === 'string' && value.trim() !== '') {
+    return value;
+  }
+  return fallback;
+}
+
 export function getCompanyContact() {
   const data = localStorage.getItem(KEYS.CONTACT);
   if (!data) {
@@ -222,9 +229,7 @@ export function getCompanyContact() {
     return COMPANY_CONTACT;
   }
   const parsed = JSON.parse(data);
-  if (!parsed.logo) {
-    parsed.logo = COMPANY_CONTACT.logo;
-  }
+  parsed.logo = resolveImageValue(parsed.logo, COMPANY_CONTACT.logo);
   return parsed;
 }
 
@@ -439,8 +444,17 @@ export function getThemeSettings(): ThemeSettings {
     return DEFAULT_THEME_SETTINGS;
   }
   const parsed = JSON.parse(data);
-  // Ensure backward compatibility
-  return { ...DEFAULT_THEME_SETTINGS, ...parsed };
+  // Ensure backward compatibility while keeping backend-synced image values intact.
+  return {
+    ...DEFAULT_THEME_SETTINGS,
+    ...parsed,
+    brandLogo: resolveImageValue(parsed.brandLogo, DEFAULT_THEME_SETTINGS.brandLogo || ''),
+    decorationBanner: resolveImageValue(parsed.decorationBanner, DEFAULT_THEME_SETTINGS.decorationBanner || ''),
+    photographyBanner: resolveImageValue(parsed.photographyBanner, DEFAULT_THEME_SETTINGS.photographyBanner || ''),
+    itBanner: resolveImageValue(parsed.itBanner, DEFAULT_THEME_SETTINGS.itBanner || ''),
+    travelsBanner: resolveImageValue(parsed.travelsBanner, DEFAULT_THEME_SETTINGS.travelsBanner || ''),
+    weddingDecorationBanner: resolveImageValue(parsed.weddingDecorationBanner, DEFAULT_THEME_SETTINGS.weddingDecorationBanner || '')
+  };
 }
 
 export function saveThemeSettings(data: ThemeSettings) {

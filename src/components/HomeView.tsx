@@ -40,13 +40,14 @@ function Reveal({ children, className = '', delay = 0, direction = 'up' }: { chi
 
   const initialX = direction === 'left' ? -48 : direction === 'right' ? 48 : 0;
   const initialY = direction === 'up' ? 28 : 0;
+  const motionEase = [0.22, 1, 0.36, 1] as const;
 
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, x: initialX, y: initialY }}
       animate={isInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: initialX, y: initialY }}
-      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.9, delay, ease: motionEase }}
       className={className}
       style={{ willChange: 'transform, opacity' }}
     >

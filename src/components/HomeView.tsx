@@ -29,17 +29,21 @@ interface HomeViewProps {
   themeSettings?: ThemeSettings;
 }
 
-function Reveal({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+function Reveal({ children, className = '', delay = 0, direction = 'up' }: { children: React.ReactNode; className?: string; delay?: number; direction?: 'up' | 'left' | 'right' }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
+
+  const initialX = direction === 'left' ? -48 : direction === 'right' ? 48 : 0;
+  const initialY = direction === 'up' ? 28 : 0;
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 28 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
-      transition={{ duration: 0.6, delay, ease: 'easeOut' }}
+      initial={{ opacity: 0, x: initialX, y: initialY }}
+      animate={isInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: initialX, y: initialY }}
+      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
       className={className}
+      style={{ willChange: 'transform, opacity' }}
     >
       {children}
     </motion.div>
@@ -297,7 +301,7 @@ export default function HomeView({
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Visual Left Frame */}
-          <Reveal className="lg:col-span-6 relative order-2 lg:order-1">
+          <Reveal direction="left" className="lg:col-span-6 relative order-2 lg:order-1">
             <div className="absolute -inset-2 bg-gradient-to-tr from-pink-400/10 to-transparent rounded-3xl blur-2xl opacity-50" />
             
             {/* Elegant luxury stage photo container */}
@@ -324,7 +328,7 @@ export default function HomeView({
           </Reveal>
 
           {/* Content Right */}
-          <Reveal className="lg:col-span-6 space-y-6 order-1 lg:order-2 text-left">
+          <Reveal direction="right" className="lg:col-span-6 space-y-6 order-1 lg:order-2 text-left">
             <span className="text-xs font-bold uppercase tracking-widest text-pink-500 font-mono flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-pink-500 animate-ping" />
               01 | WE CREATE MEMORIES
@@ -409,7 +413,7 @@ export default function HomeView({
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Content Left */}
-          <Reveal className="lg:col-span-6 space-y-6 text-left">
+          <Reveal direction="left" className="lg:col-span-6 space-y-6 text-left">
             <span className={`text-xs font-bold uppercase tracking-widest font-mono flex items-center gap-2 transition-colors duration-500 ${
               isDarkMode ? 'text-purple-400' : 'text-purple-600'
             }`}>
@@ -495,7 +499,7 @@ export default function HomeView({
           </Reveal>
 
           {/* Visual Right Frame */}
-          <Reveal className="lg:col-span-6 relative">
+          <Reveal direction="right" className="lg:col-span-6 relative">
             <div className="absolute -inset-2 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-3xl blur-2xl opacity-50" />
             
             {/* Camera Viewport overlay */}
@@ -548,7 +552,7 @@ export default function HomeView({
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Visual Left Frame */}
-          <Reveal className="lg:col-span-6 relative order-2 lg:order-1">
+          <Reveal direction="left" className="lg:col-span-6 relative order-2 lg:order-1">
             <div className="absolute -inset-2 bg-gradient-to-tr from-cyan-400/10 to-transparent rounded-3xl blur-2xl opacity-50" />
             
             {/* IT dashboard mock window frame */}
@@ -587,7 +591,7 @@ export default function HomeView({
           </Reveal>
 
           {/* Content Right */}
-          <Reveal className="lg:col-span-6 space-y-6 order-1 lg:order-2 text-left">
+          <Reveal direction="right" className="lg:col-span-6 space-y-6 order-1 lg:order-2 text-left">
             <span className={`text-xs font-bold uppercase tracking-widest font-mono flex items-center gap-2 transition-colors duration-500 ${
               isDarkMode ? 'text-cyan-400' : 'text-cyan-600'
             }`}>
@@ -688,7 +692,7 @@ export default function HomeView({
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Content Left */}
-          <Reveal className="lg:col-span-6 space-y-6 text-left">
+          <Reveal direction="left" className="lg:col-span-6 space-y-6 text-left">
             <span className={`text-xs font-bold uppercase tracking-widest font-mono flex items-center gap-2 transition-colors duration-500 ${
               isDarkMode ? 'text-amber-400' : 'text-amber-600'
             }`}>
@@ -774,7 +778,7 @@ export default function HomeView({
           </Reveal>
 
           {/* Visual Right Frame */}
-          <Reveal className="lg:col-span-6 relative">
+          <Reveal direction="right" className="lg:col-span-6 relative">
             <div className="absolute -inset-2 bg-gradient-to-tr from-amber-400/10 to-transparent rounded-3xl blur-2xl opacity-50" />
             
             {/* Travel scenery container */}
@@ -810,7 +814,7 @@ export default function HomeView({
           : 'bg-slate-100 text-slate-800 border-slate-200'
       }`}>
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <Reveal className={`space-y-6 text-left rounded-[2rem] border p-7 sm:p-8 shadow-2xl ${
+          <Reveal direction="left" className={`space-y-6 text-left rounded-[2rem] border p-7 sm:p-8 shadow-2xl ${
             isDarkMode ? 'border-neutral-800 bg-neutral-900/70' : 'border-slate-200 bg-white/80'
           }`}>
             <span className={`text-xs font-bold uppercase tracking-widest font-mono ${
@@ -871,7 +875,7 @@ export default function HomeView({
             </div>
           </Reveal>
 
-          <Reveal className="relative">
+          <Reveal direction="right" className="relative">
             <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/15 to-transparent rounded-3xl blur-3xl opacity-30" />
             <motion.div
               whileHover={{ scale: 1.03, y: -8, rotate: 1 }}
@@ -899,7 +903,7 @@ export default function HomeView({
           isDarkMode ? 'bg-neutral-950 text-white' : 'bg-white text-slate-800'
         }`}>
           <div className="max-w-7xl mx-auto">
-            <Reveal className="text-center max-w-2xl mx-auto mb-16">
+            <Reveal direction="up" className="text-center max-w-2xl mx-auto mb-16">
               <span className={`text-xs font-bold uppercase tracking-widest font-mono ${
                 isDarkMode ? 'text-amber-400' : 'text-amber-600'
               }`}>
@@ -920,7 +924,7 @@ export default function HomeView({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {leadersList.map((l) => (
-                <Reveal key={l.id} className={`p-8 rounded-3xl border backdrop-blur-md flex flex-col sm:flex-row gap-6 items-center sm:items-start transition-all hover:scale-[1.01] shadow-xl ${
+                <Reveal key={l.id} direction="up" className={`p-8 rounded-3xl border backdrop-blur-md flex flex-col sm:flex-row gap-6 items-center sm:items-start transition-all hover:scale-[1.01] shadow-xl ${
                   isDarkMode 
                     ? 'border-neutral-800 bg-neutral-900/60' 
                     : 'border-slate-100 bg-slate-50/80 shadow-slate-200/50'

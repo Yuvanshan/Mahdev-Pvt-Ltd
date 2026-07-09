@@ -12,6 +12,8 @@ import {
   ItProject, 
   Testimonial 
 } from './types';
+import mahadevLogo from './assets/images/mahadev_logo_1782729909050.jpg';
+import weddingDecorationBanner from './assets/images/wedding_decoration_1782729925686.jpg';
 
 export const COMPANY_CONTACT = {
   phone: '076 898 8970 / 075 092 8078',
@@ -20,7 +22,7 @@ export const COMPANY_CONTACT = {
   address: '41/22, Pickerings Road, Kotahena, Colombo 13',
   hours: 'Monday - Saturday: 9:00 AM - 8:00 PM (Sunday: Prior Booking Only)',
   mapsIframe: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.5905187788484!2d79.86047717498674!3d6.939466593060667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae2593b4f62cae1%3A0xc0fb198eeaa07897!2sPickerings%20Rd%2C%20Colombo!5e0!3m2!1sen!2slk!4v1719650000000!5m2!1sen!2slk',
-  logo: '/src/assets/images/mahadev_logo_1782729909050.jpg'
+  logo: mahadevLogo
 };
 
 export const SERVICES_LIST: ServiceCard[] = [
@@ -71,7 +73,7 @@ export const DECORATION_CATEGORIES: DecorationCategory[] = [
     id: 'wedding',
     title: 'Wedding Decorations',
     description: 'Magical, royal, and luxury stages, entry walkways, and floral canopies tailored to your exact wedding theme.',
-    image: '/src/assets/images/wedding_decoration_1782729925686.jpg', // Custom generated premium banner
+    image: weddingDecorationBanner, // Custom generated premium banner
     iconName: 'Heart'
   },
   {

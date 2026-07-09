@@ -151,7 +151,7 @@ export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewPr
       <section className="relative py-32 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src="/src/assets/images/travels_robot_car_1783346316762.jpg" 
+            src={travelsRobotImage} 
             alt="Travels Background" 
             className="w-full h-full object-cover opacity-20 filter brightness-90 saturate-75 scale-105"
             referrerPolicy="no-referrer"

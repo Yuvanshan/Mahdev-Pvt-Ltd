@@ -16,10 +16,15 @@ import PremiumHero from './PremiumHero';
 import { preloadCriticalImages, enablePerformanceHints } from '../utils/performanceOptimization';
 
 // Generated 3D Image References
-const swsRobotImg = '/src/assets/images/sws_robot_decor_1783346269673.jpg';
-const u1RobotImg = '/src/assets/images/u1_robot_camera_1783346286743.jpg';
-const itRobotImg = '/src/assets/images/it_robot_developer_1783346302442.jpg';
-const travelsRobotImg = '/src/assets/images/travels_robot_car_1783346316762.jpg';
+import swsRobotImgAsset from '../assets/images/sws_robot_decor_1783346269673.jpg';
+import u1RobotImgAsset from '../assets/images/u1_robot_camera_1783346286743.jpg';
+import itRobotImgAsset from '../assets/images/it_robot_developer_1783346302442.jpg';
+import travelsRobotImgAsset from '../assets/images/travels_robot_car_1783346316762.jpg';
+
+const swsRobotImg = swsRobotImgAsset;
+const u1RobotImg = u1RobotImgAsset;
+const itRobotImg = itRobotImgAsset;
+const travelsRobotImg = travelsRobotImgAsset;
 
 interface HomeViewProps {
   setActivePage: (page: ActivePage) => void;

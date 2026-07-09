@@ -6,6 +6,12 @@ import {
   PaymentRecord, ExpenseRecord, IncomeRecord, Employee, CompanyProfile,
   SmtpSettings, SmtpTemplate
 } from '../types';
+import mahadevLogo from '../assets/images/mahadev_logo_1782729909050.jpg';
+import swsDecorBanner from '../assets/images/sws_robot_decor_1783346269673.jpg';
+import u1PhotographyBanner from '../assets/images/u1_robot_camera_1783346286743.jpg';
+import itBanner from '../assets/images/it_robot_developer_1783346302442.jpg';
+import travelsBannerImg from '../assets/images/travels_robot_car_1783346316762.jpg';
+import weddingDecorationBannerImg from '../assets/images/wedding_decoration_1782729925686.jpg';
 
 const KEYS = {
   CONTACT: 'mahdev_company_contact',
@@ -91,12 +97,12 @@ export const DEFAULT_THEME_SETTINGS: ThemeSettings = {
   websiteTitle: 'Mahdev Pvt Ltd - Elite Service Suite',
   faviconUrl: '/favicon.ico',
   animationMode: 'multiverse',
-  brandLogo: '/src/assets/images/mahadev_logo_1782729909050.jpg',
-  decorationBanner: '/src/assets/images/sws_robot_decor_1783346269673.jpg',
-  photographyBanner: '/src/assets/images/u1_robot_camera_1783346286743.jpg',
-  itBanner: '/src/assets/images/it_robot_developer_1783346302442.jpg',
-  travelsBanner: '/src/assets/images/travels_robot_car_1783346316762.jpg',
-  weddingDecorationBanner: '/src/assets/images/wedding_decoration_1782729925686.jpg'
+  brandLogo: mahadevLogo,
+  decorationBanner: swsDecorBanner,
+  photographyBanner: u1PhotographyBanner,
+  itBanner: itBanner,
+  travelsBanner: travelsBannerImg,
+  weddingDecorationBanner: weddingDecorationBannerImg
 };
 
 export const DEFAULT_SEO_SETTINGS: SeoSettings = {

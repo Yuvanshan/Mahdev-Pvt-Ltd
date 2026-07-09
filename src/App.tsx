@@ -44,7 +44,9 @@ import {
 import { updateBranding } from './utils/brandingUpdater';
 
 // Logo
-const logoImage = '/src/assets/images/mahadev_logo_1782729909050.jpg';
+import mahadevLogo from './assets/images/mahadev_logo_1782729909050.jpg';
+
+const logoImage = mahadevLogo;
 
 function adjustHex(hex: string, percent: number): string {
   const cleanHex = hex.replace("#", "");

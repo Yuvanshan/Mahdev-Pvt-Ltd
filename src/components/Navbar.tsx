@@ -5,11 +5,17 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import swsDecorBanner from '../assets/images/sws_robot_decor_1783346269673.jpg';
+import u1PhotographyBanner from '../assets/images/u1_robot_camera_1783346286743.jpg';
+import itBanner from '../assets/images/it_robot_developer_1783346302442.jpg';
+import travelsBanner from '../assets/images/travels_robot_car_1783346316762.jpg';
 import { Menu, X, Phone, Sun, Moon, Search, ChevronDown, ArrowRight, ChevronRight, Sparkles, Camera, Laptop, Car } from 'lucide-react';
 import { ActivePage, ThemeSettings, ServiceCard, ItProject } from '../types';
 import { COMPANY_CONTACT } from '../data';
 
-const defaultLogo = '/src/assets/images/mahadev_logo_1782729909050.jpg';
+import mahadevLogo from '../assets/images/mahadev_logo_1782729909050.jpg';
+
+const defaultLogo = mahadevLogo;
 
 interface NavbarProps {
   activePage: ActivePage;
@@ -647,7 +653,7 @@ export default function Navbar({
                     title: "Automating Decoration: How SWS Event Management Integrates CAD Stage Planning",
                     date: "June 28, 2026",
                     author: "Yuvanshan • SWS Team",
-                    image: themeSettings?.decorationBanner || "/src/assets/images/sws_robot_decor_1783346269673.jpg",
+                    image: themeSettings?.decorationBanner || swsDecorBanner,
                     color: "border-pink-500/25",
                     tag: "SWS EVENT MANAGEMENT",
                     tagStyle: "bg-pink-500/10 text-pink-400",
@@ -657,7 +663,7 @@ export default function Navbar({
                     title: "Behind the Lens: 5 Composition Techniques Used by U1 Studio for Cinematic Weddings",
                     date: "June 15, 2026",
                     author: "Cinematography Unit • U1 Studio",
-                    image: themeSettings?.photographyBanner || "/src/assets/images/u1_robot_camera_1783346286743.jpg",
+                    image: themeSettings?.photographyBanner || u1PhotographyBanner,
                     color: "border-purple-500/25",
                     tag: "U1 STUDIO",
                     tagStyle: "bg-purple-500/10 text-purple-400",
@@ -667,7 +673,7 @@ export default function Navbar({
                     title: "The Rise of Microservice ERPs: Boosting Enterprise Agility in Sri Lanka",
                     date: "May 30, 2026",
                     author: "Software Architects • Mahdev IT",
-                    image: themeSettings?.itBanner || "/src/assets/images/it_robot_developer_1783346302442.jpg",
+                    image: themeSettings?.itBanner || itBanner,
                     color: "border-cyan-500/25",
                     tag: "MAHDEV IT & SOLUTIONS",
                     tagStyle: "bg-cyan-500/10 text-cyan-400",
@@ -677,7 +683,7 @@ export default function Navbar({
                     title: "Exotic Travels: Custom Guided Luxury Tours to Nuwara Eliya and Ella",
                     date: "April 18, 2026",
                     author: "Travel Consultants • Mahdev Travels",
-                    image: themeSettings?.travelsBanner || "/src/assets/images/travels_robot_car_1783346316762.jpg",
+                    image: themeSettings?.travelsBanner || travelsBanner,
                     color: "border-amber-500/25",
                     tag: "MAHDEV TRAVELS",
                     tagStyle: "bg-amber-500/10 text-amber-400",

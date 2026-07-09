@@ -165,7 +165,7 @@ export default function ErpView({ isDarkMode, themeSettings }: ErpViewProps) {
       <section className="relative py-28 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black">
         <div className="absolute inset-0 z-0">
           <img 
-            src="/src/assets/images/it_robot_developer_1783346302442.jpg" 
+            src={itRobotImage} 
             alt="ERP System Background" 
             className="w-full h-full object-cover opacity-15 filter brightness-75 scale-105"
             referrerPolicy="no-referrer"

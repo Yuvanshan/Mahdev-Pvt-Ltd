@@ -8,7 +8,9 @@ import { useRef } from 'react';
 import { ActivePage, ThemeSettings } from '../types';
 import { COMPANY_CONTACT } from '../data';
 import { Phone, Mail, Clock, MapPin, ExternalLink, Globe, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
-const defaultLogo = '/src/assets/images/mahadev_logo_1782729909050.jpg';
+import mahadevLogo from '../assets/images/mahadev_logo_1782729909050.jpg';
+
+const defaultLogo = mahadevLogo;
 
 interface FooterProps {
   setActivePage: (page: ActivePage) => void;

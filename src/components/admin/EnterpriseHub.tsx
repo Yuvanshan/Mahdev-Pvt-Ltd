@@ -17,7 +17,7 @@ import {
   getInvoices, saveInvoices, getPayments, savePayments, 
   getExpenses, saveExpenses, getIncomes, saveIncomes, 
   getEmployees, saveEmployees, getCompanyProfile, saveCompanyProfile,
-  getSeoSettings, saveSeoSettings
+  getSeoSettings, saveSeoSettings, getThemeSettings, saveThemeSettings
 } from '../../utils/storage';
 import CRMModule from './CRMModule';
 import InvoicingModule from './InvoicingModule';
@@ -41,13 +41,14 @@ export default function EnterpriseHub({ isDarkMode, onDataChange, activeTab }: E
   const [employees, setEmployees] = useState<Employee[]>(() => getEmployees());
   const [profile, setProfile] = useState<CompanyProfile>(() => getCompanyProfile());
   const [seo, setSeo] = useState<SeoSettings>(() => getSeoSettings());
+  const [theme, setTheme] = useState<ThemeSettings>(() => getThemeSettings());
 
   // Sub Tab states
   const [crmSubTab, setCrmSubTab] = useState<'customers' | 'companies' | 'leads' | 'followups'>('customers');
   const [erpSubTab, setErpSubTab] = useState<'projects' | 'tasks'>('projects');
   const [finSubTab, setFinSubTab] = useState<'quotations' | 'invoices' | 'payments' | 'expenses' | 'income'>('quotations');
   const [empSubTab, setEmpSubTab] = useState<'directory' | 'leave' | 'payroll'>('directory');
-  const [sysSubTab, setSysSubTab] = useState<'profile' | 'reports' | 'files' | 'security'>('profile');
+  const [sysSubTab, setSysSubTab] = useState<'profile' | 'branding' | 'reports' | 'files' | 'security'>('profile');
 
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -127,6 +128,10 @@ export default function EnterpriseHub({ isDarkMode, onDataChange, activeTab }: E
       case 'seo':
         saveSeoSettings(updatedData);
         setSeo(updatedData);
+        break;
+      case 'theme':
+        saveThemeSettings(updatedData);
+        setTheme(updatedData);
         break;
     }
     // Track in audit trail
@@ -845,7 +850,7 @@ export default function EnterpriseHub({ isDarkMode, onDataChange, activeTab }: E
               </p>
             </div>
             <div className="flex flex-wrap gap-2 shrink-0">
-              {['profile', 'reports', 'files', 'security'].map((sub) => (
+              {['profile', 'branding', 'reports', 'files', 'security'].map((sub) => (
                 <button
                   key={sub}
                   onClick={() => setSysSubTab(sub as any)}
@@ -928,6 +933,84 @@ export default function EnterpriseHub({ isDarkMode, onDataChange, activeTab }: E
                   className="px-6 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-wider transition-all"
                 >
                   Save Corporate Settings
+                </button>
+              </div>
+            </div>
+          )}
+
+          {sysSubTab === 'profile' && (
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-neutral-950 border-amber-500/10 text-white' : 'bg-slate-50 border-slate-200'} space-y-6`}>
+              <div className="flex items-center gap-3">
+                <Globe size={18} className="text-amber-500" />
+                <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">Website Branding & Identity</h4>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                <div className="space-y-1.5">
+                  <label className="block font-semibold">Website Title (Browser Tab)</label>
+                  <input 
+                    type="text" 
+                    value={theme.websiteTitle} 
+                    onChange={(e) => setTheme({ ...theme, websiteTitle: e.target.value })}
+                    className={`w-full px-4 py-2 rounded-xl border ${isDarkMode ? 'bg-neutral-900 border-slate-800 text-white' : 'bg-white border-slate-300'}`}
+                    placeholder="e.g., Mahdev Pvt Ltd - Elite Service Suite"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">This appears in the browser tab and is used for SEO</p>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block font-semibold">Brand Name</label>
+                  <input 
+                    type="text" 
+                    value={theme.brandName} 
+                    onChange={(e) => setTheme({ ...theme, brandName: e.target.value })}
+                    className={`w-full px-4 py-2 rounded-xl border ${isDarkMode ? 'bg-neutral-900 border-slate-800 text-white' : 'bg-white border-slate-300'}`}
+                    placeholder="e.g., MAHDEV ELITE SERVICE SUITE"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Displayed in header and navigation</p>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block font-semibold">Favicon URL</label>
+                  <input 
+                    type="text" 
+                    value={theme.faviconUrl} 
+                    onChange={(e) => setTheme({ ...theme, faviconUrl: e.target.value })}
+                    className={`w-full px-4 py-2 rounded-xl border ${isDarkMode ? 'bg-neutral-900 border-slate-800 text-white' : 'bg-white border-slate-300'}`}
+                    placeholder="e.g., /favicon.ico or /favicon-32x32.png"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Icon displayed in browser tab (32x32 recommended)</p>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block font-semibold">Brand Logo URL</label>
+                  <input 
+                    type="text" 
+                    value={theme.brandLogo || ''} 
+                    onChange={(e) => setTheme({ ...theme, brandLogo: e.target.value })}
+                    className={`w-full px-4 py-2 rounded-xl border ${isDarkMode ? 'bg-neutral-900 border-slate-800 text-white' : 'bg-white border-slate-300'}`}
+                    placeholder="e.g., /assets/images/logo.jpg"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Logo displayed in header</p>
+                </div>
+              </div>
+
+              <div className={`p-4 rounded-xl border ${isDarkMode ? 'bg-amber-500/5 border-amber-500/20' : 'bg-amber-50 border-amber-200'}`}>
+                <p className="text-xs text-amber-700 dark:text-amber-300 flex items-start gap-2">
+                  <Sparkles size={14} className="shrink-0 mt-0.5" />
+                  <span><strong>Pro Tip:</strong> Changes made here will appear instantly across the entire website without requiring a restart or redeployment.</span>
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-slate-800/20 flex justify-end gap-3">
+                <button
+                  onClick={() => setTheme(getThemeSettings())}
+                  className={`px-6 py-2 rounded-xl border text-xs font-bold uppercase tracking-wider transition-all ${isDarkMode ? 'border-slate-700 hover:bg-slate-800' : 'border-slate-300 hover:bg-slate-100'}`}
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={() => { syncDatabase('theme', theme); alert('Website branding updated successfully! Changes are live.'); }}
+                  className="px-6 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold uppercase tracking-wider transition-all"
+                >
+                  Save Branding Settings
                 </button>
               </div>
             </div>

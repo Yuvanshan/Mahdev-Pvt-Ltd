@@ -52,6 +52,113 @@ html {
   font-family: var(--font-sans);
 }
 
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.12), transparent 28%),
+              linear-gradient(135deg, #04050d 0%, #070814 45%, #0f1129 100%);
+  color: #f8fafc;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 20% 0%, rgba(250, 204, 21, 0.14), transparent 26%),
+              radial-gradient(circle at 80% 20%, rgba(34, 211, 238, 0.12), transparent 24%),
+              radial-gradient(circle at 50% 100%, rgba(192, 132, 252, 0.12), transparent 24%);
+  animation: auroraShift 18s ease-in-out infinite alternate;
+  z-index: -1;
+}
+
+#root {
+  min-height: 100vh;
+}
+
 h1, h2, h3, h4 {
   font-family: var(--font-display);
+}
+
+::selection {
+  background: rgba(168, 85, 247, 0.35);
+  color: #fff;
+}
+
+img {
+  transition: transform 0.6s ease, filter 0.6s ease, box-shadow 0.6s ease;
+}
+
+button, a, [role="button"], .interactive-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Utility: hide native scrollbars while keeping scroll functionality */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Subtle card elevation used across UI */
+.card-elevated { box-shadow: 0 8px 24px rgba(2,6,23,0.45); border-radius: 1rem; }
+
+/* Primary CTA helper for consistent sizing */
+.btn-primary {
+  border-radius: 0.75rem;
+  padding: 0.8rem 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+button:hover, a:hover, [role="button"]:hover, .interactive-card:hover {
+  transform: translateY(-2px);
+}
+
+section {
+  position: relative;
+}
+
+.animate-fade-up {
+  animation: fadeUp 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.animate-float-soft {
+  animation: floatSoft 5.5s ease-in-out infinite;
+}
+
+.glass-panel {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Hero stage and panel styling for flagship presentation */
+.hero-stage {
+  background: linear-gradient(180deg, rgba(2,6,23,0.6) 0%, rgba(2,6,23,0.45) 45%, transparent 100%);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 60px rgba(2,6,23,0.6), inset 0 -6px 30px rgba(255,255,255,0.02);
+}
+.hero-platform {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 1.25rem;
+  padding: 0.6rem;
+  transform: translateY(0);
+}
+
+/* Decorative top nav when overlaying hero */
+.nav-overlay a, .nav-overlay button { color: #fff !important; }
+
+@keyframes auroraShift {
+  from { transform: translate3d(-3%, -2%, 0) scale(1); }
+  to { transform: translate3d(3%, 2%, 0) scale(1.04); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatSoft {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
 }

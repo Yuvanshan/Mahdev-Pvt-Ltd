@@ -153,6 +153,8 @@ export interface ThemeSettings {
   heroTitle2: string;
   heroDescription: string;
   brandName: string;
+  websiteTitle: string;
+  faviconUrl: string;
   animationMode: 'multiverse' | 'decoration' | 'photography' | 'it' | 'erp';
   brandLogo?: string;
   decorationBanner?: string;

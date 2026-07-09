@@ -27,6 +27,15 @@ import {
   MediaItem 
 } from "./server-storage";
 
+// Optional: Import sharp for image optimization (graceful fallback if not available)
+let sharp: any = null;
+try {
+  sharp = require("sharp");
+  console.log("[Server] Sharp library loaded for image optimization");
+} catch (e) {
+  console.warn("[Server] Sharp not available - images will be uploaded without compression");
+}
+
 dotenv.config();
 
 const DB_PATH = path.join(process.cwd(), "server-db.json");
@@ -47,6 +56,73 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage });
+
+/**
+ * Compress image using Sharp if available
+ * Returns compressed buffer and metadata
+ */
+async function compressImageForUpload(
+  buffer: Buffer,
+  mimeType: string,
+  originalSize: number
+): Promise<{ buffer: Buffer; metrics: any }> {
+  if (!sharp) {
+    return { buffer, metrics: { originalSize, skipped: true } };
+  }
+
+  try {
+    const originalSizeKB = (originalSize / 1024).toFixed(2);
+    let pipeline = sharp(buffer);
+
+    // Detect format and optimize accordingly
+    const isWebP = mimeType.includes("webp");
+    const isPNG = mimeType.includes("png");
+    const isJPEG = mimeType.includes("jpeg") || mimeType.includes("jpg");
+
+    // Get metadata to check dimensions
+    const metadata = await pipeline.metadata();
+    const { width = 1200, height = 800 } = metadata;
+
+    // Resize if larger than 2400px (max dimension)
+    if (width > 2400 || height > 2400) {
+      pipeline = pipeline.resize(2400, 2400, { fit: "inside", withoutEnlargement: true });
+    }
+
+    // Convert to optimized format
+    if (isWebP) {
+      pipeline = pipeline.webp({ quality: 80, alphaQuality: 100 });
+    } else if (isPNG) {
+      pipeline = pipeline.png({ compressionLevel: 9 });
+    } else {
+      pipeline = pipeline.jpeg({ quality: 85, progressive: true });
+    }
+
+    const compressedBuffer = await pipeline.toBuffer();
+    const compressedSizeKB = (compressedBuffer.byteLength / 1024).toFixed(2);
+    const savingsPercent = (
+      ((originalSize - compressedBuffer.byteLength) / originalSize) *
+      100
+    ).toFixed(1);
+
+    console.log(
+      `[Image Compression] ${originalSizeKB}KB → ${compressedSizeKB}KB (${savingsPercent}% reduction)`
+    );
+
+    return {
+      buffer: compressedBuffer,
+      metrics: {
+        originalSize: originalSize,
+        compressedSize: compressedBuffer.byteLength,
+        savingsPercent: parseFloat(savingsPercent),
+        format: isWebP ? "webp" : isPNG ? "png" : "jpeg",
+        dimensions: { width, height }
+      }
+    };
+  } catch (error) {
+    console.warn("[Image Compression] Error during compression, uploading original:", error);
+    return { buffer, metrics: { error: String(error), originalSize } };
+  }
+}
 
 // Safe Database Helpers
 function getDb() {
@@ -102,7 +178,19 @@ async function startServer() {
       }
 
       console.log(`[Upload API] Processing file: ${req.file.originalname} (${req.file.size} bytes)`);
-      const fileBuffer = fs.readFileSync(req.file.path);
+      let fileBuffer = fs.readFileSync(req.file.path);
+      let compressionMetrics: any = { skipped: true };
+      
+      // Compress image if sharp is available
+      if (sharp) {
+        const compressionResult = await compressImageForUpload(
+          fileBuffer,
+          req.file.mimetype,
+          req.file.size
+        );
+        fileBuffer = compressionResult.buffer;
+        compressionMetrics = compressionResult.metrics;
+      }
       
       // Determine folder based on context if possible, or general
       const folder = req.body.folder || "general";
@@ -125,7 +213,7 @@ async function startServer() {
         name: req.file.originalname,
         url: uploadResult.url,
         type: req.file.mimetype,
-        size: req.file.size,
+        size: fileBuffer.byteLength,
         folder: folder,
         uploadedAt: new Date().toISOString(),
         version: 1
@@ -140,7 +228,8 @@ async function startServer() {
         url: uploadResult.url, 
         id: mediaId,
         name: req.file.originalname,
-        key: uploadResult.key 
+        key: uploadResult.key,
+        compression: compressionMetrics
       });
     } catch (error: any) {
       console.error("[Upload API ERROR]", error);
@@ -266,7 +355,19 @@ async function startServer() {
       }
 
       const originalItem = mediaList[index];
-      const fileBuffer = fs.readFileSync(req.file.path);
+      let fileBuffer = fs.readFileSync(req.file.path);
+      let compressionMetrics: any = { skipped: true };
+      
+      // Compress image if sharp is available
+      if (sharp) {
+        const compressionResult = await compressImageForUpload(
+          fileBuffer,
+          req.file.mimetype,
+          req.file.size
+        );
+        fileBuffer = compressionResult.buffer;
+        compressionMetrics = compressionResult.metrics;
+      }
       
       // Upload replacement file
       const uploadResult = await uploadFile(fileBuffer, req.file.originalname, req.file.mimetype, originalItem.folder);
@@ -303,7 +404,7 @@ async function startServer() {
         name: req.file.originalname,
         url: uploadResult.url,
         type: req.file.mimetype,
-        size: req.file.size,
+        size: fileBuffer.byteLength,
         uploadedAt: new Date().toISOString(),
         version: (originalItem.version || 1) + 1
       };
@@ -311,7 +412,12 @@ async function startServer() {
       await saveMediaLibrary(mediaList);
       console.log(`[API Media Library] Replaced file ID ${id}. New URL: ${uploadResult.url}`);
 
-      return res.json({ success: true, url: uploadResult.url, item: mediaList[index] });
+      return res.json({ 
+        success: true, 
+        url: uploadResult.url, 
+        item: mediaList[index],
+        compression: compressionMetrics
+      });
     } catch (error) {
       console.error("[API Media Library] Failed to replace file:", error);
       return res.status(500).json({ error: "Failed to replace media item." });
@@ -741,10 +847,41 @@ Keep all responses highly polished, structured, concise, and professional. Match
 
   // Serve static files in production or hook Vite in development
   if (process.env.NODE_ENV !== "production") {
+    // Use an inline Vite config to avoid dynamic config file loading which
+    // can fail under certain runtime loaders (tsx/register) due to import.meta/url resolution.
+    // Dynamically import Vite plugins at runtime to avoid ESM loader
+    // resolution issues when running under tsx/register.
+    const [{ default: reactPlugin }, { default: tailwindcss }] = await Promise.all([
+      import('@vitejs/plugin-react'),
+      import('@tailwindcss/vite')
+    ]);
+
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      root: process.cwd(),
+      configFile: false,
+      plugins: [
+        reactPlugin({ fastRefresh: false }),
+        tailwindcss()
+      ],
+      resolve: {
+        alias: {
+          '@': path.resolve(process.cwd(), '.'),
+        },
+      },
+      server: { middlewareMode: true, hmr: { overlay: false } },
       appType: "spa",
     });
+    // Ensure direct access to /admin serves the SPA (dev middleware may not rewrite on some environments)
+    app.get('/admin', async (req, res, next) => {
+      try {
+        const indexHtml = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf-8');
+        const transformed = await vite.transformIndexHtml(req.originalUrl, indexHtml);
+        return res.status(200).set({ 'Content-Type': 'text/html' }).send(transformed);
+      } catch (err) {
+        next(err);
+      }
+    });
+
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
@@ -754,8 +891,8 @@ Keep all responses highly polished, structured, concise, and professional. Match
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
+  app.listen(PORT, "localhost", () => {
+    console.log(`Server running on http://localhost:${PORT}`);
   });
 }
 

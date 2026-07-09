@@ -1016,7 +1016,7 @@ export default function CRMModule({
                                 {selectedCustomerContext.quotes.map((q) => (
                                   <tr key={q.id}>
                                     <td className="p-3 font-mono font-bold text-white">{q.quotationNumber}</td>
-                                    <td className="p-3 font-semibold text-slate-200">{q.scopeOfWork || 'Custom Enterprise Setup'}</td>
+                                    <td className="p-3 font-semibold text-slate-200">{q.terms || 'Custom Enterprise Setup'}</td>
                                     <td className="p-3 font-mono font-bold text-purple-400">Rs. {q.items.reduce((sum, i) => sum + (i.quantity * i.unitPrice), 0).toLocaleString()}</td>
                                     <td className="p-3">
                                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${

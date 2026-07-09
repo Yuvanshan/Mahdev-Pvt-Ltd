@@ -1,8 +1,132 @@
+# Dependencies
 node_modules/
-build/
-dist/
-coverage/
-.DS_Store
-*.log
-.env*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+.env.test.local
 !.env.example
+
+# Build Outputs
+dist/
+build/
+out/
+.next/
+.vite/
+coverage/
+.tsbuildinfo
+
+# Runtime Data
+pids/
+*.pid
+*.seed
+*.pid.lock
+.rts2_cache/
+.eslintcache
+.stylelintcache
+
+# IDE Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# Temporary Files
+tmp/
+temp/
+*.bak
+*.backup
+*.orig
+.history
+
+# OS Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Cache Directories
+.cache/
+.eslint-cache/
+.node-cache/
+.npm/
+.yarn/cache/
+
+# Testing
+.nyc_output/
+*.lcov
+.jest-cache/
+.vitest/
+
+# Bundle Analysis
+dist/analyze/
+
+# Local Database/Storage Files (development only)
+*.db
+*.sqlite
+*.sqlite3
+*.json.bak
+
+# Backups
+backups/
+*.backup.json
+
+# Uploads (if stored locally, but keep git-tracked structure)
+uploads/*
+!uploads/.gitkeep
+
+# Firebase
+.runtimeconfig.json
+.firebaserc.backup
+
+# Miscellaneous
+.editorconfig
+.prettierignore
+.babelrc.backup
+
+# Mac/Linux specific
+.env.*.swp
+.env.*.vim
+
+# Admin/sensitive files
+admin-credentials.json
+firebase-adminsdk-*.json
+
+# Deployment files
+netlify.toml.backup
+vercel.json.backup
+.vercelignore.backup
+
+# VS Code specific files
+.vscode/launch.json
+.vscode/extensions.json
+.vscode/tasks.json
+
+# Windows specific
+Thumbs.db
+ehthumbs.db
+.vs/

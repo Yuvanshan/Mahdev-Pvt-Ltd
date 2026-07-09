@@ -80,7 +80,7 @@ export default function PhotographyView({
       <section className="relative py-28 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black">
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?fm=webp&fit=crop&q=70&w=1200" 
+            src="/src/assets/images/u1_robot_camera_1783346286743.jpg" 
             alt="Photography Hero Banner" 
             className="w-full h-full object-cover opacity-20 filter grayscale"
             referrerPolicy="no-referrer"

@@ -817,7 +817,7 @@ export default function ItSolutionsView({
                   email={crmForm.email}
                   phone={crmForm.phone}
                   brand="Mahdev IT Solutions"
-                  serviceType={crmForm.serviceType}
+                  serviceType={crmForm.systemType}
                   budget={crmForm.budget}
                   notes={crmForm.notes}
                   onDone={() => {
@@ -826,9 +826,10 @@ export default function ItSolutionsView({
                       name: '',
                       email: '',
                       phone: '',
-                      serviceType: 'E-Commerce System & API',
-                      budget: 'Rs. 250,000 - 500,000',
-                      notes: ''
+                      systemType: 'Custom ERP Suite',
+                      budget: 'Rs. 500,000 - 800,000',
+                      notes: '',
+                      preferredDate: ''
                     });
                   }}
                 />

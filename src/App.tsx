@@ -39,6 +39,9 @@ import {
   hydrateDatabaseFromServer
 } from './utils/storage';
 
+// Branding Updater
+import { updateBranding } from './utils/brandingUpdater';
+
 // Logo
 const logoImage = '/src/assets/images/mahadev_logo_1782729909050.jpg';
 
@@ -106,6 +109,10 @@ export default function App() {
     setDataRefreshTrigger(prev => prev + 1);
   };
 
+  // Update page title and favicon whenever theme settings change
+  useEffect(() => {
+    updateBranding(themeSettings);
+  }, [themeSettings]);
 
   // Scroll Progress indicator setup
   const { scrollYProgress } = useScroll();
@@ -122,6 +129,8 @@ export default function App() {
         const success = await hydrateDatabaseFromServer();
         if (success) {
           handleDataChange();
+            // Notify any admin UI listeners that the server DB has been synchronized
+            window.dispatchEvent(new Event('mahdev-db-synced'));
         }
       } catch (err) {
         console.error("Failed to hydrate database on mount:", err);

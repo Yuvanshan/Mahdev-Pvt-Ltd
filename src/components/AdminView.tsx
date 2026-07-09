@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Lock, Unlock, Settings, Mail, Phone, MapPin, Clock, Sparkles, 
   Camera, Cpu, Globe, Plus, Trash2, Edit, Save, X, LogOut, Check,
-  User, Image, FileText, Layers, AlertTriangle, Upload, TrendingUp, TrendingDown, Calendar, Users, CheckCircle, ShieldCheck, Search,
+  User, Image as ImageIcon, FileText, Layers, AlertTriangle, Upload, TrendingUp, TrendingDown, Calendar, Users, CheckCircle, ShieldCheck, Search,
   Car, Compass, Briefcase, DollarSign, Building, Activity, Landmark, FileSpreadsheet, UserCheck, Eye, EyeOff, Menu, ArrowRight, Download, Sliders, Terminal, RefreshCw, AlertCircle,
+  History as HistoryIcon,
   Cloud, Database, HardDrive, Folder, FolderPlus, File
 } from 'lucide-react';
 import EnterpriseHub from './admin/EnterpriseHub';
@@ -131,14 +132,20 @@ function AdminImageUploader({
     setError(null);
 
     try {
-      // Compress and optimize image client side
-      const webpBlob = await compressImageToWebP(file);
-      const optimizedFile = new File([webpBlob], `${file.name.split(".")[0] || "image"}.webp`, {
-        type: "image/webp",
+      // Use centralized optimizer (resize, convert to webp, thumbnail)
+      const result = await optimizeImageBeforeUpload(file, {
+        maxWidth: 1600,
+        maxHeight: 1600,
+        quality: 0.82,
+        thumbnailSize: 300,
+        thumbnailQuality: 0.75,
       });
+
+      const optimizedFile = result.optimizedFile;
 
       const formData = new FormData();
       formData.append("image", optimizedFile);
+      if (result.thumbnailFile) formData.append("thumbnail", result.thumbnailFile);
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -151,6 +158,8 @@ function AdminImageUploader({
 
       const data = await response.json();
       if (data.success && data.url) {
+        // Optionally provide client-side info in console for debugging
+        console.info(`[Uploader] original: ${formatBytes(file.size)}, optimized: ${formatBytes(optimizedFile.size)}`);
         onChange(data.url);
       } else {
         throw new Error(data.error || "Failed to upload image.");
@@ -539,13 +548,13 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
           const compressedBase64 = canvas.toDataURL('image/png'); // Preserve transparent backgrounds
-          setContact((prev) => ({ ...prev, logo: compressedBase64 }));
+          setContact((prev: typeof contact) => ({ ...prev, logo: compressedBase64 }));
         } else {
-          setContact((prev) => ({ ...prev, logo: result }));
+          setContact((prev: typeof contact) => ({ ...prev, logo: result }));
         }
       };
       img.onerror = () => {
-        setContact((prev) => ({ ...prev, logo: result }));
+        setContact((prev: typeof contact) => ({ ...prev, logo: result }));
       };
       img.src = result;
     };
@@ -602,6 +611,23 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
       setEmployees(getEmployees());
     }
   }, [activeTab]);
+
+  // Listen for global DB sync events triggered by the App after server hydration
+  React.useEffect(() => {
+    const handler = () => {
+      setBookingsState(getBookings());
+      setCustomers(getCustomers());
+      setErpProjects(getErpProjects());
+      setQuotations(getQuotations());
+      setInvoices(getInvoices());
+      setPayments(getPayments());
+      setExpenses(getExpenses());
+      setIncomes(getIncomes());
+      setEmployees(getEmployees());
+    };
+    window.addEventListener('mahdev-db-synced', handler as EventListener);
+    return () => window.removeEventListener('mahdev-db-synced', handler as EventListener);
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1196,12 +1222,12 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
     { id: 'email_settings' as const, label: 'Systems, Cloud & Email', icon: HardDrive, group: 'Design & Config', color: 'text-purple-400' },
     { id: 'contact' as const, label: 'Contact & Maps', icon: Mail, group: 'General Content' },
     { id: 'services' as const, label: 'Main Divisions', icon: Layers, group: 'General Content' },
-    { id: 'portfolio' as const, label: 'Photo Gallery', icon: Image, group: 'General Content' },
+    { id: 'portfolio' as const, label: 'Photo Gallery', icon: ImageIcon, group: 'General Content' },
     { id: 'pricing' as const, label: 'Pricing Packages', icon: FileText, group: 'General Content' },
     { id: 'projects' as const, label: 'IT Portals', icon: Globe, group: 'General Content' },
     { id: 'leaders' as const, label: 'Board Directors', icon: User, group: 'General Content' },
     { id: 'testimonials' as const, label: 'Testimonials', icon: Sparkles, group: 'General Content' },
-    { id: 'decor_posts' as const, label: 'SWS Decor Posts', icon: Image, group: 'SWS Division', color: 'text-emerald-400' },
+    { id: 'decor_posts' as const, label: 'SWS Decor Posts', icon: ImageIcon, group: 'SWS Division', color: 'text-emerald-400' },
     { id: 'rentals' as const, label: 'SWS Rental Things', icon: Sparkles, group: 'SWS Division', color: 'text-emerald-400' },
     { id: 'travels_fleet' as const, label: 'Travels Fleet', icon: Car, group: 'Travels Division', color: 'text-emerald-400' },
     { id: 'travels_tours' as const, label: 'Travels Tours', icon: Compass, group: 'Travels Division', color: 'text-emerald-400' },
@@ -1228,7 +1254,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
               </h3>
               <div className="space-y-1">
                 {groupTabs.map((tab) => {
-                  const IconComponent = tab.icon;
+                  const IconComponent = tab.icon as React.ElementType;
                   const isActive = activeTab === tab.id;
                   return (
                     <button
@@ -1280,10 +1306,10 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
 
       {/* Mobile Top Navigation Toggle Bar */}
       <div className="lg:hidden mb-6 flex items-center justify-between bg-neutral-900/60 p-4 rounded-2xl border border-purple-500/10 backdrop-blur-md">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           {(() => {
             const currentTab = adminTabs.find(t => t.id === activeTab);
-            const TabIcon = currentTab?.icon || Settings;
+            const TabIcon = (currentTab?.icon || Settings) as React.ElementType;
             return (
               <>
                 <div className="p-2 rounded-lg bg-purple-500/15 text-purple-400">
@@ -1291,7 +1317,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                 </div>
                 <div>
                   <div className="text-[10px] uppercase font-mono tracking-wider text-purple-400/80">Active Section</div>
-                  <div className="text-sm font-bold text-white">{currentTab?.label || 'Dashboard'}</div>
+                  <div className="text-sm font-bold text-white max-w-[220px] sm:max-w-full break-words leading-tight">{currentTab?.label || 'Dashboard'}</div>
                 </div>
               </>
             );
@@ -1353,14 +1379,11 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
               {/* Drawer Footer */}
               <div className="pt-4 border-t border-purple-500/10 mt-auto flex flex-col gap-2">
                 <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    handleLogout();
-                  }}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-all"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-neutral-300 bg-neutral-900/10 hover:bg-neutral-900/20 transition-all"
                 >
-                  <LogOut size={14} />
-                  <span>Exit Admin</span>
+                  <X size={14} />
+                  <span>Close Menu</span>
                 </button>
               </div>
             </motion.div>
@@ -1466,7 +1489,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
             {/* 24-Point Executive Dashboard KPIs & Visualizers */}
             {(() => {
               // Compute real-time Financial KPIs from local database arrays
-              const totalInvoicedAmount = invoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
+              const totalInvoicedAmount = invoices.reduce((sum, inv) => sum + ((inv.paidAmount || 0) + (inv.remainingAmount || 0)), 0);
               const totalPaymentsReceived = payments.reduce((sum, pay) => sum + (pay.amount || 0), 0);
               const otherIncomeTotal = incomes.reduce((sum, inc) => sum + (inc.amount || 0), 0);
               const totalRevenue = totalPaymentsReceived + otherIncomeTotal;
@@ -1474,8 +1497,8 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
               const totalProfit = totalRevenue - totalExpenses;
               
               const pendingPayments = invoices
-                .filter(inv => inv.status === 'Unpaid' || inv.status === 'Partially Paid')
-                .reduce((sum, inv) => sum + (inv.totalAmount - (inv.paidAmount || 0)), 0);
+                .filter(inv => inv.status === 'Pending' || inv.status === 'Partially Paid' || inv.status === 'Overdue')
+                .reduce((sum, inv) => sum + (inv.remainingAmount || 0), 0);
                 
               const advancePaymentsReceived = payments
                 .filter(pay => pay.type === 'Advance')
@@ -1490,8 +1513,8 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
               const completedProjectsCount = erpProjects.filter(p => p.status === 'Completed').length;
               
               const totalQuotationsCount = quotations.length;
-              const acceptedQuotationsCount = quotations.filter(q => q.status === 'Accepted' || q.status === 'Invoiced').length;
-              const rejectedQuotationsCount = quotations.filter(q => q.status === 'Rejected' || q.status === 'Expired').length;
+              const acceptedQuotationsCount = quotations.filter(q => q.status === 'Approved').length;
+              const rejectedQuotationsCount = quotations.filter(q => q.status === 'Rejected').length;
               
               const totalInvoicesCount = invoices.length;
               const paidInvoicesCount = invoices.filter(inv => inv.status === 'Paid').length;
@@ -2872,7 +2895,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-              {photoPricing.map((pkg, idx) => (
+              {photoPricing.map((pkg: { title: string; price: string; duration: string; features: string[]; badge?: string }, idx: number) => (
                 <div 
                   key={idx}
                   className={`p-6 rounded-2xl border flex flex-col justify-between relative ${
@@ -3670,7 +3693,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                     : 'border-transparent text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <History size={14} />
+                <HistoryIcon size={14} />
                 <span>Security & Audit Trail</span>
               </button>
               <button
@@ -3692,7 +3715,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                     : 'border-transparent text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Image size={14} />
+                <ImageIcon size={14} />
                 <span>Centralized Media Library</span>
               </button>
               <button

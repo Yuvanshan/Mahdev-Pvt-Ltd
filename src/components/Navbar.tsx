@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Phone, Sun, Moon, Search, ChevronDown, ArrowRight, ChevronRight } from 'lucide-react';
+import { Menu, X, Phone, Sun, Moon, Search, ChevronDown, ArrowRight, ChevronRight, Sparkles, Camera, Laptop, Car } from 'lucide-react';
 import { ActivePage, ThemeSettings, ServiceCard, ItProject } from '../types';
 import { COMPANY_CONTACT } from '../data';
 
@@ -59,6 +59,22 @@ export default function Navbar({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [setSearchQuery]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isOpen) {
+      root.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } else {
+      root.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      root.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   const matchingServices = searchQuery.trim() === '' ? [] : servicesList.filter(srv => 
     srv.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -116,14 +132,17 @@ export default function Navbar({
     <>
       <header 
         id="app-header"
-        className={`sticky top-0 z-50 w-full backdrop-blur-md border-b transition-colors duration-500 ${
+        className={`z-50 w-full transition-colors duration-500 ${
+          // If on home, overlay the header as transparent so it sits over hero image
+          activePage === ActivePage.Home ? 'absolute top-0 left-0 backdrop-blur-sm' : 'sticky top-0'
+        } ${
           isDarkMode 
-            ? 'border-neutral-800 bg-black/85 shadow-lg shadow-black/60 text-white' 
-            : 'border-slate-200 bg-white/85 shadow-md shadow-slate-100/40 text-slate-800'
+            ? (activePage === ActivePage.Home ? 'text-white' : 'border-neutral-800 bg-black/85 shadow-lg shadow-black/60 text-white') 
+            : (activePage === ActivePage.Home ? 'text-white' : 'border-slate-200 bg-white/85 shadow-md shadow-slate-100/40 text-slate-800')
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-16 sm:h-20">
             
             {/* Brand Logo & Name */}
             <div 
@@ -131,7 +150,7 @@ export default function Navbar({
               className="flex items-center space-x-3 cursor-pointer group"
               onClick={() => handleNavClick(ActivePage.Home)}
             >
-              <div className="relative w-11 h-11 rounded-xl overflow-hidden border border-amber-500/30 group-hover:border-amber-500/70 transition-all duration-300">
+              <div className="relative w-11 h-11 rounded-2xl overflow-hidden border border-amber-500/30 group-hover:border-amber-500/70 transition-all duration-300 shadow-lg shadow-amber-500/10 ring-1 ring-white/10">
                 <img 
                   src={logo} 
                   alt={`${brandName} Logo`} 
@@ -342,90 +361,106 @@ export default function Navbar({
         {/* Mobile Navigation Drawer */}
         <AnimatePresence>
           {isOpen && (
-            <div className="fixed inset-0 z-[110] lg:hidden">
-              {/* Backdrop with elegant blur */}
+            <div className="fixed inset-0 z-[220] lg:hidden">
+              {/* Premium Backdrop with elegant blur and gradient */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsOpen(false)}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                className="fixed inset-0 bg-gradient-to-br from-black/80 via-black/70 to-black/80 backdrop-blur-xl"
               />
 
-              {/* Slide-in Drawer Panel */}
+              {/* Premium Slide-in Drawer Panel */}
               <motion.div
                 id="mobile-nav-drawer"
                 initial={{ x: '100%' }}
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 28, stiffness: 240 }}
-                className={`absolute top-0 right-0 bottom-0 w-[85vw] max-w-[340px] h-full shadow-2xl flex flex-col border-l transition-colors duration-500 ${
+                transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+                style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}
+                className={`fixed inset-y-0 right-0 z-[221] w-full sm:w-[92vw] max-w-[380px] h-screen shadow-2xl flex flex-col border-l overflow-hidden transition-colors duration-500 ${
                   isDarkMode 
-                    ? 'bg-neutral-950 border-neutral-850 text-white' 
-                    : 'bg-white border-slate-200 text-slate-800'
+                    ? 'bg-gradient-to-b from-neutral-900 via-neutral-950 to-black border-amber-500/20' 
+                    : 'bg-gradient-to-b from-white via-slate-50 to-white border-slate-200'
                 }`}
               >
-                {/* Top Accent Gradient Bar */}
-                <div className="h-1.5 bg-gradient-to-r from-amber-500 via-purple-600 to-indigo-600"></div>
+                {/* Premium Top Accent Bar with Gradient */}
+                <div className="h-1.5 bg-gradient-to-r from-amber-500 via-purple-500 to-pink-500 opacity-90"></div>
 
-                {/* Drawer Header */}
-                <div className="px-6 py-5 flex items-center justify-between border-b border-neutral-800/10 dark:border-neutral-850 pt-7">
-                  <div>
-                    <span className="text-[9px] font-mono tracking-widest text-amber-500 uppercase font-bold">Mahdev Group</span>
-                    <h3 className="text-base font-extrabold tracking-tight mt-0.5 uppercase">Navigation</h3>
+                {/* Premium Drawer Header */}
+                <div className={`px-6 py-5 flex items-center justify-between border-b pt-7 ${
+                  isDarkMode 
+                    ? 'border-neutral-800/50 bg-gradient-to-r from-neutral-950/50 to-neutral-900/30 backdrop-blur-sm'
+                    : 'border-slate-200/50 bg-gradient-to-r from-white/50 to-slate-50/50 backdrop-blur-sm'
+                }`}>
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                      <span className="text-[8px] font-mono tracking-[0.15em] text-amber-500 uppercase font-extrabold">Navigation</span>
+                    </div>
+                    <h3 className={`text-sm font-black tracking-tight uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                      Menu
+                    </h3>
                   </div>
-                  <button
+                  <motion.button
                     onClick={() => setIsOpen(false)}
+                    whileHover={{ rotate: 90, scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
                     className={`p-2.5 rounded-xl border transition-all ${
                       isDarkMode 
-                        ? 'border-neutral-800 hover:bg-neutral-900 text-slate-400 hover:text-white' 
-                        : 'border-slate-150 hover:bg-slate-50 text-slate-500 hover:text-slate-900'
+                        ? 'border-neutral-700 hover:bg-neutral-800 text-slate-400 hover:text-amber-400' 
+                        : 'border-slate-300 hover:bg-slate-100 text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <X size={16} />
-                  </button>
+                    <X size={18} />
+                  </motion.button>
                 </div>
 
-                {/* Drawer Body - Navigation Links */}
-                <div className="flex-1 overflow-y-auto px-5 py-6 space-y-3">
+                {/* Premium Drawer Body - Navigation Links with Icons */}
+                <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 space-y-1 scrollbar-thin scrollbar-thumb-amber-500/40 scrollbar-track-transparent">
                   {[
-                    { label: 'HOME', page: ActivePage.Home },
+                    { label: 'HOME', page: ActivePage.Home, icon: ArrowRight },
                     { 
                       label: 'SWS EVENT MANAGEMENT', 
                       page: ActivePage.Decoration,
+                      icon: Sparkles,
                       subItems: [
-                        { label: 'Overview & Banners', action: () => handleNavClick(ActivePage.Decoration) },
-                        { label: 'Stage Decoration Gallery', action: () => { handleNavClick(ActivePage.Decoration); setTimeout(() => document.getElementById('decor-gallery-section')?.scrollIntoView({ behavior: 'smooth' }), 300); } },
-                        { label: 'Rental Equipment Catalogue', action: () => { handleNavClick(ActivePage.Decoration); setTimeout(() => document.getElementById('rental-items-section')?.scrollIntoView({ behavior: 'smooth' }), 300); } }
+                        { label: 'Overview & Banners', action: () => handleNavClick(ActivePage.Decoration), icon: ChevronRight },
+                        { label: 'Stage Decoration Gallery', action: () => { handleNavClick(ActivePage.Decoration); setTimeout(() => document.getElementById('decor-gallery-section')?.scrollIntoView({ behavior: 'smooth' }), 300); }, icon: ChevronRight },
+                        { label: 'Rental Equipment Catalogue', action: () => { handleNavClick(ActivePage.Decoration); setTimeout(() => document.getElementById('rental-items-section')?.scrollIntoView({ behavior: 'smooth' }), 300); }, icon: ChevronRight }
                       ]
                     },
                     { 
                       label: 'U1 STUDIO', 
                       page: ActivePage.Photography,
+                      icon: Camera,
                       subItems: [
-                        { label: 'Photography Portal', action: () => handleNavClick(ActivePage.Photography) },
-                        { label: 'Creative Photo Portfolio', action: () => { handleNavClick(ActivePage.Photography); setTimeout(() => document.getElementById('u1-portfolio-section')?.scrollIntoView({ behavior: 'smooth' }), 300); } },
-                        { label: 'Package Pricing Plans', action: () => { handleNavClick(ActivePage.Photography); setTimeout(() => document.getElementById('u1-pricing-section')?.scrollIntoView({ behavior: 'smooth' }), 300); } }
+                        { label: 'Photography Portal', action: () => handleNavClick(ActivePage.Photography), icon: ChevronRight },
+                        { label: 'Creative Photo Portfolio', action: () => { handleNavClick(ActivePage.Photography); setTimeout(() => document.getElementById('u1-portfolio-section')?.scrollIntoView({ behavior: 'smooth' }), 300); }, icon: ChevronRight },
+                        { label: 'Package Pricing Plans', action: () => { handleNavClick(ActivePage.Photography); setTimeout(() => document.getElementById('u1-pricing-section')?.scrollIntoView({ behavior: 'smooth' }), 300); }, icon: ChevronRight }
                       ]
                     },
                     { 
                       label: 'MAHDEV IT', 
                       page: ActivePage.ItSolutions,
+                      icon: Laptop,
                       subItems: [
-                        { label: 'Software & Cloud Solutions', action: () => handleNavClick(ActivePage.ItSolutions) },
-                        { label: 'ERP Corporate Management', action: () => handleNavClick(ActivePage.ErpSolutions) }
+                        { label: 'Software & Cloud Solutions', action: () => handleNavClick(ActivePage.ItSolutions), icon: ChevronRight },
+                        { label: 'ERP Corporate Management', action: () => handleNavClick(ActivePage.ErpSolutions), icon: ChevronRight }
                       ]
                     },
                     { 
                       label: 'MAHDEV TRAVELS', 
                       page: ActivePage.Travels,
+                      icon: Car,
                       subItems: [
-                        { label: 'Luxury Tours & Fleet Home', action: () => handleNavClick(ActivePage.Travels) },
-                        { label: 'Premium Vehicle Fleet', action: () => { handleNavClick(ActivePage.Travels); setTimeout(() => document.getElementById('travels-vehicles-section')?.scrollIntoView({ behavior: 'smooth' }), 300); } },
-                        { label: 'Tour Packages & Itineraries', action: () => { handleNavClick(ActivePage.Travels); setTimeout(() => document.getElementById('travels-tours-section')?.scrollIntoView({ behavior: 'smooth' }), 300); } }
+                        { label: 'Luxury Tours & Fleet Home', action: () => handleNavClick(ActivePage.Travels), icon: ChevronRight },
+                        { label: 'Premium Vehicle Fleet', action: () => { handleNavClick(ActivePage.Travels); setTimeout(() => document.getElementById('travels-vehicles-section')?.scrollIntoView({ behavior: 'smooth' }), 300); }, icon: ChevronRight },
+                        { label: 'Tour Packages & Itineraries', action: () => { handleNavClick(ActivePage.Travels); setTimeout(() => document.getElementById('travels-tours-section')?.scrollIntoView({ behavior: 'smooth' }), 300); }, icon: ChevronRight }
                       ]
                     },
-                    { label: 'CONTACT US', page: ActivePage.Contact }
+                    { label: 'CONTACT US', page: ActivePage.Contact, icon: Phone }
                   ].map((item, idx) => {
                     const isSectionActive = (item: any) => {
                       if (activePage === item.page) return true;
@@ -440,86 +475,113 @@ export default function Navbar({
                     const isActive = isSectionActive(item);
                     const hasSubItems = !!item.subItems;
                     const isExpanded = expandedSection === item.label;
+                    const IconComponent = item.icon;
 
                     return (
-                      <div key={idx} className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <button
-                            onClick={() => {
-                              if (hasSubItems) {
-                                setExpandedSection(isExpanded ? null : item.label);
-                              } else {
-                                handleNavClick(item.page);
-                              }
-                            }}
-                            className={`flex-1 text-left px-4 py-3.5 rounded-2xl text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-300 relative overflow-hidden flex items-center justify-between ${
-                              isActive
-                                ? isDarkMode 
-                                  ? 'bg-amber-500/15 text-amber-400 border-l-4 border-amber-500 pl-3'
-                                  : 'bg-amber-500/10 text-amber-600 border-l-4 border-amber-500 pl-3'
-                                : isDarkMode
-                                  ? 'text-neutral-300 hover:bg-neutral-900/60'
-                                  : 'text-slate-600 hover:bg-slate-50'
-                            }`}
-                            style={{ minHeight: '48px' }}
-                          >
-                            <span>{item.label}</span>
-                            {hasSubItems && (
-                              <span className={`p-1 rounded-lg text-slate-400 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>
-                                <ChevronRight size={14} />
-                              </span>
-                            )}
-                          </button>
-                        </div>
+                      <motion.div key={idx} className="space-y-1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }}>
+                        <motion.button
+                          onClick={() => {
+                            if (hasSubItems) {
+                              setExpandedSection(isExpanded ? null : item.label);
+                            } else {
+                              handleNavClick(item.page);
+                            }
+                          }}
+                          whileHover={{ x: 6 }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`w-full px-4 py-4 rounded-xl text-sm font-bold tracking-wider uppercase transition-all duration-300 relative overflow-hidden flex items-center justify-between group ${
+                            isActive
+                              ? isDarkMode 
+                                ? 'bg-gradient-to-r from-amber-500/25 to-amber-500/10 text-amber-300 border-l-4 border-amber-500 pl-3 shadow-lg shadow-amber-500/15'
+                                : 'bg-gradient-to-r from-amber-500/20 to-amber-500/8 text-amber-600 border-l-4 border-amber-500 pl-3 shadow-md shadow-amber-500/10'
+                              : isDarkMode
+                                ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/50 border-l-4 border-transparent pl-4 hover:border-amber-500/40'
+                                : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/60 border-l-4 border-transparent pl-4 hover:border-amber-400/30'
+                          }`}
+                          style={{ minHeight: '52px' }}
+                        >
+                          <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                            <IconComponent size={20} className="shrink-0" />
+                            <span className="text-left break-words whitespace-normal">{item.label}</span>
+                          </div>
+                          {hasSubItems && (
+                            <span className={`p-2 rounded-lg transition-all duration-300 shrink-0 ml-2 ${isActive ? 'text-amber-400' : 'text-slate-400 group-hover:text-slate-300'} ${isExpanded ? 'rotate-90 bg-neutral-800/50' : ''}`}>
+                              <ChevronRight size={18} />
+                            </span>
+                          )}
+                        </motion.button>
 
-                        {/* Nested Sub-items list with framer-motion */}
+                        {/* Premium Nested Sub-items with smooth animations */}
                         <AnimatePresence initial={false}>
                           {hasSubItems && isExpanded && (
                             <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
+                              initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                              animate={{ height: 'auto', opacity: 1, marginTop: 8 }}
+                              exit={{ height: 0, opacity: 0, marginTop: 0 }}
                               transition={{ duration: 0.25, ease: 'easeInOut' }}
-                              className="pl-4 pr-2 py-1 space-y-1.5 border-l border-amber-500/20 dark:border-amber-500/10 ml-4 overflow-hidden"
+                              className={`pl-8 pr-3 py-2 space-y-2 border-l-3 ${
+                                isDarkMode 
+                                  ? 'border-amber-500/50 bg-neutral-900/40' 
+                                  : 'border-amber-500/40 bg-amber-50/30'
+                              } rounded-lg ml-3 overflow-hidden`}
                             >
                               {item.subItems.map((sub, subIdx) => (
-                                <button
+                                <motion.button
                                   key={subIdx}
                                   onClick={() => {
                                     sub.action();
                                     setIsOpen(false);
                                   }}
-                                  className={`block w-full text-left px-4 py-2.5 rounded-xl text-[11px] font-semibold tracking-wide uppercase transition-all ${
+                                  whileHover={{ x: 6 }}
+                                  whileTap={{ scale: 0.97 }}
+                                  className={`block w-full text-left px-4 py-3 rounded-lg text-xs font-semibold tracking-wide uppercase transition-all flex items-center gap-3 group ${
                                     isDarkMode
-                                      ? 'text-neutral-400 hover:text-amber-400 hover:bg-neutral-900/40'
-                                      : 'text-slate-500 hover:text-amber-600 hover:bg-slate-50'
+                                      ? 'text-neutral-400 hover:text-amber-300 hover:bg-neutral-800/70 active:bg-neutral-800'
+                                      : 'text-slate-600 hover:text-amber-600 hover:bg-slate-100/70 active:bg-slate-100'
                                   }`}
-                                  style={{ minHeight: '44px' }}
+                                  style={{ minHeight: '46px' }}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: subIdx * 0.06 }}
                                 >
-                                  {sub.label}
-                                </button>
+                                  <sub.icon size={16} className="shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" />
+                                  <span className="text-left break-words whitespace-normal">{sub.label}</span>
+                                </motion.button>
                               ))}
                             </motion.div>
                           )}
                         </AnimatePresence>
-                      </div>
+                      </motion.div>
                     );
                   })}
+
+                  {/* Admin access removed per request */}
                 </div>
 
-                {/* Drawer Footer */}
-                <div className={`p-6 border-t ${isDarkMode ? 'border-neutral-850 bg-neutral-950/50' : 'border-slate-100 bg-slate-50/50'}`}>
-                  <a
+                {/* Premium Drawer Footer with Enhanced CTA */}
+                <div className={`p-6 border-t space-y-4 ${
+                  isDarkMode 
+                    ? 'border-neutral-800/50 bg-gradient-to-t from-black/50 via-neutral-950/30 to-transparent' 
+                    : 'border-slate-200/50 bg-gradient-to-t from-slate-50/50 via-white/30 to-transparent'
+                }`}>
+                  <motion.a
                     href={`tel:${COMPANY_CONTACT.phone}`}
-                    className="flex items-center justify-center space-x-2.5 w-full py-3.5 rounded-2xl text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black shadow-lg shadow-amber-500/10 transition-all hover:scale-[1.02] active:scale-95"
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center justify-center space-x-2.5 w-full py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest bg-gradient-to-r from-amber-500 via-amber-450 to-yellow-500 hover:from-amber-400 hover:via-amber-350 hover:to-yellow-400 text-black shadow-lg shadow-amber-500/20 transition-all hover:shadow-amber-500/40 active:scale-95"
                     style={{ minHeight: '48px' }}
                   >
-                    <Phone size={14} />
+                    <Phone size={16} />
                     <span>CALL US NOW</span>
-                  </a>
-                  <p className="text-[10px] text-center text-slate-500 font-mono mt-4">
+                  </motion.a>
+                  <p className="text-xs text-center text-slate-500 font-semibold tracking-wide">
                     Colombo, Sri Lanka
                   </p>
+                  <div className="text-[11px] text-center leading-relaxed">
+                    <p className={`font-mono tracking-[0.08em] ${isDarkMode ? 'text-slate-600' : 'text-slate-400'}`}>
+                      Multi-Service Elite Enterprise
+                    </p>
+                  </div>
                 </div>
               </motion.div>
             </div>

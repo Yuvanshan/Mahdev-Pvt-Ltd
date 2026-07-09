@@ -88,6 +88,8 @@ export const DEFAULT_THEME_SETTINGS: ThemeSettings = {
   heroTitle2: 'Creating Technology.',
   heroDescription: 'Mahdev Pvt Ltd is a multi-service company providing decoration services, photography, ERP software solutions, and IT services.',
   brandName: 'Mahdev Pvt Ltd',
+  websiteTitle: 'Mahdev Pvt Ltd - Elite Service Suite',
+  faviconUrl: '/favicon.ico',
   animationMode: 'multiverse',
   brandLogo: '/src/assets/images/mahadev_logo_1782729909050.jpg',
   decorationBanner: '/src/assets/images/sws_robot_decor_1783346269673.jpg',

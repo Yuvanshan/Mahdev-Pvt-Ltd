@@ -426,113 +426,133 @@
     "heroTitle2": "Creating Technology.",
     "heroDescription": "Mahdev Pvt Ltd is a multi-service company providing decoration services, photography, ERP software solutions, and IT services.",
     "brandName": "Mahdev Pvt Ltd",
-    "animationMode": "multiverse"
+    "animationMode": "multiverse",
+    "brandLogo": "/src/assets/images/mahadev_logo_1782729909050.jpg",
+    "decorationBanner": "/src/assets/images/sws_robot_decor_1783346269673.jpg",
+    "photographyBanner": "/src/assets/images/u1_robot_camera_1783346286743.jpg",
+    "itBanner": "/src/assets/images/it_robot_developer_1783346302442.jpg",
+    "travelsBanner": "/src/assets/images/travels_robot_car_1783346316762.jpg",
+    "weddingDecorationBanner": "/src/assets/images/wedding_decoration_1782729925686.jpg"
   },
   "mahdev_bookings_list": [
     {
-      "id": "b-1",
       "brand": "SWS",
-      "name": "Dilruwan Perera",
-      "phone": "+94 77 123 4567",
-      "email": "dilruwan@example.com",
-      "serviceType": "Wedding Stage Design",
-      "eventDate": "2026-07-20",
-      "status": "Confirmed",
-      "notes": "Premium gold themed wedding stage with rich lighting and fresh flowers.",
-      "location": "Kingsbury Hotel, Colombo",
-      "budget": "Rs. 150,000 - 200,000",
-      "guests": 250,
+      "name": "test",
+      "phone": "0094768988970",
+      "email": "",
+      "serviceType": "Wedding Decoration",
+      "eventDate": "2026-09-17",
+      "guests": 50,
+      "notes": "",
       "amount": 150000,
-      "createdDate": "2026-07-01"
+      "id": "b-1783626836957",
+      "status": "Pending",
+      "createdDate": "2026-07-09"
     },
     {
-      "id": "b-2",
+      "notes": "Premium gold themed wedding stage with rich lighting and fresh flowers.",
+      "eventDate": "2026-07-20",
+      "guests": 250,
+      "createdDate": "2026-07-01",
+      "amount": 150000,
+      "id": "b-1",
+      "name": "Dilruwan Perera",
+      "phone": "+94 77 123 4567",
+      "brand": "SWS",
+      "budget": "Rs. 150,000 - 200,000",
+      "status": "Confirmed",
+      "serviceType": "Wedding Stage Design",
+      "email": "dilruwan@example.com",
+      "location": "Kingsbury Hotel, Colombo"
+    },
+    {
+      "location": "Private Residence, Negombo",
+      "email": "sheruni@example.com",
+      "serviceType": "Birthday Decoration",
+      "status": "Completed",
+      "budget": "Rs. 40,000 - 60,000",
       "brand": "SWS",
       "name": "Sheruni Alwis",
       "phone": "+94 71 987 6543",
-      "email": "sheruni@example.com",
-      "serviceType": "Birthday Decoration",
-      "eventDate": "2026-07-04",
-      "status": "Completed",
-      "notes": "Magical pink and white theme birthday decorations with balloon arch.",
-      "location": "Private Residence, Negombo",
-      "budget": "Rs. 40,000 - 60,000",
-      "guests": 50,
+      "id": "b-2",
       "amount": 45000,
-      "createdDate": "2026-06-28"
+      "createdDate": "2026-06-28",
+      "guests": 50,
+      "eventDate": "2026-07-04",
+      "notes": "Magical pink and white theme birthday decorations with balloon arch."
     },
     {
+      "amount": 650000,
       "id": "b-3",
-      "brand": "IT",
       "name": "Senura Holdings",
+      "createdDate": "2026-07-05",
       "phone": "+94 11 234 5678",
       "email": "contact@senura.lk",
+      "budget": "Rs. 500,000 - 800,000",
+      "notes": "Bespoke inventory management portal with barcode scanning and POS integrations.",
+      "brand": "IT",
       "serviceType": "ERP Inventory System",
       "eventDate": "2026-07-15",
-      "status": "Pending",
-      "notes": "Bespoke inventory management portal with barcode scanning and POS integrations.",
-      "budget": "Rs. 500,000 - 800,000",
-      "amount": 650000,
-      "createdDate": "2026-07-05"
+      "status": "Pending"
     },
     {
-      "id": "b-4",
-      "brand": "IT",
+      "email": "info@oceanicleisure.com",
+      "createdDate": "2026-06-10",
       "name": "Oceanic Leisure Ltd",
       "phone": "+94 76 543 2109",
-      "email": "info@oceanicleisure.com",
-      "serviceType": "Website Development",
-      "eventDate": "2026-06-25",
-      "status": "Completed",
+      "id": "b-4",
+      "amount": 280000,
+      "brand": "IT",
       "notes": "Luxury travel e-commerce portal with automated itinerary builders and booking systems.",
       "budget": "Rs. 250,000 - 350,000",
-      "amount": 280000,
-      "createdDate": "2026-06-10"
+      "status": "Completed",
+      "eventDate": "2026-06-25",
+      "serviceType": "Website Development"
     },
     {
-      "id": "b-5",
-      "brand": "Studio",
-      "name": "Kanishka & Piyumi",
-      "phone": "+94 72 345 6789",
-      "email": "kanishka@example.com",
       "serviceType": "Wedding Videography",
-      "eventDate": "2026-07-18",
       "status": "Confirmed",
+      "eventDate": "2026-07-18",
       "notes": "Full-day cinematic shoot, highlight reels, drone footages, and color graded album.",
       "budget": "Rs. 100,000 - 150,000",
+      "brand": "Studio",
+      "phone": "+94 72 345 6789",
+      "id": "b-5",
+      "createdDate": "2026-07-03",
+      "name": "Kanishka & Piyumi",
       "amount": 120000,
-      "createdDate": "2026-07-03"
+      "email": "kanishka@example.com"
     },
     {
-      "id": "b-6",
-      "brand": "Travels",
-      "name": "Arthur Pendelton",
+      "createdDate": "2026-07-02",
+      "amount": 195000,
       "phone": "+44 7911 123456",
-      "email": "arthur.p@yahoo.co.uk",
-      "serviceType": "Travel Package",
-      "eventDate": "2026-07-25",
+      "name": "Arthur Pendelton",
+      "id": "b-6",
       "endDate": "2026-08-01",
-      "status": "Confirmed",
       "notes": "Sri Lanka Tour: Cultural Triangle, Ella Hills, Mirissa beach safari.",
       "guests": 4,
+      "eventDate": "2026-07-25",
       "location": "Sri Lanka (Colombo to Mirissa)",
-      "amount": 195000,
-      "createdDate": "2026-07-02"
+      "email": "arthur.p@yahoo.co.uk",
+      "brand": "Travels",
+      "serviceType": "Travel Package",
+      "status": "Confirmed"
     },
     {
-      "id": "b-7",
-      "brand": "Travels",
-      "name": "Nadeesh de Silva",
-      "phone": "+94 77 987 1111",
+      "location": "BIA to Colombo 07",
       "email": "nadeesh@example.l0",
       "serviceType": "Airport Pickup/Drop",
-      "eventDate": "2026-07-05",
       "status": "Completed",
-      "notes": "Luxury pickup via S-Class from BIA Airport to Colombo 7.",
-      "guests": 2,
-      "location": "BIA to Colombo 07",
+      "brand": "Travels",
       "amount": 15000,
-      "createdDate": "2026-07-04"
+      "phone": "+94 77 987 1111",
+      "createdDate": "2026-07-04",
+      "name": "Nadeesh de Silva",
+      "id": "b-7",
+      "guests": 2,
+      "eventDate": "2026-07-05",
+      "notes": "Luxury pickup via S-Class from BIA Airport to Colombo 7."
     }
   ],
   "mahdev_travels_vehicles": [
@@ -545,7 +565,13 @@
       "passengers": 4,
       "luggage": 3,
       "engine": "2.0L Turbo Hybrid",
-      "features": ["Silk White Interior", "Chauffeur Driven", "Luxury Floral Decor Option", "Ambient Dual Lighting", "Panoramic Glass Roof"]
+      "features": [
+        "Silk White Interior",
+        "Chauffeur Driven",
+        "Luxury Floral Decor Option",
+        "Ambient Dual Lighting",
+        "Panoramic Glass Roof"
+      ]
     },
     {
       "id": "v2",
@@ -556,7 +582,13 @@
       "passengers": 4,
       "luggage": 4,
       "engine": "3.6L V6 Dual-VVT",
-      "features": ["Classic Royal Presence", "Heated Leather Seats", "Custom Ribbons & Decor", "Premium Harman Kardon Sound", "Climate Zone Comfort"]
+      "features": [
+        "Classic Royal Presence",
+        "Heated Leather Seats",
+        "Custom Ribbons & Decor",
+        "Premium Harman Kardon Sound",
+        "Climate Zone Comfort"
+      ]
     },
     {
       "id": "v3",
@@ -567,7 +599,13 @@
       "passengers": 7,
       "luggage": 5,
       "engine": "2.8L Intercooler Diesel",
-      "features": ["Robust 4x4 Drivetrain", "Tri-Zone A/C Climate", "Spacious Third Row Cabin", "Offroad Cruise Control", "USB fast-chargers"]
+      "features": [
+        "Robust 4x4 Drivetrain",
+        "Tri-Zone A/C Climate",
+        "Spacious Third Row Cabin",
+        "Offroad Cruise Control",
+        "USB fast-chargers"
+      ]
     },
     {
       "id": "v4",
@@ -578,7 +616,13 @@
       "passengers": 4,
       "luggage": 3,
       "engine": "1.5L Dual VVT-i",
-      "features": ["Ultra Smooth Commute", "Exceptional Fuel Economy", "Plush Beige Velvet Seats", "Quiet Sound Dampening", "Reverse Safety Camera"]
+      "features": [
+        "Ultra Smooth Commute",
+        "Exceptional Fuel Economy",
+        "Plush Beige Velvet Seats",
+        "Quiet Sound Dampening",
+        "Reverse Safety Camera"
+      ]
     },
     {
       "id": "v5",
@@ -589,7 +633,13 @@
       "passengers": 14,
       "luggage": 8,
       "engine": "3.0L Turbo Diesel",
-      "features": ["Individually Adjustable Recliners", "Dual A/C Evaporators", "Ambient Reading Lights", "Bluetooth Sound Hub", "Step Footboard LED"]
+      "features": [
+        "Individually Adjustable Recliners",
+        "Dual A/C Evaporators",
+        "Ambient Reading Lights",
+        "Bluetooth Sound Hub",
+        "Step Footboard LED"
+      ]
     }
   ],
   "mahdev_travels_tours": [
@@ -599,13 +649,38 @@
       "duration": "5 Days / 4 Nights",
       "image": "https://images.unsplash.com/photo-1588598126749-0144d18ecf0d?auto=format&fit=crop&q=80&w=600",
       "price": "Rs. 145,000 / person",
-      "highlights": ["Sigiriya Fortress Hike", "Dambulla Cave Temple", "Kandy Sacred Temple of Tooth", "Traditional Kandyan Dance"],
+      "highlights": [
+        "Sigiriya Fortress Hike",
+        "Dambulla Cave Temple",
+        "Kandy Sacred Temple of Tooth",
+        "Traditional Kandyan Dance"
+      ],
       "itinerary": [
-        { "day": 1, "title": "Arrival & Sigiriya Journey", "desc": "Airport greeting and scenic transport to Sigiriya. Relax in custom eco-luxury lodges." },
-        { "day": 2, "title": "Sigiriya Rock Fortress & Dambulla", "desc": "Morning hike up the Sigiriya Lion Rock Citadel. Evening tour of the ancient golden Dambulla caves." },
-        { "day": 3, "title": "Sacred Kandy Exploration", "desc": "Travel to Kandy via spice gardens. Visit the Temple of the Sacred Tooth Relic and catch Kandyan live drums." },
-        { "day": 4, "title": "Royal Botanical Gardens", "desc": "Walk through Peradeniya Royal Botanic wonders and complete Colombo shopping excursions." },
-        { "day": 5, "title": "Airport Departure", "desc": "Chauffeur transport to airport with souvenir gift pack from Mahdev team." }
+        {
+          "day": 1,
+          "title": "Arrival & Sigiriya Journey",
+          "desc": "Airport greeting and scenic transport to Sigiriya. Relax in custom eco-luxury lodges."
+        },
+        {
+          "day": 2,
+          "title": "Sigiriya Rock Fortress & Dambulla",
+          "desc": "Morning hike up the Sigiriya Lion Rock Citadel. Evening tour of the ancient golden Dambulla caves."
+        },
+        {
+          "day": 3,
+          "title": "Sacred Kandy Exploration",
+          "desc": "Travel to Kandy via spice gardens. Visit the Temple of the Sacred Tooth Relic and catch Kandyan live drums."
+        },
+        {
+          "day": 4,
+          "title": "Royal Botanical Gardens",
+          "desc": "Walk through Peradeniya Royal Botanic wonders and complete Colombo shopping excursions."
+        },
+        {
+          "day": 5,
+          "title": "Airport Departure",
+          "desc": "Chauffeur transport to airport with souvenir gift pack from Mahdev team."
+        }
       ]
     },
     {
@@ -614,12 +689,33 @@
       "duration": "4 Days / 3 Nights",
       "image": "https://images.unsplash.com/photo-1542856391-010fb87dcfed?auto=format&fit=crop&q=80&w=600",
       "price": "Rs. 115,000 / person",
-      "highlights": ["Nuwara Eliya Tea Plucking", "Nine Arch Bridge Walk", "Ella Rock Sunset Trek", "Scenic Alpine Train Train Ride"],
+      "highlights": [
+        "Nuwara Eliya Tea Plucking",
+        "Nine Arch Bridge Walk",
+        "Ella Rock Sunset Trek",
+        "Scenic Alpine Train Train Ride"
+      ],
       "itinerary": [
-        { "day": 1, "title": "Kandy to Nuwara Eliya Alpine Drive", "desc": "Scenic mountain climb to Nuwara Eliya. Inspect colonial estates and Ramboda cascading waterfall." },
-        { "day": 2, "title": "Scenic Tea Estates & Train Ride", "desc": "Live organic tea leaves harvesting demonstration. Scenic high-altitude mountain railway journey to Ella." },
-        { "day": 3, "title": "Ella Rock Trek & Nine Arches", "desc": "Hike to Ella Rock summit. Walk on the world-famous stone Nine Arch railway bridge." },
-        { "day": 4, "title": "Ravana Falls & Airport Return", "desc": "Admire Ravana waterfall legends and return safely through the rolling southern plains." }
+        {
+          "day": 1,
+          "title": "Kandy to Nuwara Eliya Alpine Drive",
+          "desc": "Scenic mountain climb to Nuwara Eliya. Inspect colonial estates and Ramboda cascading waterfall."
+        },
+        {
+          "day": 2,
+          "title": "Scenic Tea Estates & Train Ride",
+          "desc": "Live organic tea leaves harvesting demonstration. Scenic high-altitude mountain railway journey to Ella."
+        },
+        {
+          "day": 3,
+          "title": "Ella Rock Trek & Nine Arches",
+          "desc": "Hike to Ella Rock summit. Walk on the world-famous stone Nine Arch railway bridge."
+        },
+        {
+          "day": 4,
+          "title": "Ravana Falls & Airport Return",
+          "desc": "Admire Ravana waterfall legends and return safely through the rolling southern plains."
+        }
       ]
     },
     {
@@ -628,14 +724,43 @@
       "duration": "6 Days / 5 Nights",
       "image": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&q=80&w=600",
       "price": "Rs. 165,000 / person",
-      "highlights": ["Galle Dutch Fort Heritage Tour", "Yala National Park Leopard Safari", "Mirissa Whale Watching", "Traditional Stilt Fishermen"],
+      "highlights": [
+        "Galle Dutch Fort Heritage Tour",
+        "Yala National Park Leopard Safari",
+        "Mirissa Whale Watching",
+        "Traditional Stilt Fishermen"
+      ],
       "itinerary": [
-        { "day": 1, "title": "Arrival & Beach Check-in", "desc": "Direct luxury express drive to Hikkaduwa/Galle beach resorts." },
-        { "day": 2, "title": "Unesco Galle Fort Discovery", "desc": "Explore cobblestone alleys, Dutch ramparts, lighthouses, and authentic handloom stores." },
-        { "day": 3, "title": "Whale Watching & Turtle Hatcheries", "desc": "Early morning oceanic yacht cruise to spot Blue Whales. Evening sea turtle release program." },
-        { "day": 4, "title": "Deep Yala Wildlife Safari", "desc": "Full-day open-roof 4x4 safari looking for Sri Lankan leopards, wild elephants, and peacocks." },
-        { "day": 5, "title": "Water Sports in Bentota", "desc": "Thrilling jet-ski, banana-boat, and river safaris down Madu Ganga." },
-        { "day": 6, "title": "Farewell Coastal Tour", "desc": "Coastal train commute and comfortable airport drop." }
+        {
+          "day": 1,
+          "title": "Arrival & Beach Check-in",
+          "desc": "Direct luxury express drive to Hikkaduwa/Galle beach resorts."
+        },
+        {
+          "day": 2,
+          "title": "Unesco Galle Fort Discovery",
+          "desc": "Explore cobblestone alleys, Dutch ramparts, lighthouses, and authentic handloom stores."
+        },
+        {
+          "day": 3,
+          "title": "Whale Watching & Turtle Hatcheries",
+          "desc": "Early morning oceanic yacht cruise to spot Blue Whales. Evening sea turtle release program."
+        },
+        {
+          "day": 4,
+          "title": "Deep Yala Wildlife Safari",
+          "desc": "Full-day open-roof 4x4 safari looking for Sri Lankan leopards, wild elephants, and peacocks."
+        },
+        {
+          "day": 5,
+          "title": "Water Sports in Bentota",
+          "desc": "Thrilling jet-ski, banana-boat, and river safaris down Madu Ganga."
+        },
+        {
+          "day": 6,
+          "title": "Farewell Coastal Tour",
+          "desc": "Coastal train commute and comfortable airport drop."
+        }
       ]
     }
   ],
@@ -648,72 +773,472 @@
     "ogImage": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800"
   },
   "mahdev_customers_list": [
-    { "id": "cust-1", "name": "Kamal Perera", "email": "kamal.perera@ntb.lk", "phone": "+94 77 123 4567", "companyId": "C-1", "notes": "Senior VP of Infrastructure. Prefers email communication.", "status": "Active", "history": [{ "date": "2026-06-01", "action": "Account Created", "details": "Initial sales lead established for branch software overhaul." }], "documents": [] },
-    { "id": "cust-2", "name": "Anura de Silva", "email": "anura.desilva@aitkenspence.lk", "phone": "+94 71 987 6543", "companyId": "C-2", "notes": "Lead procurement manager. Expects 10% volume corporate discounts on custom CRM.", "status": "Active", "history": [{ "date": "2026-06-10", "action": "Quotation Dispatched", "details": "Sent Rs. 4,500,000 CRM system architectural brief." }], "documents": [] },
-    { "id": "cust-3", "name": "Sanduni Jayasinghe", "email": "sanduni.j@outlook.com", "phone": "+94 72 345 6789", "notes": "Wedding Planner coordinate client. Organizing high-profile SWS Grand Taj Ballroom stage.", "status": "Active", "history": [{ "date": "2026-06-15", "action": "Initial Site Inspection", "details": "Completed floral layout and lighting alignment at Taj Samudra." }], "documents": [] }
+    {
+      "id": "cust-1",
+      "name": "Kamal Perera",
+      "email": "kamal.perera@ntb.lk",
+      "phone": "+94 77 123 4567",
+      "companyId": "C-1",
+      "notes": "Senior VP of Infrastructure. Prefers email communication.",
+      "status": "Active",
+      "history": [
+        {
+          "date": "2026-06-01",
+          "action": "Account Created",
+          "details": "Initial sales lead established for branch software overhaul."
+        }
+      ],
+      "documents": []
+    },
+    {
+      "id": "cust-2",
+      "name": "Anura de Silva",
+      "email": "anura.desilva@aitkenspence.lk",
+      "phone": "+94 71 987 6543",
+      "companyId": "C-2",
+      "notes": "Lead procurement manager. Expects 10% volume corporate discounts on custom CRM.",
+      "status": "Active",
+      "history": [
+        {
+          "date": "2026-06-10",
+          "action": "Quotation Dispatched",
+          "details": "Sent Rs. 4,500,000 CRM system architectural brief."
+        }
+      ],
+      "documents": []
+    },
+    {
+      "id": "cust-3",
+      "name": "Sanduni Jayasinghe",
+      "email": "sanduni.j@outlook.com",
+      "phone": "+94 72 345 6789",
+      "notes": "Wedding Planner coordinate client. Organizing high-profile SWS Grand Taj Ballroom stage.",
+      "status": "Active",
+      "history": [
+        {
+          "date": "2026-06-15",
+          "action": "Initial Site Inspection",
+          "details": "Completed floral layout and lighting alignment at Taj Samudra."
+        }
+      ],
+      "documents": []
+    }
   ],
   "mahdev_companies_list": [
-    { "id": "C-1", "name": "Nations Trust Bank PLC", "address": "No. 242, Union Place, Colombo 02, Sri Lanka", "phone": "+94 11 471 1411", "email": "corporate@ntb.lk", "website": "www.nationstrust.com", "registrationNumber": "PB-1294" },
-    { "id": "C-2", "name": "Aitken Spence PLC", "address": "Aitken Spence Tower, No. 315, Vauxhall Street, Colombo 02", "phone": "+94 11 230 8308", "email": "info@aitkenspence.lk", "website": "www.aitkenspence.com", "registrationNumber": "PB-435" },
-    { "id": "C-3", "name": "Dilmah Ceylon Tea Company PLC", "address": "No. 111, Negombo Road, Peliyagoda, Sri Lanka", "phone": "+94 11 482 2000", "email": "info@dilmahtea.com", "website": "www.dilmahtea.com", "registrationNumber": "PQ-209" }
+    {
+      "id": "C-1",
+      "name": "Nations Trust Bank PLC",
+      "address": "No. 242, Union Place, Colombo 02, Sri Lanka",
+      "phone": "+94 11 471 1411",
+      "email": "corporate@ntb.lk",
+      "website": "www.nationstrust.com",
+      "registrationNumber": "PB-1294"
+    },
+    {
+      "id": "C-2",
+      "name": "Aitken Spence PLC",
+      "address": "Aitken Spence Tower, No. 315, Vauxhall Street, Colombo 02",
+      "phone": "+94 11 230 8308",
+      "email": "info@aitkenspence.lk",
+      "website": "www.aitkenspence.com",
+      "registrationNumber": "PB-435"
+    },
+    {
+      "id": "C-3",
+      "name": "Dilmah Ceylon Tea Company PLC",
+      "address": "No. 111, Negombo Road, Peliyagoda, Sri Lanka",
+      "phone": "+94 11 482 2000",
+      "email": "info@dilmahtea.com",
+      "website": "www.dilmahtea.com",
+      "registrationNumber": "PQ-209"
+    }
   ],
   "mahdev_erp_projects_list": [
-    { "id": "p-1", "name": "Aitken Spence Custom CRM & Automation", "customerId": "cust-2", "companyId": "C-2", "description": "Enterprise CRM with automated workflows, lead allocation, and executive forecasting analytics.", "status": "In Progress", "startDate": "2026-05-10", "deadline": "2026-09-30", "progress": 65, "budget": 4500000, "assignedEmployees": ["emp-1"], "tasks": [
-      { "id": "t-1-1", "title": "Database Schema & Security Auditing", "projectId": "p-1", "assignedTo": "emp-1", "dueDate": "2026-07-20", "status": "In Progress", "priority": "High" }
-    ], "milestones": [
-      { "id": "m-1-1", "title": "Database & REST API Endpoints Signed Off", "dueDate": "2026-07-31", "isCompleted": false },
-      { "id": "m-1-2", "title": "Interactive Dashboard Components Integrated", "dueDate": "2026-08-31", "isCompleted": false }
-    ], "files": [] },
-    { "id": "p-2", "name": "SWS Luxury Wedding - Taj Samudra Grand Ballroom", "customerId": "cust-3", "description": "Bespoke design, canopy structure, 40-foot illuminated stage, and customized floral configurations.", "status": "Planning", "startDate": "2026-07-15", "deadline": "2026-08-25", "progress": 40, "budget": 1800000, "assignedEmployees": ["emp-2"], "tasks": [
-      { "id": "t-2-1", "title": "Floral Selection & Silk Canopy Sourcing", "projectId": "p-2", "assignedTo": "emp-2", "dueDate": "2026-07-25", "status": "Todo", "priority": "High" }
-    ], "milestones": [
-      { "id": "m-2-1", "title": "Botanical Assets Sourced", "dueDate": "2026-08-01", "isCompleted": false }
-    ], "files": [] }
+    {
+      "id": "p-1",
+      "name": "Aitken Spence Custom CRM & Automation",
+      "customerId": "cust-2",
+      "companyId": "C-2",
+      "description": "Enterprise CRM with automated workflows, lead allocation, and executive forecasting analytics.",
+      "status": "In Progress",
+      "startDate": "2026-05-10",
+      "deadline": "2026-09-30",
+      "progress": 65,
+      "budget": 4500000,
+      "assignedEmployees": [
+        "emp-1"
+      ],
+      "tasks": [
+        {
+          "id": "t-1-1",
+          "title": "Database Schema & Security Auditing",
+          "projectId": "p-1",
+          "assignedTo": "emp-1",
+          "dueDate": "2026-07-20",
+          "status": "In Progress",
+          "priority": "High"
+        }
+      ],
+      "milestones": [
+        {
+          "id": "m-1-1",
+          "title": "Database & REST API Endpoints Signed Off",
+          "dueDate": "2026-07-31",
+          "isCompleted": false
+        },
+        {
+          "id": "m-1-2",
+          "title": "Interactive Dashboard Components Integrated",
+          "dueDate": "2026-08-31",
+          "isCompleted": false
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": "p-2",
+      "name": "SWS Luxury Wedding - Taj Samudra Grand Ballroom",
+      "customerId": "cust-3",
+      "description": "Bespoke design, canopy structure, 40-foot illuminated stage, and customized floral configurations.",
+      "status": "Planning",
+      "startDate": "2026-07-15",
+      "deadline": "2026-08-25",
+      "progress": 40,
+      "budget": 1800000,
+      "assignedEmployees": [
+        "emp-2"
+      ],
+      "tasks": [
+        {
+          "id": "t-2-1",
+          "title": "Floral Selection & Silk Canopy Sourcing",
+          "projectId": "p-2",
+          "assignedTo": "emp-2",
+          "dueDate": "2026-07-25",
+          "status": "Todo",
+          "priority": "High"
+        }
+      ],
+      "milestones": [
+        {
+          "id": "m-2-1",
+          "title": "Botanical Assets Sourced",
+          "dueDate": "2026-08-01",
+          "isCompleted": false
+        }
+      ],
+      "files": []
+    }
   ],
   "mahdev_quotations_list": [
-    { "id": "q-1", "quotationNumber": "QT-2026-101", "customerId": "cust-1", "createdDate": "2026-06-01", "validUntil": "2026-07-15", "items": [
-      { "id": "qi-1", "description": "Bespoke Bank Branch Digital Lobby Portal Screen Suite", "quantity": 1, "unitPrice": 1500000 }
-    ], "discount": 0, "vat": 15, "nbt": 2, "terms": "50% advance upon confirmation. Balance 50% upon deployment.", "status": "Approved" },
-    { "id": "q-2", "quotationNumber": "QT-2026-102", "customerId": "cust-2", "createdDate": "2026-06-10", "validUntil": "2026-07-30", "items": [
-      { "id": "qi-2-1", "description": "Enterprise CRM Core Modules Integration", "quantity": 1, "unitPrice": 3000000 },
-      { "id": "qi-2-2", "description": "Dynamic Interactive Executive Dashboard", "quantity": 1, "unitPrice": 1500000 }
-    ], "discount": 10, "vat": 15, "nbt": 0, "terms": "30% Advance, 40% on Beta, 30% on Final release.", "status": "Approved" },
-    { "id": "q-3", "quotationNumber": "QT-2026-103", "customerId": "cust-3", "createdDate": "2026-06-15", "validUntil": "2026-08-01", "items": [
-      { "id": "qi-3-1", "description": "Bespoke SWS Stage Arch & Organic Florals", "quantity": 1, "unitPrice": 1200000 },
-      { "id": "qi-3-2", "description": "Dynamic Cinematic Lighting & Truss Setup", "quantity": 1, "unitPrice": 600000 }
-    ], "discount": 0, "vat": 15, "nbt": 0, "terms": "Full SWS payment 14 days prior to wedding date.", "status": "Sent" }
+    {
+      "id": "q-1",
+      "quotationNumber": "QT-2026-101",
+      "customerId": "cust-1",
+      "createdDate": "2026-06-01",
+      "validUntil": "2026-07-15",
+      "items": [
+        {
+          "id": "qi-1",
+          "description": "Bespoke Bank Branch Digital Lobby Portal Screen Suite",
+          "quantity": 1,
+          "unitPrice": 1500000
+        }
+      ],
+      "discount": 0,
+      "vat": 15,
+      "nbt": 2,
+      "terms": "50% advance upon confirmation. Balance 50% upon deployment.",
+      "status": "Approved"
+    },
+    {
+      "id": "q-2",
+      "quotationNumber": "QT-2026-102",
+      "customerId": "cust-2",
+      "createdDate": "2026-06-10",
+      "validUntil": "2026-07-30",
+      "items": [
+        {
+          "id": "qi-2-1",
+          "description": "Enterprise CRM Core Modules Integration",
+          "quantity": 1,
+          "unitPrice": 3000000
+        },
+        {
+          "id": "qi-2-2",
+          "description": "Dynamic Interactive Executive Dashboard",
+          "quantity": 1,
+          "unitPrice": 1500000
+        }
+      ],
+      "discount": 10,
+      "vat": 15,
+      "nbt": 0,
+      "terms": "30% Advance, 40% on Beta, 30% on Final release.",
+      "status": "Approved"
+    },
+    {
+      "id": "q-3",
+      "quotationNumber": "QT-2026-103",
+      "customerId": "cust-3",
+      "createdDate": "2026-06-15",
+      "validUntil": "2026-08-01",
+      "items": [
+        {
+          "id": "qi-3-1",
+          "description": "Bespoke SWS Stage Arch & Organic Florals",
+          "quantity": 1,
+          "unitPrice": 1200000
+        },
+        {
+          "id": "qi-3-2",
+          "description": "Dynamic Cinematic Lighting & Truss Setup",
+          "quantity": 1,
+          "unitPrice": 600000
+        }
+      ],
+      "discount": 0,
+      "vat": 15,
+      "nbt": 0,
+      "terms": "Full SWS payment 14 days prior to wedding date.",
+      "status": "Sent"
+    }
   ],
   "mahdev_invoices_list": [
-    { "id": "inv-1", "invoiceNumber": "INV-2026-001", "customerId": "cust-1", "projectId": "p-1", "projectName": "Corporate Lobby Digital Suite", "createdDate": "2026-06-01", "dueDate": "2026-07-01", "items": [
-      { "id": "ii-1", "description": "Bespoke Bank Branch Digital Lobby Portal Screen Suite", "quantity": 1, "unitPrice": 1500000 }
-    ], "discount": 0, "tax": 15, "status": "Paid", "advanceAmount": 750000, "remainingAmount": 0, "paidAmount": 1500000 },
-    { "id": "inv-2", "invoiceNumber": "INV-2026-002", "customerId": "cust-2", "projectId": "p-1", "projectName": "Aitken Spence Custom CRM", "createdDate": "2026-06-12", "dueDate": "2026-07-15", "items": [
-      { "id": "ii-2-1", "description": "Enterprise CRM Core Modules Integration", "quantity": 1, "unitPrice": 3000000 },
-      { "id": "ii-2-2", "description": "Dynamic Interactive Executive Dashboard", "quantity": 1, "unitPrice": 1500000 }
-    ], "discount": 10, "tax": 15, "status": "Partially Paid", "advanceAmount": 1350000, "remainingAmount": 2250000, "paidAmount": 2250000 },
-    { "id": "inv-3", "invoiceNumber": "INV-2026-003", "customerId": "cust-3", "projectId": "p-2", "projectName": "Luxury SWS Wedding Decor", "createdDate": "2026-06-25", "dueDate": "2026-08-01", "items": [
-      { "id": "ii-3-1", "description": "Bespoke SWS Stage Arch & Organic Florals", "quantity": 1, "unitPrice": 1200000 },
-      { "id": "ii-3-2", "description": "Dynamic Cinematic Lighting & Truss Setup", "quantity": 1, "unitPrice": 600000 }
-    ], "discount": 0, "tax": 15, "status": "Pending", "advanceAmount": 0, "remainingAmount": 1800000, "paidAmount": 0 }
+    {
+      "id": "inv-1",
+      "invoiceNumber": "INV-2026-001",
+      "customerId": "cust-1",
+      "projectId": "p-1",
+      "projectName": "Corporate Lobby Digital Suite",
+      "createdDate": "2026-06-01",
+      "dueDate": "2026-07-01",
+      "items": [
+        {
+          "id": "ii-1",
+          "description": "Bespoke Bank Branch Digital Lobby Portal Screen Suite",
+          "quantity": 1,
+          "unitPrice": 1500000
+        }
+      ],
+      "discount": 0,
+      "tax": 15,
+      "status": "Paid",
+      "advanceAmount": 750000,
+      "remainingAmount": 0,
+      "paidAmount": 1500000
+    },
+    {
+      "id": "inv-2",
+      "invoiceNumber": "INV-2026-002",
+      "customerId": "cust-2",
+      "projectId": "p-1",
+      "projectName": "Aitken Spence Custom CRM",
+      "createdDate": "2026-06-12",
+      "dueDate": "2026-07-15",
+      "items": [
+        {
+          "id": "ii-2-1",
+          "description": "Enterprise CRM Core Modules Integration",
+          "quantity": 1,
+          "unitPrice": 3000000
+        },
+        {
+          "id": "ii-2-2",
+          "description": "Dynamic Interactive Executive Dashboard",
+          "quantity": 1,
+          "unitPrice": 1500000
+        }
+      ],
+      "discount": 10,
+      "tax": 15,
+      "status": "Partially Paid",
+      "advanceAmount": 1350000,
+      "remainingAmount": 2250000,
+      "paidAmount": 2250000
+    },
+    {
+      "id": "inv-3",
+      "invoiceNumber": "INV-2026-003",
+      "customerId": "cust-3",
+      "projectId": "p-2",
+      "projectName": "Luxury SWS Wedding Decor",
+      "createdDate": "2026-06-25",
+      "dueDate": "2026-08-01",
+      "items": [
+        {
+          "id": "ii-3-1",
+          "description": "Bespoke SWS Stage Arch & Organic Florals",
+          "quantity": 1,
+          "unitPrice": 1200000
+        },
+        {
+          "id": "ii-3-2",
+          "description": "Dynamic Cinematic Lighting & Truss Setup",
+          "quantity": 1,
+          "unitPrice": 600000
+        }
+      ],
+      "discount": 0,
+      "tax": 15,
+      "status": "Pending",
+      "advanceAmount": 0,
+      "remainingAmount": 1800000,
+      "paidAmount": 0
+    }
   ],
   "mahdev_payments_list": [
-    { "id": "pay-1", "invoiceId": "inv-1", "amount": 1500000, "paymentDate": "2026-06-05", "source": "Bank Transfer (Nations Trust Bank)", "receiptNumber": "REC-2026-0891", "type": "Final" },
-    { "id": "pay-2", "invoiceId": "inv-2", "amount": 2250000, "paymentDate": "2026-06-20", "source": "Bank Transfer (Commercial Bank)", "receiptNumber": "REC-2026-0892", "type": "Advance" }
+    {
+      "id": "pay-1",
+      "invoiceId": "inv-1",
+      "amount": 1500000,
+      "paymentDate": "2026-06-05",
+      "source": "Bank Transfer (Nations Trust Bank)",
+      "receiptNumber": "REC-2026-0891",
+      "type": "Final"
+    },
+    {
+      "id": "pay-2",
+      "invoiceId": "inv-2",
+      "amount": 2250000,
+      "paymentDate": "2026-06-20",
+      "source": "Bank Transfer (Commercial Bank)",
+      "receiptNumber": "REC-2026-0892",
+      "type": "Advance"
+    }
   ],
   "mahdev_expenses_list": [
-    { "id": "exp-1", "description": "Imported Silk Canopy fabric rolls (SWS Wedding)", "category": "Decorations", "amount": 320000, "date": "2026-06-15", "vendor": "Selas Timber & Fabrics Ltd", "receiptUrl": "" },
-    { "id": "exp-2", "description": "AWS Cloud Server Hosting Fees (Enterprise SaaS)", "category": "IT Solutions", "amount": 45000, "date": "2026-07-01", "vendor": "Amazon Web Services Inc.", "receiptUrl": "" },
-    { "id": "exp-3", "description": "KDH High-Roof Van Fuel & Toll Fees (Tour Transport)", "category": "Travels", "amount": 15000, "date": "2026-07-05", "vendor": "Ceypetco Fuel Station", "receiptUrl": "" }
+    {
+      "id": "exp-1",
+      "description": "Imported Silk Canopy fabric rolls (SWS Wedding)",
+      "category": "Decorations",
+      "amount": 320000,
+      "date": "2026-06-15",
+      "vendor": "Selas Timber & Fabrics Ltd",
+      "receiptUrl": ""
+    },
+    {
+      "id": "exp-2",
+      "description": "AWS Cloud Server Hosting Fees (Enterprise SaaS)",
+      "category": "IT Solutions",
+      "amount": 45000,
+      "date": "2026-07-01",
+      "vendor": "Amazon Web Services Inc.",
+      "receiptUrl": ""
+    },
+    {
+      "id": "exp-3",
+      "description": "KDH High-Roof Van Fuel & Toll Fees (Tour Transport)",
+      "category": "Travels",
+      "amount": 15000,
+      "date": "2026-07-05",
+      "vendor": "Ceypetco Fuel Station",
+      "receiptUrl": ""
+    }
   ],
   "mahdev_incomes_list": [
-    { "id": "inc-1", "description": "Cinematic Pre-Wedding Drone Videography Booking Deposit", "source": "U1 Studio Services", "amount": 80000, "date": "2026-07-02", "notes": "Taj Samudra Sunset Package" },
-    { "id": "inc-2", "description": "SWS Event Stage Flowers Bulk Resale Margin", "source": "SWS Flower Wholesale", "amount": 35000, "date": "2026-07-04", "notes": "Sold leftover roses to local florists" }
+    {
+      "id": "inc-1",
+      "description": "Cinematic Pre-Wedding Drone Videography Booking Deposit",
+      "source": "U1 Studio Services",
+      "amount": 80000,
+      "date": "2026-07-02",
+      "notes": "Taj Samudra Sunset Package"
+    },
+    {
+      "id": "inc-2",
+      "description": "SWS Event Stage Flowers Bulk Resale Margin",
+      "source": "SWS Flower Wholesale",
+      "amount": 35000,
+      "date": "2026-07-04",
+      "notes": "Sold leftover roses to local florists"
+    }
   ],
   "mahdev_employees_list": [
-    { "id": "emp-1", "name": "Roshan Ranasinghe", "email": "roshan@mahdev.lk", "phone": "+94 77 888 1111", "department": "IT Solutions", "role": "Lead Solutions Architect", "attendance": {}, "salary": 250000, "leaveRequests": [], "payrollHistory": [{ "month": "June 2026", "basic": 250000, "bonus": 15000, "net": 265000, "paidAt": "2026-06-30" }], "performanceScore": 5 },
-    { "id": "emp-2", "name": "Shalini Fonseka", "email": "shalini@mahdev.lk", "phone": "+94 77 888 2222", "department": "SWS Events", "role": "Chief Creative Decorator", "attendance": {}, "salary": 180000, "leaveRequests": [], "payrollHistory": [{ "month": "June 2026", "basic": 180000, "bonus": 20000, "net": 200000, "paidAt": "2026-06-30" }], "performanceScore": 4 },
-    { "id": "emp-3", "name": "Nuwan Bandara", "email": "nuwan@mahdev.lk", "phone": "+94 77 888 3333", "department": "U1 Studio", "role": "Senior Cinematic Videographer", "attendance": {}, "salary": 160000, "leaveRequests": [], "payrollHistory": [{ "month": "June 2026", "basic": 160000, "bonus": 5000, "net": 165000, "paidAt": "2026-06-30" }], "performanceScore": 4 },
-    { "id": "emp-4", "name": "Priyantha Jayawardena", "email": "priyantha@mahdev.lk", "phone": "+94 77 888 4444", "department": "Finance", "role": "Senior Accountant", "attendance": {}, "salary": 150000, "leaveRequests": [], "payrollHistory": [{ "month": "June 2026", "basic": 150000, "bonus": 0, "net": 150000, "paidAt": "2026-06-30" }], "performanceScore": 5 }
+    {
+      "id": "emp-1",
+      "name": "Roshan Ranasinghe",
+      "email": "roshan@mahdev.lk",
+      "phone": "+94 77 888 1111",
+      "department": "IT Solutions",
+      "role": "Lead Solutions Architect",
+      "attendance": {},
+      "salary": 250000,
+      "leaveRequests": [],
+      "payrollHistory": [
+        {
+          "month": "June 2026",
+          "basic": 250000,
+          "bonus": 15000,
+          "net": 265000,
+          "paidAt": "2026-06-30"
+        }
+      ],
+      "performanceScore": 5
+    },
+    {
+      "id": "emp-2",
+      "name": "Shalini Fonseka",
+      "email": "shalini@mahdev.lk",
+      "phone": "+94 77 888 2222",
+      "department": "SWS Events",
+      "role": "Chief Creative Decorator",
+      "attendance": {},
+      "salary": 180000,
+      "leaveRequests": [],
+      "payrollHistory": [
+        {
+          "month": "June 2026",
+          "basic": 180000,
+          "bonus": 20000,
+          "net": 200000,
+          "paidAt": "2026-06-30"
+        }
+      ],
+      "performanceScore": 4
+    },
+    {
+      "id": "emp-3",
+      "name": "Nuwan Bandara",
+      "email": "nuwan@mahdev.lk",
+      "phone": "+94 77 888 3333",
+      "department": "U1 Studio",
+      "role": "Senior Cinematic Videographer",
+      "attendance": {},
+      "salary": 160000,
+      "leaveRequests": [],
+      "payrollHistory": [
+        {
+          "month": "June 2026",
+          "basic": 160000,
+          "bonus": 5000,
+          "net": 165000,
+          "paidAt": "2026-06-30"
+        }
+      ],
+      "performanceScore": 4
+    },
+    {
+      "id": "emp-4",
+      "name": "Priyantha Jayawardena",
+      "email": "priyantha@mahdev.lk",
+      "phone": "+94 77 888 4444",
+      "department": "Finance",
+      "role": "Senior Accountant",
+      "attendance": {},
+      "salary": 150000,
+      "leaveRequests": [],
+      "payrollHistory": [
+        {
+          "month": "June 2026",
+          "basic": 150000,
+          "bonus": 0,
+          "net": 150000,
+          "paidAt": "2026-06-30"
+        }
+      ],
+      "performanceScore": 5
+    }
   ],
   "mahdev_company_profile": {
     "name": "Mahdev Pvt Ltd",
@@ -721,7 +1246,10 @@
     "favicon": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=32",
     "registrationNumber": "PV-987654",
     "address": "No. 45, Galle Road, Colombo 03, Sri Lanka",
-    "phones": ["+94 11 234 5678", "+94 77 123 4567"],
+    "phones": [
+      "+94 11 234 5678",
+      "+94 77 123 4567"
+    ],
     "whatsApp": "+94 77 123 4567",
     "email": "corporate@mahdev.lk",
     "website": "https://www.mahdev.lk",

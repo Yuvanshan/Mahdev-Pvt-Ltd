@@ -36,8 +36,8 @@ export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPAN
           : 'bg-slate-50 border-slate-200 text-slate-600'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
           
           {/* Column 1: Brand Info */}
           <div id="footer-brand-col" className="flex flex-col space-y-4">
@@ -77,7 +77,7 @@ export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPAN
                   href={item.url}
                   target="_blank"
                   rel="noreferrer"
-                  className={`p-2.5 rounded-lg border transition-all ${
+                  className={`p-2.5 rounded-xl border transition-all ${
                     isDarkMode 
                       ? 'border-emerald-500/10 bg-neutral-900/40 text-emerald-400 hover:bg-emerald-500 hover:text-white hover:border-emerald-500' 
                       : 'border-slate-200 bg-white text-slate-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600'
@@ -151,7 +151,7 @@ export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPAN
             <h4 className={`text-sm font-bold uppercase tracking-wider ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               Headquarters Location
             </h4>
-            <div className="relative w-full h-40 rounded-xl overflow-hidden border border-emerald-500/20 group">
+            <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-emerald-500/20 group shadow-lg shadow-black/10">
               <iframe
                 src={contactInfo.mapsIframe}
                 className="absolute inset-0 w-full h-full border-0 filter grayscale invert contrast-125 opacity-70 group-hover:opacity-90 transition-opacity duration-300"
@@ -179,12 +179,6 @@ export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPAN
             <a href="#privacy" className="hover:text-emerald-500 transition-colors">Privacy Policy</a>
             <a href="#terms" className="hover:text-emerald-500 transition-colors">Terms of Service</a>
             <a href="#sitemap" className="hover:text-emerald-500 transition-colors">Sitemap</a>
-            <button 
-              onClick={() => handleNavClick(ActivePage.Admin)} 
-              className="hover:text-amber-500 font-medium transition-colors cursor-pointer"
-            >
-              Admin Portal
-            </button>
           </div>
         </div>
       </div>

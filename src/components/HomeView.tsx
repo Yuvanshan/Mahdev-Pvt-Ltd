@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Sparkles, Camera, Cpu, Globe, ArrowRight, Shield, Award, Users, 
@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { ActivePage, ServiceCard, Leader, ThemeSettings } from '../types';
 import { SERVICES_LIST } from '../data';
+import PremiumHero from './PremiumHero';
+import { preloadCriticalImages, enablePerformanceHints } from '../utils/performanceOptimization';
 
 // Generated 3D Image References
 const swsRobotImg = '/src/assets/images/sws_robot_decor_1783346269673.jpg';
@@ -37,6 +39,21 @@ export default function HomeView({
   const brandName = themeSettings?.brandName || 'MAHDEV Elite Service Suite';
   const [hoveredPanel, setHoveredPanel] = useState<number | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Performance optimizations
+  useEffect(() => {
+    // Preload critical hero images
+    const heroImages = [
+      themeSettings?.decorationBanner || swsRobotImg,
+      themeSettings?.photographyBanner || u1RobotImg,
+      themeSettings?.itBanner || itRobotImg,
+      themeSettings?.travelsBanner || travelsRobotImg
+    ];
+    preloadCriticalImages(heroImages);
+
+    // Enable performance hints for common CDNs
+    enablePerformanceHints(['images.unsplash.com', 'cdn.jsdelivr.net']);
+  }, [themeSettings]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -64,6 +81,58 @@ export default function HomeView({
   const u1RobotImgDynamic = themeSettings?.photographyBanner || u1RobotImg;
   const itRobotImgDynamic = themeSettings?.itBanner || itRobotImg;
   const travelsRobotImgDynamic = themeSettings?.travelsBanner || travelsRobotImg;
+
+  // Premium Hero Cards
+  const heroCards = [
+    {
+      id: 1,
+      title: 'SWS Event Management',
+      subtitle: 'Celebrations & Styling',
+      color: 'from-pink-600 to-rose-600',
+      borderColor: 'border-pink-500/60',
+      bgGradient: 'bg-gradient-to-t from-black/70 via-black/20 to-transparent',
+      textColor: '',
+      accentColor: 'text-pink-400',
+      image: swsRobotImgDynamic,
+      page: ActivePage.Decoration
+    },
+    {
+      id: 2,
+      title: 'U1 Studio',
+      subtitle: 'Photography & Cinematography',
+      color: 'from-purple-600 to-indigo-600',
+      borderColor: 'border-purple-500/60',
+      bgGradient: 'bg-gradient-to-t from-black/70 via-black/20 to-transparent',
+      textColor: '',
+      accentColor: 'text-purple-400',
+      image: u1RobotImgDynamic,
+      page: ActivePage.Photography
+    },
+    {
+      id: 3,
+      title: 'Mahdev IT & Solutions',
+      subtitle: 'ERP & Digital Transformation',
+      color: 'from-blue-600 to-cyan-600',
+      borderColor: 'border-blue-500/60',
+      bgGradient: 'bg-gradient-to-t from-black/70 via-black/20 to-transparent',
+      textColor: '',
+      accentColor: 'text-blue-400',
+      image: itRobotImgDynamic,
+      page: ActivePage.ItSolutions
+    },
+    {
+      id: 4,
+      title: 'Mahdev Travels',
+      subtitle: 'Luxury Tours & Fleet Services',
+      color: 'from-amber-600 to-orange-600',
+      borderColor: 'border-amber-500/60',
+      bgGradient: 'bg-gradient-to-t from-black/70 via-black/20 to-transparent',
+      textColor: '',
+      accentColor: 'text-amber-400',
+      image: travelsRobotImgDynamic,
+      page: ActivePage.Travels
+    }
+  ];
 
   const panels = [
     {
@@ -140,6 +209,12 @@ export default function HomeView({
     }
   ];
 
+  const trustPoints = [
+    { label: 'Integrated Divisions', value: '4' },
+    { label: 'Tailored Delivery', value: '100%' },
+    { label: 'Support Response', value: '24/7' }
+  ];
+
   return (
     <div id="home-view-container" className="relative w-full overflow-hidden font-sans">
       {/* Keyframe Styling */}
@@ -175,196 +250,12 @@ export default function HomeView({
         }
       `}</style>
 
-      {/* HERO SECTION - Matching Image 100% */}
-      <section className={`relative min-h-[90vh] flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-16 overflow-hidden border-b transition-colors duration-500 ${
-        isDarkMode 
-          ? 'bg-black text-white border-neutral-900' 
-          : 'bg-gradient-to-b from-slate-50 via-white to-slate-50 text-slate-800 border-slate-200'
-      }`}>
-        {/* Background Gradients */}
-        {isDarkMode ? (
-          <>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neutral-900 via-neutral-950 to-black pointer-events-none" />
-            <div className="absolute top-0 right-0 w-[45%] h-[45%] bg-gradient-to-br from-amber-500/10 to-transparent blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[35%] h-[35%] bg-gradient-to-tr from-purple-500/10 to-transparent blur-3xl pointer-events-none" />
-          </>
-        ) : (
-          <>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-50/10 via-white to-indigo-50/10 pointer-events-none" />
-            <div className="absolute top-0 right-0 w-[45%] h-[45%] bg-gradient-to-br from-amber-500/5 to-transparent blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[35%] h-[35%] bg-gradient-to-tr from-purple-500/5 to-transparent blur-3xl pointer-events-none" />
-          </>
-        )}
-
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-          
-          {/* Hero Left Content */}
-          <div className="lg:col-span-5 space-y-6 text-left">
-            <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border text-xs font-semibold tracking-widest uppercase transition-colors duration-500 ${
-              isDarkMode 
-                ? 'border-amber-500/30 bg-amber-500/5 text-amber-400' 
-                : 'border-amber-500/20 bg-amber-500/5 text-amber-600'
-            }`}>
-              <Sparkles size={13} className="text-amber-500 animate-pulse" />
-              <span>MAHDEV ELITE SERVICE SUITE</span>
-            </div>
-            
-            <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] transition-colors duration-500 ${
-              isDarkMode ? 'text-white' : 'text-slate-950'
-            }`}>
-              MAHDEV<br />
-              <span className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(245,158,11,0.2)]">
-                ELITE SERVICE SUITE
-              </span>
-            </h1>
-
-            <div className="w-16 h-1 bg-amber-500 rounded-full my-4" />
-            
-            <p className={`text-base sm:text-lg leading-relaxed max-w-lg transition-colors duration-500 ${
-              isDarkMode ? 'text-neutral-300' : 'text-slate-700'
-            }`}>
-              One Vision, Four Powerful Solutions.<br />
-              <span className="text-amber-500 font-bold">AI Driven • Expert Powered • Excellence Delivered.</span>
-            </p>
-
-            <div className="pt-4">
-              <button
-                onClick={() => scrollToSection('sws-section')}
-                className="px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-extrabold text-sm tracking-wider uppercase shadow-xl shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-[1.03] transition-all flex items-center gap-2 group/btn"
-              >
-                <span>Discover More</span>
-                <ArrowRight size={16} className="transform group-hover/btn:translate-x-1 transition-transform" />
-              </button>
-            </div>
-          </div>
-
-          {/* Hero Right: Responsive Symmetrical 2x2 Service Suite Grid */}
-          <div className="lg:col-span-7 w-full relative">
-            {/* Stage Light effects around the grid */}
-            <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-[85%] h-6 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent blur-xl pointer-events-none" />
-            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-[85%] h-8 bg-gradient-to-r from-transparent via-amber-500/25 to-transparent blur-xl pointer-events-none animate-pulse" />
-            
-            {/* Main Grid Frame */}
-            <div className={`p-4 sm:p-6 rounded-3xl border transition-all duration-500 shadow-2xl relative overflow-hidden ${
-              isDarkMode 
-                ? 'border-neutral-800 bg-neutral-950/85 shadow-black/80' 
-                : 'border-slate-200 bg-white/95 shadow-slate-200/50'
-            }`}>
-              
-              {/* Card top bar with navigation & sector counter */}
-              <div className="flex items-center justify-between mb-4 pb-4 border-b border-dashed border-neutral-800/40 dark:border-neutral-800/20">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" />
-                  <span className={`text-[11px] font-black tracking-widest font-mono uppercase ${
-                    isDarkMode ? 'text-neutral-400' : 'text-slate-500'
-                  }`}>
-                    ACTIVE SECTOR PORTAL
-                  </span>
-                </div>
-                
-                <span className="text-[10px] text-amber-500/80 font-bold font-mono uppercase tracking-wider">
-                  4 SECTORS READY
-                </span>
-              </div>
-
-              {/* Symmetrical 2x2 Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {panels.map((panel, idx) => {
-                  const isHovered = hoveredPanel === panel.id;
-                  return (
-                    <motion.div
-                      key={panel.id}
-                      onMouseEnter={() => {
-                        setHoveredPanel(panel.id);
-                        let mode = 'home';
-                        if (panel.page === ActivePage.Decoration) mode = 'decoration';
-                        else if (panel.page === ActivePage.Photography) mode = 'photography';
-                        else if (panel.page === ActivePage.ItSolutions) mode = 'it';
-                        else if (panel.page === ActivePage.Travels) mode = 'travels';
-                        window.dispatchEvent(new CustomEvent('mahdev-3d-mode-change', { detail: { mode } }));
-                      }}
-                      onMouseLeave={() => {
-                        setHoveredPanel(null);
-                        window.dispatchEvent(new CustomEvent('mahdev-3d-mode-change', { detail: { mode: 'home' } }));
-                      }}
-                      onClick={() => handleNavClick(panel.page)}
-                      className={`cursor-pointer rounded-2xl border overflow-hidden relative flex flex-col justify-between h-auto p-4 transition-all duration-500 hover:scale-[1.02] ${
-                        isDarkMode 
-                          ? `border-neutral-850 bg-neutral-900/50 ${panel.borderColor} ${isHovered ? panel.glow : 'shadow-black/40'}` 
-                          : `border-slate-200 bg-slate-50/80 ${panel.borderColor} ${isHovered ? panel.glow : 'shadow-slate-100'}`
-                      }`}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: idx * 0.08, duration: 0.4 }}
-                    >
-                      {/* Laser stage light beam */}
-                      <div className={`absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-12 sm:w-20 bg-gradient-to-r ${panel.beamColor} opacity-5 group-hover:opacity-35 blur-xl transition-all duration-500 pointer-events-none`} />
-                      
-                      {/* Glowing colored overlay inside panel */}
-                      <div className={`absolute inset-0 bg-gradient-to-b ${panel.color} opacity-20 pointer-events-none transition-all duration-500 group-hover:opacity-50`} />
-                      
-                      {/* Top Content: Titles */}
-                      <div className="relative z-10 flex flex-col items-start">
-                        <span className={`text-[10px] font-black tracking-widest font-mono uppercase ${panel.textColorPart1}`}>
-                          {panel.titlePart1}
-                        </span>
-                        <span className={`text-xs sm:text-sm font-extrabold tracking-tight uppercase leading-none mt-0.5 ${
-                          isDarkMode ? 'text-white' : 'text-slate-800'
-                        }`}>
-                          {panel.titlePart2} {panel.titlePart3}
-                        </span>
-                        
-                        {/* Subtitle tag */}
-                        <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded mt-1.5 tracking-wider ${
-                          isDarkMode ? 'bg-neutral-800/80 text-amber-400' : 'bg-slate-200/60 text-slate-700'
-                        }`}>
-                          {panel.subtitle}
-                        </span>
-                      </div>
-
-                      {/* Image visual container */}
-                      <div className={`relative w-full aspect-square overflow-hidden rounded-xl mt-3 flex items-center justify-center border transition-all duration-500 group-hover:border-white/10 ${
-                        isDarkMode ? 'bg-neutral-950 border-neutral-800 shadow-inner' : 'bg-white border-slate-200 shadow-sm'
-                      }`}>
-                        <img 
-                          src={panel.img} 
-                          alt={panel.subtitle} 
-                          className="w-full h-full object-cover rounded-xl transition-all duration-700 group-hover:scale-110"
-                          referrerPolicy="no-referrer"
-                          decoding="async"
-                        />
-                        <div className={`absolute inset-0 bg-gradient-to-t ${panel.color} opacity-0 group-hover:opacity-20 pointer-events-none transition-opacity duration-500`} />
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-transparent to-black/20 pointer-events-none" />
-                      </div>
-
-                      {/* Bottom Action */}
-                      <div className="relative z-10 pt-3 flex items-center justify-between text-[10px] border-t border-neutral-800/40 dark:border-neutral-800/20">
-                        <span className={`font-black tracking-widest uppercase ${
-                          isDarkMode ? 'text-neutral-400 group-hover:text-amber-400' : 'text-slate-500 group-hover:text-amber-600'
-                        }`}>
-                          EXPLORE
-                        </span>
-                        <div className={`p-1 rounded-md border transition-all duration-300 ${
-                          isDarkMode ? 'border-neutral-850 bg-neutral-950 text-amber-500 group-hover:border-amber-500/30' : 'border-slate-200 bg-white text-amber-600'
-                        }`}>
-                          <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-
-              {/* Help hint below */}
-              <div className="flex items-center justify-between mt-3 text-[10px] text-neutral-500 font-mono">
-                <span>Select a portal above to launch 3D environments</span>
-                <span className="text-amber-500 font-bold">EXCELLENCE GUARANTEED</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
+      {/* PREMIUM HERO SECTION */}
+      <PremiumHero 
+        isDarkMode={isDarkMode} 
+        onNavigate={handleNavClick}
+        cards={heroCards}
+      />
 
       {/* SECTION 01: SWS EVENT MANAGEMENT - Pink Accented Theme */}
       <section id="sws-section" className={`relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b transition-colors duration-500 ${
@@ -870,7 +761,9 @@ export default function HomeView({
           : 'bg-slate-100 text-slate-800 border-slate-200'
       }`}>
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 text-left">
+          <div className={`space-y-6 text-left rounded-[2rem] border p-7 sm:p-8 shadow-2xl ${
+            isDarkMode ? 'border-neutral-800 bg-neutral-900/70' : 'border-slate-200 bg-white/80'
+          }`}>
             <span className={`text-xs font-bold uppercase tracking-widest font-mono ${
               isDarkMode ? 'text-amber-400' : 'text-amber-600'
             }`}>
@@ -888,6 +781,23 @@ export default function HomeView({
               multidisciplinary workforce. We deliver exquisite decorations, handle camera equipment, code enterprise POS systems,
               and maintain custom travel operations with dedicated professional governance.
             </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { label: 'Integrated Delivery', value: '4 Services' },
+                { label: 'Project Focus', value: 'Premium Quality' },
+                { label: 'Execution', value: 'End-to-End' }
+              ].map((item) => (
+                <div key={item.label} className={`rounded-2xl border px-3 py-3 ${
+                  isDarkMode ? 'border-neutral-800 bg-black/20' : 'border-slate-200 bg-slate-50'
+                }`}>
+                  <div className="text-sm font-black text-amber-500">{item.value}</div>
+                  <div className={`text-[10px] uppercase tracking-[0.2em] ${
+                    isDarkMode ? 'text-slate-400' : 'text-slate-500'
+                  }`}>{item.label}</div>
+                </div>
+              ))}
+            </div>
             
             <div className="space-y-4 pt-2">
               {[

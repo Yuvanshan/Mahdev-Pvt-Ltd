@@ -2,59 +2,18 @@
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm ci",
-  "framework": "react",
+  "framework": "vite",
   "outputDirectory": "dist",
-  "nodeVersion": "20.x",
-  "env": [
-    {
-      "key": "VITE_FIREBASE_API_KEY",
-      "description": "Firebase API Key",
-      "value": "",
-      "type": "plain"
-    },
-    {
-      "key": "VITE_FIREBASE_AUTH_DOMAIN",
-      "description": "Firebase Auth Domain",
-      "value": "",
-      "type": "plain"
-    },
-    {
-      "key": "VITE_FIREBASE_PROJECT_ID",
-      "description": "Firebase Project ID",
-      "value": "",
-      "type": "plain"
-    },
-    {
-      "key": "VITE_FIREBASE_STORAGE_BUCKET",
-      "description": "Firebase Storage Bucket",
-      "value": "",
-      "type": "plain"
-    },
-    {
-      "key": "VITE_FIREBASE_MESSAGING_SENDER_ID",
-      "description": "Firebase Messaging Sender ID",
-      "value": "",
-      "type": "plain"
-    },
-    {
-      "key": "VITE_FIREBASE_APP_ID",
-      "description": "Firebase App ID",
-      "value": "",
-      "type": "plain"
-    },
-    {
-      "key": "VITE_ADMIN_PASSWORD",
-      "description": "Admin Portal Password",
-      "value": "",
-      "type": "plain"
-    },
-    {
-      "key": "VITE_ADMIN_USERNAME",
-      "description": "Admin Portal Username",
-      "value": "",
-      "type": "plain"
-    }
-  ],
+  "env": {
+    "VITE_FIREBASE_API_KEY": "",
+    "VITE_FIREBASE_AUTH_DOMAIN": "",
+    "VITE_FIREBASE_PROJECT_ID": "",
+    "VITE_FIREBASE_STORAGE_BUCKET": "",
+    "VITE_FIREBASE_MESSAGING_SENDER_ID": "",
+    "VITE_FIREBASE_APP_ID": "",
+    "VITE_ADMIN_PASSWORD": "",
+    "VITE_ADMIN_USERNAME": ""
+  },
   "headers": [
     {
       "source": "/(.*)",

@@ -216,10 +216,40 @@ const DEFAULT_LEADERSHIP: Leader[] = [
 ];
 
 function resolveImageValue(value: string | undefined, fallback: string): string {
-  if (typeof value === 'string' && value.trim() !== '') {
+  return normalizeImageValue(value, fallback);
+}
+
+const IMAGE_ASSET_MAP: Record<string, string> = {
+  'mahadev_logo_1782729909050.jpg': mahadevLogo,
+  'sws_robot_decor_1783346269673.jpg': swsDecorBanner,
+  'u1_robot_camera_1783346286743.jpg': u1PhotographyBanner,
+  'it_robot_developer_1783346302442.jpg': itBanner,
+  'travels_robot_car_1783346316762.jpg': travelsBannerImg,
+  'wedding_decoration_1782729925686.jpg': weddingDecorationBannerImg
+};
+
+function normalizeImageValue(value: string | undefined, fallback: string): string {
+  if (typeof value !== 'string' || value.trim() === '') {
+    return fallback;
+  }
+
+  if (value.startsWith('data:')) {
     return value;
   }
-  return fallback;
+
+  const candidate = value.split('?')[0].split('/').pop() || '';
+  const mapped = IMAGE_ASSET_MAP[candidate];
+  if (mapped) {
+    return mapped;
+  }
+
+  if (value.includes('/src/assets/images/') || value.includes('/assets/images/')) {
+    const fallbackFile = fallback.split('/').pop() || '';
+    const fallbackMapped = IMAGE_ASSET_MAP[fallbackFile];
+    return fallbackMapped || fallback;
+  }
+
+  return value;
 }
 
 export function getCompanyContact() {
@@ -229,7 +259,7 @@ export function getCompanyContact() {
     return COMPANY_CONTACT;
   }
   const parsed = JSON.parse(data);
-  parsed.logo = resolveImageValue(parsed.logo, COMPANY_CONTACT.logo);
+  parsed.logo = normalizeImageValue(parsed.logo, COMPANY_CONTACT.logo);
   return parsed;
 }
 

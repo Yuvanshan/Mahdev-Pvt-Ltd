@@ -1,0 +1,737 @@
+{
+  "mahdev_company_contact": {
+    "phone": "076 898 8970 / 075 092 8078",
+    "whatsapp": "https://wa.me/94768988970?text=Hi%20Mahdev%20Pvt%20Ltd,%20I%20would%20like%20to%20know%20more%20about%20your%20services.",
+    "email": "info.mahdev.lk@gmail.com",
+    "address": "41/22, Pickerings Road, Kotahena, Colombo 13",
+    "hours": "Monday - Saturday: 9:00 AM - 8:00 PM (Sunday: Prior Booking Only)",
+    "mapsIframe": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.5905187788484!2d79.86047717498674!3d6.939466593060667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae2593b4f62cae1%3A0xc0fb198eeaa07897!2sPickerings%20Rd%2C%20Colombo!5e0!3m2!1sen!2slk!4v1719650000000!5m2!1sen!2slk",
+    "logo": "/src/assets/images/mahadev_logo_1782729909050.jpg"
+  },
+  "mahdev_services_list": [
+    {
+      "id": "decoration",
+      "title": "SWS Event Management",
+      "description": "Transforming spaces into breathtaking visual narratives. We specialize in luxury weddings, themed stages, church floral setups, and high-profile corporate galas.",
+      "icon": "Sparkles",
+      "page": "decoration",
+      "image": "https://images.unsplash.com/photo-1519741497674-611481863552?fm=webp&fit=crop&q=70&w=600"
+    },
+    {
+      "id": "photography",
+      "title": "U1 Studio",
+      "description": "Capturing fleeting raw emotions and grand moments with cinematic precision. From high-altitude drone cinematography to intimate baby and studio portraits.",
+      "icon": "Camera",
+      "page": "photography",
+      "image": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?fm=webp&fit=crop&q=70&w=600"
+    },
+    {
+      "id": "erp",
+      "title": "Mahdev ERP System",
+      "description": "Robust, custom-engineered ERP ecosystems designed to centralize and automate payroll, POS, school records, live multi-warehouse inventories, and accounting.",
+      "icon": "Cpu",
+      "page": "erp-solutions",
+      "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?fm=webp&fit=crop&q=70&w=600"
+    },
+    {
+      "id": "it",
+      "title": "Mahdev IT Solutions",
+      "description": "End-to-end fullstack development, intuitive UI/UX design, cloud native solutions, secure managed hosting, and proactive cybersecurity monitoring.",
+      "icon": "Globe",
+      "page": "it-solutions",
+      "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?fm=webp&fit=crop&q=70&w=600"
+    },
+    {
+      "id": "travels",
+      "title": "Mahdev Travels",
+      "description": "Elite passenger vans, premier wedding car rental, and comprehensive vacation packages across Sri Lanka with professional English chauffeurs.",
+      "icon": "Compass",
+      "page": "travels",
+      "image": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?fm=webp&fit=crop&q=70&w=600"
+    }
+  ],
+  "mahdev_decoration_categories": [
+    {
+      "id": "wedding",
+      "title": "Wedding Decorations",
+      "description": "Magical, royal, and luxury stages, entry walkways, and floral canopies tailored to your exact wedding theme.",
+      "image": "/src/assets/images/wedding_decoration_1782729925686.jpg",
+      "iconName": "Heart"
+    },
+    {
+      "id": "birthday",
+      "title": "Birthday Decorations",
+      "description": "Whimsical balloon arches, vibrant theme backdrops, and immersive fairytale-style children birthday setups.",
+      "image": "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?fm=webp&fit=crop&q=60&w=400",
+      "iconName": "Gift"
+    },
+    {
+      "id": "church",
+      "title": "Church Decorations",
+      "description": "Solemn, elegant, and serene floral arrangements, pew linings, and altar backdrops for holy unions and festivals.",
+      "image": "https://images.unsplash.com/photo-1438032005730-c779502df39b?fm=webp&fit=crop&q=60&w=400",
+      "iconName": "Church"
+    },
+    {
+      "id": "corporate",
+      "title": "Corporate Events",
+      "description": "Sleek, minimalist branding elements, keynote stages, panel panels, and VIP lounge styling with professional floral pairings.",
+      "image": "https://images.unsplash.com/photo-1511578314322-379afb476865?fm=webp&fit=crop&q=60&w=400",
+      "iconName": "Briefcase"
+    },
+    {
+      "id": "stage",
+      "title": "Stage Decoration",
+      "description": "Immersive LED backdrop integrations, dynamic projection mapping frames, and high-impact physical set constructions.",
+      "image": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?fm=webp&fit=crop&q=60&w=400",
+      "iconName": "Sparkles"
+    },
+    {
+      "id": "flower",
+      "title": "Flower Decoration",
+      "description": "Bespoke exotic and traditional floral layouts using hand-picked marigolds, premium orchids, and imported red roses.",
+      "image": "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?fm=webp&fit=crop&q=60&w=400",
+      "iconName": "Flower"
+    },
+    {
+      "id": "indoor",
+      "title": "Indoor Decoration",
+      "description": "Cosy banquets, intimate lighting design, dynamic ceiling hangings, and ambient photo booths for indoor setups.",
+      "image": "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?fm=webp&fit=crop&q=60&w=400",
+      "iconName": "Home"
+    },
+    {
+      "id": "outdoor",
+      "title": "Outdoor Decoration",
+      "description": "Bohemian canopy lights, garden hangings, grand rustic lawn arches, and weather-resilient evening lounge setups.",
+      "image": "https://images.unsplash.com/photo-1507504038482-76210374325a?fm=webp&fit=crop&q=60&w=400",
+      "iconName": "Sun"
+    }
+  ],
+  "mahdev_decor_gallery": [
+    {
+      "id": "dg1",
+      "title": "The Imperial Marigold Haven",
+      "category": "Wedding",
+      "image": "https://images.unsplash.com/photo-1519225495810-7512c696505a?fm=webp&fit=crop&q=65&w=500"
+    },
+    {
+      "id": "dg2",
+      "title": "Vibrant Alice in Balloonland",
+      "category": "Birthday",
+      "image": "https://images.unsplash.com/photo-1513151233558-d860c5398176?fm=webp&fit=crop&q=65&w=500"
+    },
+    {
+      "id": "dg3",
+      "title": "Modern Keynote Tech Summit",
+      "category": "Corporate",
+      "image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?fm=webp&fit=crop&q=65&w=500"
+    },
+    {
+      "id": "dg4",
+      "title": "St. Peter's Holy Orchid Union",
+      "category": "Church",
+      "image": "https://images.unsplash.com/photo-1478812954026-9c750f0e89fc?fm=webp&fit=crop&q=65&w=500"
+    },
+    {
+      "id": "dg5",
+      "title": "Whimsical Rustic Garden Arch",
+      "category": "Outdoor",
+      "image": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?fm=webp&fit=crop&q=65&w=500"
+    },
+    {
+      "id": "dg6",
+      "title": "Royal Mughal Durbar Stage",
+      "category": "Stage",
+      "image": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?fm=webp&fit=crop&q=65&w=500"
+    }
+  ],
+  "mahdev_rental_items": [
+    {
+      "id": "rent-1",
+      "name": "Luxury Banquet Gold Chiavari Chair",
+      "category": "Furniture",
+      "price": "Rs. 250 / day",
+      "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&q=80&w=600",
+      "description": "Elegant gold-finished titanium metal Chiavari chairs, complete with standard white soft cushion padding.",
+      "availableQty": 450
+    },
+    {
+      "id": "rent-2",
+      "name": "Rustic Hexagonal Wooden Arch",
+      "category": "Backdrops",
+      "price": "Rs. 7,500 / day",
+      "image": "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&q=80&w=600",
+      "description": "Sturdy, modular solid mahogany hex arch frame. Ideal for outdoor floral anchors and custom lighting trails.",
+      "availableQty": 4
+    },
+    {
+      "id": "rent-3",
+      "name": "Warm LED Bulbs String Lights (50m)",
+      "category": "Lighting",
+      "price": "Rs. 1,500 / day",
+      "image": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=600",
+      "description": "Heavy-duty commercial outdoor string lights styled with warm, vintage incandescent filament bulbs.",
+      "availableQty": 25
+    },
+    {
+      "id": "rent-4",
+      "name": "Polished Brass Traditional 6ft Oil Lamp",
+      "category": "Props",
+      "price": "Rs. 3,000 / day",
+      "image": "https://images.unsplash.com/photo-1541123437800-1bb1317badc2?auto=format&fit=crop&q=80&w=600",
+      "description": "Grand 6-feet polished brass standing lamp, custom engraved. Essential for traditional Sri Lankan lighting ceremonies.",
+      "availableQty": 6
+    },
+    {
+      "id": "rent-5",
+      "name": "Exotic Silver 5-Arm Candelabra",
+      "category": "Tableware",
+      "price": "Rs. 850 / day",
+      "image": "https://images.unsplash.com/photo-1519225495810-7512c696505a?auto=format&fit=crop&q=80&w=600",
+      "description": "Stately five-arm polished silver table centerpieces to create high-end premium lighting levels.",
+      "availableQty": 30
+    },
+    {
+      "id": "rent-6",
+      "name": "High-Definition P2.5 LED Screen (12ft x 8ft)",
+      "category": "AV Equipment",
+      "price": "Rs. 45,000 / day",
+      "image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=600",
+      "description": "Ultra HD high-brightness P2.5 LED modular wall backdrop with professional video switcher control rack.",
+      "availableQty": 2
+    }
+  ],
+  "mahdev_photo_portfolio": [
+    {
+      "id": "p1",
+      "title": "Eternal Golden Hour Union",
+      "category": "Wedding Photography",
+      "image": "https://images.unsplash.com/photo-1606800052052-a08af7148866?fm=webp&fit=crop&q=65&w=450"
+    },
+    {
+      "id": "p2",
+      "title": "Cinematic Cinematic Teaser Reel",
+      "category": "Cinematography",
+      "image": "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?fm=webp&fit=crop&q=65&w=450"
+    },
+    {
+      "id": "p3",
+      "title": "Grand Palace Aerial Horizon",
+      "category": "Drone Photography",
+      "image": "https://images.unsplash.com/photo-1508614589041-895b88991e3e?fm=webp&fit=crop&q=65&w=450"
+    },
+    {
+      "id": "p4",
+      "title": "Enchanted Forest Outdoor Session",
+      "category": "Outdoor Shoots",
+      "image": "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?fm=webp&fit=crop&q=65&w=450"
+    },
+    {
+      "id": "p5",
+      "title": "Prism Light Studio Portrait",
+      "category": "Studio Photography",
+      "image": "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?fm=webp&fit=crop&q=65&w=450"
+    },
+    {
+      "id": "p6",
+      "title": "Sleeping Cherub Newborn Studio",
+      "category": "Baby Shoots",
+      "image": "https://images.unsplash.com/photo-1519689680058-324335c77ebf?fm=webp&fit=crop&q=65&w=450"
+    }
+  ],
+  "mahdev_photo_pricing": [
+    {
+      "title": "Essential Shoot",
+      "price": "Rs. 24,999",
+      "duration": "1 Day",
+      "features": [
+        "1 Lead Photographer",
+        "High-Resolution Edited Digital Copies (150+)",
+        "1 Cinematic Video Teaser (2 mins)",
+        "Digital Album Access for 1 Year",
+        "UHD Post-Processing Color Grading"
+      ]
+    },
+    {
+      "title": "Imperial Cinematic",
+      "price": "Rs. 59,999",
+      "duration": "2 Days",
+      "badge": "Popular",
+      "features": [
+        "2 Candid Photographers & 1 Videographer",
+        "High-Altitude Drone Shoots (Weather permitting)",
+        "Full Cinematic Movie (15-20 mins)",
+        "Premium Leatherette Physical Photobook (40 Pages)",
+        "Pre-Wedding Outdoor Shoot Session (Free)"
+      ]
+    },
+    {
+      "title": "Grand Masterpiece",
+      "price": "Rs. 1,19,999",
+      "duration": "Multi-Day Event",
+      "features": [
+        "Entire Team: 3 Photographers & 2 Videographers",
+        "Unlimited Drone Arial Footage & Steadicam Runs",
+        "Full length movie & Instagram Reels package",
+        "2 Copy Luxury Hardcover Photobooks",
+        "Live photo viewing stream on custom cloud portal",
+        "Premium Baby/Family portraits included"
+      ]
+    }
+  ],
+  "mahdev_erp_modules": [
+    {
+      "id": "pos",
+      "title": "Omnichannel POS System",
+      "description": "Blazing-fast billing terminal running offline-first, syncs in milliseconds once online. Custom optimized for retail and quick-service food chains.",
+      "iconName": "Receipt",
+      "features": [
+        "Thermal printer drivers integrated",
+        "Quick barcode lookup",
+        "Custom dynamic discounts",
+        "Multi-payment checkout options"
+      ]
+    },
+    {
+      "id": "inventory",
+      "title": "Smart Multi-Warehouse Inventory",
+      "description": "Real-time stock movement, custom safety threshold alerts, auto reordering algorithms, and barcode/QR catalog management.",
+      "iconName": "Box",
+      "features": [
+        "Real-time shelf tracking",
+        "Automated PO generation",
+        "FIFO/LIFO valuations",
+        "Batch & Expiry alerts"
+      ]
+    },
+    {
+      "id": "accounting",
+      "title": "Double-Entry Accounting",
+      "description": "Automated ledger posting from POS and purchase slips. Comprehensive balance sheets, P&L statements, and automated GST/TDS tax summaries.",
+      "iconName": "TrendingUp",
+      "features": [
+        "Direct bank statement reconciliation",
+        "Dynamic expense filing",
+        "Automated tax returns",
+        "Multi-currency invoicing"
+      ]
+    },
+    {
+      "id": "hr_payroll",
+      "title": "HR, Payroll & Attendance",
+      "description": "Unified employee records, biometric scanner API connections, cloud shifts scheduler, salary slips generator with complex tax slab components.",
+      "iconName": "Users",
+      "features": [
+        "Biometric & Geo-fenced clock-ins",
+        "Automatic PF & ESI computations",
+        "Performance appraisals tracker",
+        "One-click bulk salary bank transfers"
+      ]
+    },
+    {
+      "id": "verticals",
+      "title": "Industry Specialized Modules",
+      "description": "Tailored workflow platforms for specialized domains like schools, hospitals, fine-dine restaurants, and active retail networks.",
+      "iconName": "Layout",
+      "features": [
+        "School fee collection & Grade reports",
+        "Hospital bed occupancy & OP/IP portals",
+        "Restaurant table reservations & KOT printing",
+        "Retail cross-store stock sharing"
+      ]
+    }
+  ],
+  "mahdev_it_projects": [
+    {
+      "id": "it1",
+      "title": "Vastra Luxury Silk Store",
+      "category": "E-Commerce Platform",
+      "description": "A luxurious custom-tailored apparel shop featuring dynamic color-swatch customizer, high-contrast visual zoom, and multi-currency checkout gateways.",
+      "image": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?fm=webp&fit=crop&q=65&w=450",
+      "url": "https://vastra-silk-example.com"
+    },
+    {
+      "id": "it2",
+      "title": "Apex Global Logistics",
+      "category": "Enterprise SaaS Portal",
+      "description": "Real-time fleet tracker connecting over 500+ active trucks. Features reactive interactive maps, dynamic route optimizations, and automated fuel consumption logs.",
+      "image": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?fm=webp&fit=crop&q=65&w=450",
+      "url": "https://apex-fleet-example.com"
+    },
+    {
+      "id": "it3",
+      "title": "Oakwood International School",
+      "category": "Institution Web App",
+      "description": "Comprehensive student/parent community hub featuring live attendance tracking, interactive fee transaction records, and an online exam portal.",
+      "image": "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?fm=webp&fit=crop&q=65&w=450",
+      "url": "https://oakwood-school-example.com"
+    },
+    {
+      "id": "it4",
+      "title": "HealPath Clinics Hub",
+      "category": "Healthcare Cloud App",
+      "description": "A cloud clinic management web platform hosting patient electronic records, appointment calendar logs, automated SMS prescriptions, and billing audits.",
+      "image": "https://images.unsplash.com/photo-1516549655169-df83a0774514?fm=webp&fit=crop&q=65&w=450",
+      "url": "https://healpath-clinic-example.com"
+    }
+  ],
+  "mahdev_testimonials": [
+    {
+      "id": "t1",
+      "name": "Rajesh Singhania",
+      "role": "Managing Director, Singhania Jewellers",
+      "rating": 5,
+      "comment": "Mahdev Pvt Ltd decorated our daughter’s wedding in Colombo and it looked like a literal palace! The marigold arches and fairy lighting was absolutely breathtaking. Simultaneously, we automated our retail store billing with their POS ERP system. Outstanding multi-skilled team!",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fm=webp&fit=crop&q=60&w=120"
+    },
+    {
+      "id": "t2",
+      "name": "Dr. Anjali Mehta",
+      "role": "Founder, Mehta Eye & Dental Clinics",
+      "rating": 5,
+      "comment": "We hired them for website development and UI/UX design. They built an exceptionally responsive client portal. We were so impressed that we integrated their clinic attendance module. Truly professional and reliable.",
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?fm=webp&fit=crop&q=60&w=120"
+    },
+    {
+      "id": "t3",
+      "name": "Karan Malhotra",
+      "role": "Executive Chef, Spice Kraft Restaurants",
+      "rating": 5,
+      "comment": "Their Restaurant POS and payroll system saved us over 40 hours of manual bookkeeping each month. We also contracted their photography wing for our culinary shoot. The cinematic lighting is award-winning!",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fm=webp&fit=crop&q=60&w=120"
+    }
+  ],
+  "mahdev_leadership_team": [
+    {
+      "id": "leader-1",
+      "name": "Yuvanshan Prabakaran",
+      "role": "CEO",
+      "bio": "Directing overall corporate strategy and technical execution at Mahdev Pvt Ltd. Yuvanshan drives high-performance cloud databases, enterprise infrastructure, and division alignment.",
+      "image": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=300"
+    },
+    {
+      "id": "leader-2",
+      "name": "Divaincy Fernando",
+      "role": "Co Founder & Managing Director",
+      "bio": "Spearheading business operations, design excellence, and event management logistics. Divaincy oversees creative styling pipelines and client success partnerships.",
+      "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300"
+    }
+  ],
+  "mahdev_theme_settings": {
+    "primaryColor": "#a855f7",
+    "themePreset": "purple",
+    "fontFamily": "Poppins",
+    "heroTitle1": "Building Experiences.",
+    "heroTitle2": "Creating Technology.",
+    "heroDescription": "Mahdev Pvt Ltd is a multi-service company providing decoration services, photography, ERP software solutions, and IT services.",
+    "brandName": "Mahdev Pvt Ltd",
+    "animationMode": "multiverse"
+  },
+  "mahdev_bookings_list": [
+    {
+      "id": "b-1",
+      "brand": "SWS",
+      "name": "Dilruwan Perera",
+      "phone": "+94 77 123 4567",
+      "email": "dilruwan@example.com",
+      "serviceType": "Wedding Stage Design",
+      "eventDate": "2026-07-20",
+      "status": "Confirmed",
+      "notes": "Premium gold themed wedding stage with rich lighting and fresh flowers.",
+      "location": "Kingsbury Hotel, Colombo",
+      "budget": "Rs. 150,000 - 200,000",
+      "guests": 250,
+      "amount": 150000,
+      "createdDate": "2026-07-01"
+    },
+    {
+      "id": "b-2",
+      "brand": "SWS",
+      "name": "Sheruni Alwis",
+      "phone": "+94 71 987 6543",
+      "email": "sheruni@example.com",
+      "serviceType": "Birthday Decoration",
+      "eventDate": "2026-07-04",
+      "status": "Completed",
+      "notes": "Magical pink and white theme birthday decorations with balloon arch.",
+      "location": "Private Residence, Negombo",
+      "budget": "Rs. 40,000 - 60,000",
+      "guests": 50,
+      "amount": 45000,
+      "createdDate": "2026-06-28"
+    },
+    {
+      "id": "b-3",
+      "brand": "IT",
+      "name": "Senura Holdings",
+      "phone": "+94 11 234 5678",
+      "email": "contact@senura.lk",
+      "serviceType": "ERP Inventory System",
+      "eventDate": "2026-07-15",
+      "status": "Pending",
+      "notes": "Bespoke inventory management portal with barcode scanning and POS integrations.",
+      "budget": "Rs. 500,000 - 800,000",
+      "amount": 650000,
+      "createdDate": "2026-07-05"
+    },
+    {
+      "id": "b-4",
+      "brand": "IT",
+      "name": "Oceanic Leisure Ltd",
+      "phone": "+94 76 543 2109",
+      "email": "info@oceanicleisure.com",
+      "serviceType": "Website Development",
+      "eventDate": "2026-06-25",
+      "status": "Completed",
+      "notes": "Luxury travel e-commerce portal with automated itinerary builders and booking systems.",
+      "budget": "Rs. 250,000 - 350,000",
+      "amount": 280000,
+      "createdDate": "2026-06-10"
+    },
+    {
+      "id": "b-5",
+      "brand": "Studio",
+      "name": "Kanishka & Piyumi",
+      "phone": "+94 72 345 6789",
+      "email": "kanishka@example.com",
+      "serviceType": "Wedding Videography",
+      "eventDate": "2026-07-18",
+      "status": "Confirmed",
+      "notes": "Full-day cinematic shoot, highlight reels, drone footages, and color graded album.",
+      "budget": "Rs. 100,000 - 150,000",
+      "amount": 120000,
+      "createdDate": "2026-07-03"
+    },
+    {
+      "id": "b-6",
+      "brand": "Travels",
+      "name": "Arthur Pendelton",
+      "phone": "+44 7911 123456",
+      "email": "arthur.p@yahoo.co.uk",
+      "serviceType": "Travel Package",
+      "eventDate": "2026-07-25",
+      "endDate": "2026-08-01",
+      "status": "Confirmed",
+      "notes": "Sri Lanka Tour: Cultural Triangle, Ella Hills, Mirissa beach safari.",
+      "guests": 4,
+      "location": "Sri Lanka (Colombo to Mirissa)",
+      "amount": 195000,
+      "createdDate": "2026-07-02"
+    },
+    {
+      "id": "b-7",
+      "brand": "Travels",
+      "name": "Nadeesh de Silva",
+      "phone": "+94 77 987 1111",
+      "email": "nadeesh@example.l0",
+      "serviceType": "Airport Pickup/Drop",
+      "eventDate": "2026-07-05",
+      "status": "Completed",
+      "notes": "Luxury pickup via S-Class from BIA Airport to Colombo 7.",
+      "guests": 2,
+      "location": "BIA to Colombo 07",
+      "amount": 15000,
+      "createdDate": "2026-07-04"
+    }
+  ],
+  "mahdev_travels_vehicles": [
+    {
+      "id": "v1",
+      "name": "Mercedes-Benz S-Class (White)",
+      "category": "wedding",
+      "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=600",
+      "price": "Rs. 45,000 / day",
+      "passengers": 4,
+      "luggage": 3,
+      "engine": "2.0L Turbo Hybrid",
+      "features": ["Silk White Interior", "Chauffeur Driven", "Luxury Floral Decor Option", "Ambient Dual Lighting", "Panoramic Glass Roof"]
+    },
+    {
+      "id": "v2",
+      "name": "Chrysler 300C Luxury Sedan",
+      "category": "wedding",
+      "image": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600",
+      "price": "Rs. 38,000 / day",
+      "passengers": 4,
+      "luggage": 4,
+      "engine": "3.6L V6 Dual-VVT",
+      "features": ["Classic Royal Presence", "Heated Leather Seats", "Custom Ribbons & Decor", "Premium Harman Kardon Sound", "Climate Zone Comfort"]
+    },
+    {
+      "id": "v3",
+      "name": "Toyota Land Cruiser Prado TX",
+      "category": "premium",
+      "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=600",
+      "price": "Rs. 32,000 / day",
+      "passengers": 7,
+      "luggage": 5,
+      "engine": "2.8L Intercooler Diesel",
+      "features": ["Robust 4x4 Drivetrain", "Tri-Zone A/C Climate", "Spacious Third Row Cabin", "Offroad Cruise Control", "USB fast-chargers"]
+    },
+    {
+      "id": "v4",
+      "name": "Toyota Premio F (Luxury Edition)",
+      "category": "premium",
+      "image": "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&q=80&w=600",
+      "price": "Rs. 18,000 / day",
+      "passengers": 4,
+      "luggage": 3,
+      "engine": "1.5L Dual VVT-i",
+      "features": ["Ultra Smooth Commute", "Exceptional Fuel Economy", "Plush Beige Velvet Seats", "Quiet Sound Dampening", "Reverse Safety Camera"]
+    },
+    {
+      "id": "v5",
+      "name": "Toyota HiAce KDH Luxury Van",
+      "category": "vans",
+      "image": "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=600",
+      "price": "Rs. 25,000 / day",
+      "passengers": 14,
+      "luggage": 8,
+      "engine": "3.0L Turbo Diesel",
+      "features": ["Individually Adjustable Recliners", "Dual A/C Evaporators", "Ambient Reading Lights", "Bluetooth Sound Hub", "Step Footboard LED"]
+    }
+  ],
+  "mahdev_travels_tours": [
+    {
+      "id": "t1",
+      "title": "Cultural Triangle & Temple Wonders",
+      "duration": "5 Days / 4 Nights",
+      "image": "https://images.unsplash.com/photo-1588598126749-0144d18ecf0d?auto=format&fit=crop&q=80&w=600",
+      "price": "Rs. 145,000 / person",
+      "highlights": ["Sigiriya Fortress Hike", "Dambulla Cave Temple", "Kandy Sacred Temple of Tooth", "Traditional Kandyan Dance"],
+      "itinerary": [
+        { "day": 1, "title": "Arrival & Sigiriya Journey", "desc": "Airport greeting and scenic transport to Sigiriya. Relax in custom eco-luxury lodges." },
+        { "day": 2, "title": "Sigiriya Rock Fortress & Dambulla", "desc": "Morning hike up the Sigiriya Lion Rock Citadel. Evening tour of the ancient golden Dambulla caves." },
+        { "day": 3, "title": "Sacred Kandy Exploration", "desc": "Travel to Kandy via spice gardens. Visit the Temple of the Sacred Tooth Relic and catch Kandyan live drums." },
+        { "day": 4, "title": "Royal Botanical Gardens", "desc": "Walk through Peradeniya Royal Botanic wonders and complete Colombo shopping excursions." },
+        { "day": 5, "title": "Airport Departure", "desc": "Chauffeur transport to airport with souvenir gift pack from Mahdev team." }
+      ]
+    },
+    {
+      "id": "t2",
+      "title": "The Misty Emerald Highlands Tour",
+      "duration": "4 Days / 3 Nights",
+      "image": "https://images.unsplash.com/photo-1542856391-010fb87dcfed?auto=format&fit=crop&q=80&w=600",
+      "price": "Rs. 115,000 / person",
+      "highlights": ["Nuwara Eliya Tea Plucking", "Nine Arch Bridge Walk", "Ella Rock Sunset Trek", "Scenic Alpine Train Train Ride"],
+      "itinerary": [
+        { "day": 1, "title": "Kandy to Nuwara Eliya Alpine Drive", "desc": "Scenic mountain climb to Nuwara Eliya. Inspect colonial estates and Ramboda cascading waterfall." },
+        { "day": 2, "title": "Scenic Tea Estates & Train Ride", "desc": "Live organic tea leaves harvesting demonstration. Scenic high-altitude mountain railway journey to Ella." },
+        { "day": 3, "title": "Ella Rock Trek & Nine Arches", "desc": "Hike to Ella Rock summit. Walk on the world-famous stone Nine Arch railway bridge." },
+        { "day": 4, "title": "Ravana Falls & Airport Return", "desc": "Admire Ravana waterfall legends and return safely through the rolling southern plains." }
+      ]
+    },
+    {
+      "id": "t3",
+      "title": "Southern Golden Sands & Wild Safaris",
+      "duration": "6 Days / 5 Nights",
+      "image": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&q=80&w=600",
+      "price": "Rs. 165,000 / person",
+      "highlights": ["Galle Dutch Fort Heritage Tour", "Yala National Park Leopard Safari", "Mirissa Whale Watching", "Traditional Stilt Fishermen"],
+      "itinerary": [
+        { "day": 1, "title": "Arrival & Beach Check-in", "desc": "Direct luxury express drive to Hikkaduwa/Galle beach resorts." },
+        { "day": 2, "title": "Unesco Galle Fort Discovery", "desc": "Explore cobblestone alleys, Dutch ramparts, lighthouses, and authentic handloom stores." },
+        { "day": 3, "title": "Whale Watching & Turtle Hatcheries", "desc": "Early morning oceanic yacht cruise to spot Blue Whales. Evening sea turtle release program." },
+        { "day": 4, "title": "Deep Yala Wildlife Safari", "desc": "Full-day open-roof 4x4 safari looking for Sri Lankan leopards, wild elephants, and peacocks." },
+        { "day": 5, "title": "Water Sports in Bentota", "desc": "Thrilling jet-ski, banana-boat, and river safaris down Madu Ganga." },
+        { "day": 6, "title": "Farewell Coastal Tour", "desc": "Coastal train commute and comfortable airport drop." }
+      ]
+    }
+  ],
+  "mahdev_seo_settings": {
+    "siteTitle": "Mahdev Pvt Ltd",
+    "metaDescription": "Welcome to Mahdev Pvt Ltd, your elite conglomerate partner for Luxury SWS Event Decoration, U1 Studio Photography, Enterprise ERP Systems, custom IT Solutions, and elite Travels.",
+    "metaKeywords": "Mahdev, SWS Events, U1 Studio, IT Solutions, ERP, Travels, Sri Lanka, Wedding, Tech",
+    "ogTitle": "Mahdev Pvt Ltd - Multi-Service Elite Enterprise Conglomerate",
+    "ogDescription": "A high-performance conglomerate providing Luxury SWS Event Decoration, U1 Studio Photography, Enterprise ERP Systems, custom IT Solutions, and elite Travels.",
+    "ogImage": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800"
+  },
+  "mahdev_customers_list": [
+    { "id": "cust-1", "name": "Kamal Perera", "email": "kamal.perera@ntb.lk", "phone": "+94 77 123 4567", "companyId": "C-1", "notes": "Senior VP of Infrastructure. Prefers email communication.", "status": "Active", "history": [{ "date": "2026-06-01", "action": "Account Created", "details": "Initial sales lead established for branch software overhaul." }], "documents": [] },
+    { "id": "cust-2", "name": "Anura de Silva", "email": "anura.desilva@aitkenspence.lk", "phone": "+94 71 987 6543", "companyId": "C-2", "notes": "Lead procurement manager. Expects 10% volume corporate discounts on custom CRM.", "status": "Active", "history": [{ "date": "2026-06-10", "action": "Quotation Dispatched", "details": "Sent Rs. 4,500,000 CRM system architectural brief." }], "documents": [] },
+    { "id": "cust-3", "name": "Sanduni Jayasinghe", "email": "sanduni.j@outlook.com", "phone": "+94 72 345 6789", "notes": "Wedding Planner coordinate client. Organizing high-profile SWS Grand Taj Ballroom stage.", "status": "Active", "history": [{ "date": "2026-06-15", "action": "Initial Site Inspection", "details": "Completed floral layout and lighting alignment at Taj Samudra." }], "documents": [] }
+  ],
+  "mahdev_companies_list": [
+    { "id": "C-1", "name": "Nations Trust Bank PLC", "address": "No. 242, Union Place, Colombo 02, Sri Lanka", "phone": "+94 11 471 1411", "email": "corporate@ntb.lk", "website": "www.nationstrust.com", "registrationNumber": "PB-1294" },
+    { "id": "C-2", "name": "Aitken Spence PLC", "address": "Aitken Spence Tower, No. 315, Vauxhall Street, Colombo 02", "phone": "+94 11 230 8308", "email": "info@aitkenspence.lk", "website": "www.aitkenspence.com", "registrationNumber": "PB-435" },
+    { "id": "C-3", "name": "Dilmah Ceylon Tea Company PLC", "address": "No. 111, Negombo Road, Peliyagoda, Sri Lanka", "phone": "+94 11 482 2000", "email": "info@dilmahtea.com", "website": "www.dilmahtea.com", "registrationNumber": "PQ-209" }
+  ],
+  "mahdev_erp_projects_list": [
+    { "id": "p-1", "name": "Aitken Spence Custom CRM & Automation", "customerId": "cust-2", "companyId": "C-2", "description": "Enterprise CRM with automated workflows, lead allocation, and executive forecasting analytics.", "status": "In Progress", "startDate": "2026-05-10", "deadline": "2026-09-30", "progress": 65, "budget": 4500000, "assignedEmployees": ["emp-1"], "tasks": [
+      { "id": "t-1-1", "title": "Database Schema & Security Auditing", "projectId": "p-1", "assignedTo": "emp-1", "dueDate": "2026-07-20", "status": "In Progress", "priority": "High" }
+    ], "milestones": [
+      { "id": "m-1-1", "title": "Database & REST API Endpoints Signed Off", "dueDate": "2026-07-31", "isCompleted": false },
+      { "id": "m-1-2", "title": "Interactive Dashboard Components Integrated", "dueDate": "2026-08-31", "isCompleted": false }
+    ], "files": [] },
+    { "id": "p-2", "name": "SWS Luxury Wedding - Taj Samudra Grand Ballroom", "customerId": "cust-3", "description": "Bespoke design, canopy structure, 40-foot illuminated stage, and customized floral configurations.", "status": "Planning", "startDate": "2026-07-15", "deadline": "2026-08-25", "progress": 40, "budget": 1800000, "assignedEmployees": ["emp-2"], "tasks": [
+      { "id": "t-2-1", "title": "Floral Selection & Silk Canopy Sourcing", "projectId": "p-2", "assignedTo": "emp-2", "dueDate": "2026-07-25", "status": "Todo", "priority": "High" }
+    ], "milestones": [
+      { "id": "m-2-1", "title": "Botanical Assets Sourced", "dueDate": "2026-08-01", "isCompleted": false }
+    ], "files": [] }
+  ],
+  "mahdev_quotations_list": [
+    { "id": "q-1", "quotationNumber": "QT-2026-101", "customerId": "cust-1", "createdDate": "2026-06-01", "validUntil": "2026-07-15", "items": [
+      { "id": "qi-1", "description": "Bespoke Bank Branch Digital Lobby Portal Screen Suite", "quantity": 1, "unitPrice": 1500000 }
+    ], "discount": 0, "vat": 15, "nbt": 2, "terms": "50% advance upon confirmation. Balance 50% upon deployment.", "status": "Approved" },
+    { "id": "q-2", "quotationNumber": "QT-2026-102", "customerId": "cust-2", "createdDate": "2026-06-10", "validUntil": "2026-07-30", "items": [
+      { "id": "qi-2-1", "description": "Enterprise CRM Core Modules Integration", "quantity": 1, "unitPrice": 3000000 },
+      { "id": "qi-2-2", "description": "Dynamic Interactive Executive Dashboard", "quantity": 1, "unitPrice": 1500000 }
+    ], "discount": 10, "vat": 15, "nbt": 0, "terms": "30% Advance, 40% on Beta, 30% on Final release.", "status": "Approved" },
+    { "id": "q-3", "quotationNumber": "QT-2026-103", "customerId": "cust-3", "createdDate": "2026-06-15", "validUntil": "2026-08-01", "items": [
+      { "id": "qi-3-1", "description": "Bespoke SWS Stage Arch & Organic Florals", "quantity": 1, "unitPrice": 1200000 },
+      { "id": "qi-3-2", "description": "Dynamic Cinematic Lighting & Truss Setup", "quantity": 1, "unitPrice": 600000 }
+    ], "discount": 0, "vat": 15, "nbt": 0, "terms": "Full SWS payment 14 days prior to wedding date.", "status": "Sent" }
+  ],
+  "mahdev_invoices_list": [
+    { "id": "inv-1", "invoiceNumber": "INV-2026-001", "customerId": "cust-1", "projectId": "p-1", "projectName": "Corporate Lobby Digital Suite", "createdDate": "2026-06-01", "dueDate": "2026-07-01", "items": [
+      { "id": "ii-1", "description": "Bespoke Bank Branch Digital Lobby Portal Screen Suite", "quantity": 1, "unitPrice": 1500000 }
+    ], "discount": 0, "tax": 15, "status": "Paid", "advanceAmount": 750000, "remainingAmount": 0, "paidAmount": 1500000 },
+    { "id": "inv-2", "invoiceNumber": "INV-2026-002", "customerId": "cust-2", "projectId": "p-1", "projectName": "Aitken Spence Custom CRM", "createdDate": "2026-06-12", "dueDate": "2026-07-15", "items": [
+      { "id": "ii-2-1", "description": "Enterprise CRM Core Modules Integration", "quantity": 1, "unitPrice": 3000000 },
+      { "id": "ii-2-2", "description": "Dynamic Interactive Executive Dashboard", "quantity": 1, "unitPrice": 1500000 }
+    ], "discount": 10, "tax": 15, "status": "Partially Paid", "advanceAmount": 1350000, "remainingAmount": 2250000, "paidAmount": 2250000 },
+    { "id": "inv-3", "invoiceNumber": "INV-2026-003", "customerId": "cust-3", "projectId": "p-2", "projectName": "Luxury SWS Wedding Decor", "createdDate": "2026-06-25", "dueDate": "2026-08-01", "items": [
+      { "id": "ii-3-1", "description": "Bespoke SWS Stage Arch & Organic Florals", "quantity": 1, "unitPrice": 1200000 },
+      { "id": "ii-3-2", "description": "Dynamic Cinematic Lighting & Truss Setup", "quantity": 1, "unitPrice": 600000 }
+    ], "discount": 0, "tax": 15, "status": "Pending", "advanceAmount": 0, "remainingAmount": 1800000, "paidAmount": 0 }
+  ],
+  "mahdev_payments_list": [
+    { "id": "pay-1", "invoiceId": "inv-1", "amount": 1500000, "paymentDate": "2026-06-05", "source": "Bank Transfer (Nations Trust Bank)", "receiptNumber": "REC-2026-0891", "type": "Final" },
+    { "id": "pay-2", "invoiceId": "inv-2", "amount": 2250000, "paymentDate": "2026-06-20", "source": "Bank Transfer (Commercial Bank)", "receiptNumber": "REC-2026-0892", "type": "Advance" }
+  ],
+  "mahdev_expenses_list": [
+    { "id": "exp-1", "description": "Imported Silk Canopy fabric rolls (SWS Wedding)", "category": "Decorations", "amount": 320000, "date": "2026-06-15", "vendor": "Selas Timber & Fabrics Ltd", "receiptUrl": "" },
+    { "id": "exp-2", "description": "AWS Cloud Server Hosting Fees (Enterprise SaaS)", "category": "IT Solutions", "amount": 45000, "date": "2026-07-01", "vendor": "Amazon Web Services Inc.", "receiptUrl": "" },
+    { "id": "exp-3", "description": "KDH High-Roof Van Fuel & Toll Fees (Tour Transport)", "category": "Travels", "amount": 15000, "date": "2026-07-05", "vendor": "Ceypetco Fuel Station", "receiptUrl": "" }
+  ],
+  "mahdev_incomes_list": [
+    { "id": "inc-1", "description": "Cinematic Pre-Wedding Drone Videography Booking Deposit", "source": "U1 Studio Services", "amount": 80000, "date": "2026-07-02", "notes": "Taj Samudra Sunset Package" },
+    { "id": "inc-2", "description": "SWS Event Stage Flowers Bulk Resale Margin", "source": "SWS Flower Wholesale", "amount": 35000, "date": "2026-07-04", "notes": "Sold leftover roses to local florists" }
+  ],
+  "mahdev_employees_list": [
+    { "id": "emp-1", "name": "Roshan Ranasinghe", "email": "roshan@mahdev.lk", "phone": "+94 77 888 1111", "department": "IT Solutions", "role": "Lead Solutions Architect", "attendance": {}, "salary": 250000, "leaveRequests": [], "payrollHistory": [{ "month": "June 2026", "basic": 250000, "bonus": 15000, "net": 265000, "paidAt": "2026-06-30" }], "performanceScore": 5 },
+    { "id": "emp-2", "name": "Shalini Fonseka", "email": "shalini@mahdev.lk", "phone": "+94 77 888 2222", "department": "SWS Events", "role": "Chief Creative Decorator", "attendance": {}, "salary": 180000, "leaveRequests": [], "payrollHistory": [{ "month": "June 2026", "basic": 180000, "bonus": 20000, "net": 200000, "paidAt": "2026-06-30" }], "performanceScore": 4 },
+    { "id": "emp-3", "name": "Nuwan Bandara", "email": "nuwan@mahdev.lk", "phone": "+94 77 888 3333", "department": "U1 Studio", "role": "Senior Cinematic Videographer", "attendance": {}, "salary": 160000, "leaveRequests": [], "payrollHistory": [{ "month": "June 2026", "basic": 160000, "bonus": 5000, "net": 165000, "paidAt": "2026-06-30" }], "performanceScore": 4 },
+    { "id": "emp-4", "name": "Priyantha Jayawardena", "email": "priyantha@mahdev.lk", "phone": "+94 77 888 4444", "department": "Finance", "role": "Senior Accountant", "attendance": {}, "salary": 150000, "leaveRequests": [], "payrollHistory": [{ "month": "June 2026", "basic": 150000, "bonus": 0, "net": 150000, "paidAt": "2026-06-30" }], "performanceScore": 5 }
+  ],
+  "mahdev_company_profile": {
+    "name": "Mahdev Pvt Ltd",
+    "logo": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=300",
+    "favicon": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=32",
+    "registrationNumber": "PV-987654",
+    "address": "No. 45, Galle Road, Colombo 03, Sri Lanka",
+    "phones": ["+94 11 234 5678", "+94 77 123 4567"],
+    "whatsApp": "+94 77 123 4567",
+    "email": "corporate@mahdev.lk",
+    "website": "https://www.mahdev.lk",
+    "googleMapsLocation": "https://maps.google.com/?q=Colombo",
+    "workingHours": "9:00 AM - 6:00 PM (Monday - Saturday)",
+    "bankAccount": "Nations Trust Bank PLC, Colombo 03 Branch - A/C No. 100234567890",
+    "paymentQrCode": "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&q=80&w=300",
+    "taxInformation": "VAT Registration No: 100234567-7000",
+    "invoicePrefix": "MAH",
+    "currency": "Rs. (LKR)",
+    "timezone": "Asia/Colombo"
+  }
+}

@@ -44,7 +44,12 @@ const KEYS = {
   SMTP_TEMPLATES: 'mahdev_smtp_templates'
 };
 
-// Syncing and hydration helpers
+// Request batching queue for optimized sync
+const syncQueue = new Map<string, any>();
+let syncTimeout: NodeJS.Timeout | null = null;
+const BATCH_DELAY = 1000; // Batch requests every 1 second
+
+// Syncing and hydration helpers with offline support
 export function setItemAndSync(key: string, value: any) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
@@ -53,85 +58,124 @@ export function setItemAndSync(key: string, value: any) {
     return;
   }
 
-  // Send to server asynchronously with retries
-  (async () => {
-    const maxAttempts = 3;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        const response = await fetch('/api/save-data-key', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key, value }),
-          signal: AbortSignal.timeout(5000)
-        });
-        
-        if (response.ok) {
-          console.log(`[Storage] ✅ Key "${key}" saved to server (${JSON.stringify(value).substring(0, 50)}...)`);
-          return;
-        } else {
-          throw new Error(`HTTP ${response.status}`);
-        }
-      } catch (err) {
-        if (attempt < maxAttempts) {
-          const delay = 500 * attempt;
-          console.warn(`[Storage] Retry ${attempt}/${maxAttempts} saving "${key}" in ${delay}ms:`, err);
-          await new Promise(resolve => setTimeout(resolve, delay));
-        } else {
-          console.error(`[Storage ERROR] Failed to save "${key}" to server after ${maxAttempts} attempts:`, err);
-        }
+  // Queue for batched sync
+  syncQueue.set(key, value);
+  
+  // Clear existing timeout and set new one for batch processing
+  if (syncTimeout) clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(() => processSyncQueue(), BATCH_DELAY);
+}
+
+// Process batched sync queue
+async function processSyncQueue() {
+  if (syncQueue.size === 0) return;
+  
+  const batchData = Object.fromEntries(syncQueue);
+  syncQueue.clear();
+  
+  // Check if online
+  if (!navigator.onLine) {
+    console.warn('[Storage] Offline - sync will retry when connection restored');
+    window.addEventListener('online', () => processSyncQueue(), { once: true });
+    return;
+  }
+
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await fetch('/api/save-data-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(batchData),
+        signal: AbortSignal.timeout(6000)
+      });
+      
+      if (response.ok) {
+        console.log(`[Storage] ✅ Batch saved ${syncQueue.size} keys to server`);
+        return;
+      } else {
+        throw new Error(`HTTP ${response.status}`);
+      }
+    } catch (err) {
+      if (attempt < maxAttempts) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        console.warn(`[Storage] Retry ${attempt}/${maxAttempts} in ${delay}ms:`, err);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        console.error(`[Storage ERROR] Failed to sync batch after ${maxAttempts} attempts:`, err);
       }
     }
-  })();
+  }
 }
 
 export async function hydrateDatabaseFromServer(): Promise<boolean> {
+  // Check if we have cached data that's recent
+  const cacheKey = 'mahdev_cache_timestamp';
+  const cacheTimestamp = localStorage.getItem(cacheKey);
+  const now = Date.now();
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  
+  if (cacheTimestamp && (now - parseInt(cacheTimestamp)) < CACHE_DURATION) {
+    console.log('[Database Sync] Using cached data (still valid)');
+    return true;
+  }
+
   const maxRetries = 5;
-  const baseDelayMs = 800;
+  const baseDelayMs = 600; // Reduced from 800 for faster initial sync
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`[Database Sync] Loading latest state from backend API (Attempt ${attempt}/${maxRetries})...`);
+      console.log(`[Database Sync] Loading from server (Attempt ${attempt}/${maxRetries})...`);
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // Reduced from 8s
       
       const response = await fetch('/api/get-all-data', {
         signal: controller.signal,
         method: 'GET',
-        headers: { 'Accept': 'application/json' }
+        headers: { 
+          'Accept': 'application/json',
+          'Cache-Control': 'max-age=300' // Ask for 5-min cache on server
+        }
       });
       
       clearTimeout(timeoutId);
       
-      if (!response.ok) {
-        throw new Error(`HTTP Status ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       
       const db = await response.json();
       if (db && typeof db === 'object' && Object.keys(db).length > 0) {
         let itemsSync = 0;
-        Object.entries(db).forEach(([key, value]) => {
-          try {
-            localStorage.setItem(key, JSON.stringify(value));
-            itemsSync++;
-          } catch (e) {
-            console.warn(`[Database Sync] Failed to set key ${key}:`, e);
+        const startTime = performance.now();
+        
+        // Batch localStorage writes for better performance
+        const entries = Object.entries(db);
+        for (let i = 0; i < entries.length; i += 10) {
+          const batch = entries.slice(i, i + 10);
+          for (const [key, value] of batch) {
+            try {
+              localStorage.setItem(key, JSON.stringify(value));
+              itemsSync++;
+            } catch (e) {
+              console.warn(`[Database Sync] Failed key: ${key}`);
+            }
           }
-        });
-        console.log(`[Database Sync] ✅ Synced ${itemsSync} data keys from server to local storage.`);
+          // Yield to prevent blocking
+          if (i + 10 < entries.length) await new Promise(r => setTimeout(r, 0));
+        }
+        
+        localStorage.setItem(cacheKey, now.toString());
+        const duration = (performance.now() - startTime).toFixed(0);
+        console.log(`[Database Sync] ✅ Synced ${itemsSync} keys in ${duration}ms`);
         return true;
-      } else {
-        console.warn(`[Database Sync] Server returned empty or invalid data.`);
       }
     } catch (error) {
       const delayMs = baseDelayMs * Math.pow(2, attempt - 1);
-      console.warn(`[Database Sync WARNING] Attempt ${attempt}/${maxRetries} failed:`, error);
-      
       if (attempt < maxRetries) {
-        console.log(`[Database Sync] Retrying in ${delayMs}ms...`);
+        console.warn(`[Database Sync] Retry in ${delayMs}ms: ${error instanceof Error ? error.message : error}`);
         await new Promise(resolve => setTimeout(resolve, delayMs));
       } else {
-        console.error(`[Database Sync ERROR] Failed to hydrate database after ${maxRetries} retries. Using local cached values.`);
+        console.warn(`[Database Sync] Using local cache after ${maxRetries} attempts`);
       }
     }
   }

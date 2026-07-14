@@ -9,7 +9,7 @@ import swsDecorBanner from '../assets/images/sws_robot_decor_1783346269673.jpg';
 import u1PhotographyBanner from '../assets/images/u1_robot_camera_1783346286743.jpg';
 import itBanner from '../assets/images/it_robot_developer_1783346302442.jpg';
 import travelsBanner from '../assets/images/travels_robot_car_1783346316762.jpg';
-import { Menu, X, Phone, Sun, Moon, Search, ChevronDown, ArrowRight, ChevronRight, Sparkles, Camera, Laptop, Car } from 'lucide-react';
+import { Menu, X, Phone, Sun, Moon, Search, ChevronDown, ArrowRight, ChevronRight, Sparkles, Camera, Laptop, Car, MessageCircle } from 'lucide-react';
 import { ActivePage, ThemeSettings, ServiceCard, ItProject } from '../types';
 import { COMPANY_CONTACT } from '../data';
 
@@ -46,7 +46,9 @@ export default function Navbar({
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isBlogOpen, setIsBlogOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
   const brandName = themeSettings?.brandName || 'MAHDEV ELITE SERVICE SUITE';
+  const primaryPhone = COMPANY_CONTACT.phone.split('/')[0].replace(/\D/g, '');
 
   const searchRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -65,6 +67,13 @@ export default function Navbar({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [setSearchQuery]);
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -138,13 +147,12 @@ export default function Navbar({
     <>
       <header 
         id="app-header"
-        className={`z-50 w-full transition-colors duration-500 ${
-          // If on home, overlay the header as transparent so it sits over hero image
-          activePage === ActivePage.Home ? 'absolute top-0 left-0 backdrop-blur-sm' : 'sticky top-0'
+        className={`z-50 w-full transition-all duration-500 ${
+          activePage === ActivePage.Home ? 'absolute top-0 left-0' : 'sticky top-0'
         } ${
           isDarkMode 
-            ? (activePage === ActivePage.Home ? 'text-white' : 'border-neutral-800 bg-black/85 shadow-lg shadow-black/60 text-white') 
-            : (activePage === ActivePage.Home ? 'text-white' : 'border-slate-200 bg-white/85 shadow-md shadow-slate-100/40 text-slate-800')
+            ? (activePage === ActivePage.Home && !isScrolled ? 'text-white bg-transparent backdrop-blur-sm' : 'border-neutral-800/70 bg-black/80 backdrop-blur-xl shadow-lg shadow-black/60 text-white')
+            : (activePage === ActivePage.Home && !isScrolled ? 'text-white bg-transparent backdrop-blur-sm' : 'border-slate-200/70 bg-white/80 backdrop-blur-xl shadow-md shadow-slate-100/40 text-slate-800')
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -330,14 +338,25 @@ export default function Navbar({
                 {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
               </button>
 
-              {/* Get in Touch Button (Premium Amber Gold Gradient) */}
-              <button
-                onClick={() => handleNavClick(ActivePage.Contact)}
+              <a
+                href={COMPANY_CONTACT.whatsapp}
+                target="_blank"
+                rel="noreferrer"
+                className={`flex items-center space-x-1.5 px-3 py-2.5 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 ${
+                  isDarkMode ? 'border-neutral-700 bg-neutral-900/70 text-amber-300 hover:bg-neutral-800' : 'border-slate-200 bg-white text-amber-600 hover:bg-slate-50'
+                }`}
+              >
+                <MessageCircle size={14} />
+                <span>WHATSAPP</span>
+              </a>
+
+              <a
+                href={`tel:${primaryPhone}`}
                 className="flex items-center space-x-1.5 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-amber-500 to-yellow-500 text-black hover:scale-[1.03] shadow-md shadow-amber-500/10 hover:shadow-amber-500/30 transition-all duration-300"
               >
-                <span>GET IN TOUCH</span>
-                <ArrowRight size={13} className="stroke-[2.5px]" />
-              </button>
+                <Phone size={13} />
+                <span>CALL NOW</span>
+              </a>
             </div>
 
             {/* Mobile Hamburg Menu */}

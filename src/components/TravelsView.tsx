@@ -13,6 +13,7 @@ import {
 import { ThemeSettings } from '../types';
 import { addBooking, getTravelsVehicles, getTravelsTours } from '../utils/storage';
 import EmailCopySection from './EmailCopySection';
+import travelsHeroImage from '../assets/images/travels_robot_car_1783346316762.jpg';
 
 interface TravelsViewProps {
   isDarkMode: boolean;
@@ -44,6 +45,7 @@ interface TourPackage {
 export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewProps) {
   const brandName = themeSettings?.brandName || 'Mahdev Pvt Ltd';
   const brandShort = themeSettings?.brandName ? themeSettings.brandName.split(' ')[0] : 'Mahdev';
+  const heroImage = themeSettings?.travelsBanner || travelsHeroImage;
 
   // Active Category Filter for Fleet
   const [activeFleetTab, setActiveFleetTab] = useState<'all' | 'wedding' | 'premium' | 'vans'>('all');
@@ -151,7 +153,7 @@ export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewPr
       <section className="relative py-32 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src={travelsRobotImage} 
+            src={heroImage} 
             alt="Travels Background" 
             className="w-full h-full object-cover opacity-20 filter brightness-90 saturate-75 scale-105"
             referrerPolicy="no-referrer"
@@ -227,7 +229,7 @@ export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewPr
       </section>
 
       {/* Fleet Catalog Section */}
-      <section id="fleet-showcase" className="py-24 px-4 sm:px-6 lg:px-8">
+      <section id="travels-vehicles-section" className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           
           <div className="text-center max-w-2xl mx-auto mb-16">

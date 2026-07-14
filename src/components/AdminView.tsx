@@ -641,8 +641,11 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
       setIsAuthenticated(true);
       sessionStorage.setItem('mahdev_admin_authenticated', 'true');
       setErrorMsg('');
+      setUsername('');
+      setPassword('');
     } else {
-      setErrorMsg(`Invalid administrative credentials. Use ${adminUsername} / ${adminPassword}`);
+      setErrorMsg('Invalid administrative credentials. Please verify your username and password.');
+      setPassword('');
     }
   };
 

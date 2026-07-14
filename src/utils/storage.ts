@@ -46,39 +46,92 @@ const KEYS = {
 
 // Syncing and hydration helpers
 export function setItemAndSync(key: string, value: any) {
-  localStorage.setItem(key, JSON.stringify(value));
-  fetch('/api/save-data-key', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ key, value })
-  }).catch(err => console.error(`[API Sync ERROR] Syncing "${key}" failed:`, err));
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.error(`[Storage ERROR] Failed to save "${key}" to localStorage:`, e);
+    return;
+  }
+
+  // Send to server asynchronously with retries
+  (async () => {
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const response = await fetch('/api/save-data-key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key, value }),
+          signal: AbortSignal.timeout(5000)
+        });
+        
+        if (response.ok) {
+          console.log(`[Storage] ✅ Key "${key}" saved to server (${JSON.stringify(value).substring(0, 50)}...)`);
+          return;
+        } else {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (err) {
+        if (attempt < maxAttempts) {
+          const delay = 500 * attempt;
+          console.warn(`[Storage] Retry ${attempt}/${maxAttempts} saving "${key}" in ${delay}ms:`, err);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          console.error(`[Storage ERROR] Failed to save "${key}" to server after ${maxAttempts} attempts:`, err);
+        }
+      }
+    }
+  })();
 }
 
 export async function hydrateDatabaseFromServer(): Promise<boolean> {
-  const maxRetries = 3;
-  const delayMs = 1500;
+  const maxRetries = 5;
+  const baseDelayMs = 800;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`[Database Sync] Loading latest state from backend API (Attempt ${attempt}/${maxRetries})...`);
-      const response = await fetch('/api/get-all-data');
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+      
+      const response = await fetch('/api/get-all-data', {
+        signal: controller.signal,
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      
+      clearTimeout(timeoutId);
+      
       if (!response.ok) {
         throw new Error(`HTTP Status ${response.status}`);
       }
+      
       const db = await response.json();
-      if (db && typeof db === 'object') {
+      if (db && typeof db === 'object' && Object.keys(db).length > 0) {
+        let itemsSync = 0;
         Object.entries(db).forEach(([key, value]) => {
-          localStorage.setItem(key, JSON.stringify(value));
+          try {
+            localStorage.setItem(key, JSON.stringify(value));
+            itemsSync++;
+          } catch (e) {
+            console.warn(`[Database Sync] Failed to set key ${key}:`, e);
+          }
         });
-        console.log("[Database Sync] Local storage synchronized successfully with Express JSON DB.");
+        console.log(`[Database Sync] ✅ Synced ${itemsSync} data keys from server to local storage.`);
         return true;
+      } else {
+        console.warn(`[Database Sync] Server returned empty or invalid data.`);
       }
     } catch (error) {
-      console.warn(`[Database Sync WARNING] Attempt ${attempt} failed:`, error);
+      const delayMs = baseDelayMs * Math.pow(2, attempt - 1);
+      console.warn(`[Database Sync WARNING] Attempt ${attempt}/${maxRetries} failed:`, error);
+      
       if (attempt < maxRetries) {
+        console.log(`[Database Sync] Retrying in ${delayMs}ms...`);
         await new Promise(resolve => setTimeout(resolve, delayMs));
       } else {
-        console.error("[Database Sync ERROR] Failed to hydrate database after multiple retries. Defaulting to local cached values.");
+        console.error(`[Database Sync ERROR] Failed to hydrate database after ${maxRetries} retries. Using local cached values.`);
       }
     }
   }

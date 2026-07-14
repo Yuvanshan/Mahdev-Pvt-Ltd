@@ -48,6 +48,28 @@ import mahadevLogo from './assets/images/mahadev_logo_1782729909050.jpg';
 
 const logoImage = mahadevLogo;
 
+function normalizeRouteToPage(value?: string | null): ActivePage | null {
+  const route = value?.toLowerCase().trim() || '';
+  if (!route || route === 'home' || route === '/') return ActivePage.Home;
+  if (route === 'admin') return ActivePage.Admin;
+  if (route === 'contact') return ActivePage.Contact;
+  if (route === 'decoration' || route === 'sws' || route === 'event' || route === 'events') return ActivePage.Decoration;
+  if (route === 'photography' || route === 'studio' || route === 'u1' || route === 'u1-studio') return ActivePage.Photography;
+  if (route === 'erp' || route === 'erp-solutions' || route === 'solutions') return ActivePage.ErpSolutions;
+  if (route === 'it' || route === 'it-solutions' || route === 'software' || route === 'development') return ActivePage.ItSolutions;
+  if (route === 'travels' || route === 'travel' || route === 'tour' || route === 'tours') return ActivePage.Travels;
+  return null;
+}
+
+function syncPageToUrl(page: ActivePage) {
+  if (typeof window === 'undefined') return;
+  const nextHash = page === ActivePage.Home ? '' : `#${page}`;
+  const target = `${window.location.pathname}${nextHash}`;
+  if (window.location.pathname + window.location.hash !== target) {
+    window.history.pushState({}, '', target);
+  }
+}
+
 function adjustHex(hex: string, percent: number): string {
   const cleanHex = hex.replace("#", "");
   const num = parseInt(cleanHex, 16);
@@ -147,22 +169,17 @@ export default function App() {
   // Dynamic URL hash and path routing listener
   useEffect(() => {
     const handleRouteChange = () => {
-      if (window.location.hash === '#admin' || window.location.pathname === '/admin') {
-        setActivePage(ActivePage.Admin);
-      } else if (window.location.hash === '#home' || window.location.hash === '') {
-        setActivePage(ActivePage.Home);
+      const matchedPage = normalizeRouteToPage(window.location.hash.replace('#', '') || window.location.pathname.replace(/^\/+|\/+$/g, ''));
+      if (matchedPage) {
+        setActivePage(matchedPage);
       } else {
-        const hash = window.location.hash.replace('#', '');
-        const matchingPage = Object.values(ActivePage).find(p => p === hash);
-        if (matchingPage) {
-          setActivePage(matchingPage as ActivePage);
-        }
+        setActivePage(ActivePage.Home);
       }
     };
 
     window.addEventListener('hashchange', handleRouteChange);
     window.addEventListener('popstate', handleRouteChange);
-    
+
     // Initial check on mount
     handleRouteChange();
 
@@ -171,6 +188,10 @@ export default function App() {
       window.removeEventListener('popstate', handleRouteChange);
     };
   }, []);
+
+  useEffect(() => {
+    syncPageToUrl(activePage);
+  }, [activePage]);
 
   // Update Three.js 3D background mode, page title, and meta description when active page changes
   useEffect(() => {

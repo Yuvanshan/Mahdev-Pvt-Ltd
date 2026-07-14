@@ -10,6 +10,7 @@ import { PHOTO_PORTFOLIO, PHOTO_PRICING } from '../data';
 import { PhotoPortfolioItem, ThemeSettings } from '../types';
 import { addBooking } from '../utils/storage';
 import EmailCopySection from './EmailCopySection';
+import u1HeroImage from '../assets/images/u1_robot_camera_1783346286743.jpg';
 
 interface PhotographyViewProps {
   isDarkMode: boolean;
@@ -26,6 +27,7 @@ export default function PhotographyView({
 }: PhotographyViewProps) {
   const brandName = 'U1 Studio';
   const brandShort = 'U1';
+  const heroImage = themeSettings?.photographyBanner || u1HeroImage;
 
   // Filter Portfolio State
   const [activeFilter, setActiveFilter] = useState('All');
@@ -80,7 +82,7 @@ export default function PhotographyView({
       <section className="relative py-28 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black">
         <div className="absolute inset-0 z-0">
           <img 
-            src={u1RobotImage} 
+            src={heroImage} 
             alt="Photography Hero Banner" 
             className="w-full h-full object-cover opacity-20 filter grayscale"
             referrerPolicy="no-referrer"
@@ -110,7 +112,7 @@ export default function PhotographyView({
       </section>
 
       {/* Categories Row & Portfolio Grid */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
+      <section id="u1-portfolio-section" className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -187,7 +189,7 @@ export default function PhotographyView({
 
       {/* Pricing and Interactive Estimate Builder */}
       <section 
-        id="package-calculator"
+        id="u1-pricing-section"
         className={`py-24 px-4 sm:px-6 lg:px-8 border-t border-b ${
           isDarkMode ? 'bg-neutral-950/40 border-emerald-500/10' : 'bg-slate-50 border-slate-200'
         }`}

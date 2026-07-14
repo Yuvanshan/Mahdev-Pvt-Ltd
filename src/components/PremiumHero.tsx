@@ -3,10 +3,11 @@
  * Features circular carousel of 4 service cards with elegant animations
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, ChevronDown, Compass, ShieldCheck, HeadphonesIcon } from 'lucide-react';
 import { ActivePage } from '../types';
+import { COMPANY_CONTACT } from '../data';
 
 interface HeroCard {
   id: number;
@@ -31,8 +32,26 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
   const [selected, setSelected] = useState(0);
   const motionEase = [0.22, 1, 0.36, 1] as const;
 
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setSelected((prev) => (prev + 1) % Math.min(cards.length, 4));
+    }, 4500);
+    return () => window.clearInterval(timer);
+  }, [cards.length]);
+
+  const stats = [
+    { label: 'Projects Completed', value: '120+' },
+    { label: 'Happy Clients', value: '95%' },
+    { label: 'Years Experience', value: '10+' },
+    { label: 'Support Available', value: '24/7' }
+  ];
+
+  const handleConsultation = () => {
+    window.open(COMPANY_CONTACT.whatsapp, '_blank', 'noopener,noreferrer');
+  };
+
   return (
-    <section className={`relative w-full overflow-hidden transition-colors duration-500 ${isDarkMode ? 'bg-black' : 'bg-neutral-50'}`}>
+    <section id="services-overview" className={`relative min-h-[100svh] w-full overflow-hidden transition-colors duration-500 ${isDarkMode ? 'bg-black' : 'bg-neutral-50'}`}>
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           initial={{ opacity: 0, x: -40, y: -30 }}
@@ -54,7 +73,7 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
         />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left: Headline / Copy */}
           <motion.div
@@ -66,6 +85,17 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
             <div className="mb-6 inline-flex items-center gap-3 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold tracking-widest uppercase">
               <Sparkles size={14} className="text-amber-400" />
               <span>One Vision, Four Powerful Solutions</span>
+            </div>
+
+            <div className="mb-6 flex flex-wrap gap-3">
+              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 text-sm text-white/80 backdrop-blur-sm">
+                <ShieldCheck size={14} className="text-amber-400" />
+                <span>Trusted by premium clients</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 text-sm text-white/80 backdrop-blur-sm">
+                <HeadphonesIcon size={14} className="text-amber-400" />
+                <span>Fast support response</span>
+              </div>
             </div>
 
             <motion.h1
@@ -85,38 +115,45 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.16, duration: 0.72, ease: motionEase }}
-              className={`text-lg sm:text-xl mb-8 max-w-md ${isDarkMode ? 'text-neutral-300' : 'text-neutral-600'}`}
+              className={`text-lg sm:text-xl mb-8 max-w-xl ${isDarkMode ? 'text-neutral-300' : 'text-neutral-600'}`}
             >
-              One Vision, Four Powerful Solutions.
-              <br />
-              AI Driven • Expert Powered • Excellence Delivered.
+              We design luxury events, cinematic content, secure digital products, and premium travel experiences for brands that expect polished execution.
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.24, duration: 0.72, ease: motionEase }}
-              className="flex items-center gap-4"
+              className="flex flex-wrap items-center gap-4"
             >
               <motion.button
                 whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+                onClick={handleConsultation}
                 className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 text-neutral-900 font-bold shadow-md shadow-amber-500/20"
               >
-                Discover More
+                Get Free Consultation
                 <ArrowRight size={16} />
               </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => onNavigate(cards[0].page)}
+                onClick={() => document.getElementById('services-overview')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                 className={`px-5 py-3 rounded-full border-2 font-semibold ${isDarkMode ? 'border-white/20 text-white bg-white/5' : 'border-slate-200 text-neutral-800 bg-white'}`}
               >
-                Get In Touch
+                View Our Services
               </motion.button>
             </motion.div>
+
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {stats.map((item) => (
+                <div key={item.label} className="rounded-2xl border border-white/10 bg-white/10 px-3 py-3 backdrop-blur-sm">
+                  <p className="text-lg font-black text-white">{item.value}</p>
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/70">{item.label}</p>
+                </div>
+              ))}
+            </div>
           </motion.div>
 
           {/* Right: Four-panel showcase */}
@@ -205,6 +242,14 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
                     />
                   ))}
                 </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-white/80 backdrop-blur-sm">
+                <Compass size={14} className="text-amber-400" />
+                <span>Scroll to explore the full experience</span>
+                <ChevronDown size={14} className="animate-bounce" />
               </div>
             </div>
           </motion.div>

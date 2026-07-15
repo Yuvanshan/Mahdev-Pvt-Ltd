@@ -101,13 +101,27 @@ export default function PhotographyView({
           <p className="text-slate-300 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
             Every smile, tear, and golden sunset curated with cinematic grade camera systems, steady tracking frames, and award-winning color palettes.
           </p>
-          <a
-            href="#package-calculator"
-            className="inline-flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-500 transition-all hover:scale-105 shadow-lg shadow-emerald-600/10"
-          >
-            <span>Configure Packages</span>
-            <ChevronRight size={16} />
-          </a>
+            <button
+              type="button"
+              onClick={() => {
+                // Prevent "feels like home" jumps by scrolling after layout settles.
+                window.requestAnimationFrame(() => {
+                  setTimeout(() => {
+                    const el = document.getElementById('u1-pricing-section');
+                    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Improve perceived navigation: focus heading shortly after scroll.
+                    setTimeout(() => {
+                      const focusEl = document.getElementById('u1-pricing-heading');
+                      (focusEl as HTMLElement | null)?.focus?.();
+                    }, 250);
+                  }, 0);
+                });
+              }}
+              className="inline-flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-500 transition-all hover:scale-105 shadow-lg shadow-emerald-600/10"
+            >
+              <span>Configure Packages</span>
+              <ChevronRight size={16} />
+            </button>
         </div>
       </section>
 
@@ -197,7 +211,11 @@ export default function PhotographyView({
         <div className="max-w-7xl mx-auto">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-4 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+            <h2
+              id="u1-pricing-heading"
+              tabIndex={-1}
+              className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-4 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}
+            >
               Interactive Package Configurator
             </h2>
             <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
@@ -241,7 +259,7 @@ export default function PhotographyView({
                       Duration: {plan.duration}
                     </span>
                     <ul className="space-y-1.5 text-[11px] opacity-75 border-t border-emerald-500/10 pt-2.5">
-                      {plan.features.slice(0, 3).map((f, i) => (
+                      {plan.features.slice(0, 3).map((f: string, i: number) => (
                         <li key={i} className="flex items-center space-x-1">
                           <span className="text-emerald-500 shrink-0">✓</span>
                           <span className="truncate">{f}</span>

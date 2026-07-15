@@ -35,12 +35,28 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
   // Optimized easing for smooth 60fps animations with GPU acceleration
   const smoothEase = { type: 'spring', stiffness: 120, damping: 24, mass: 1 } as any;
 
-  // Service descriptions for visibility
-  const serviceDescriptions: Record<number, { title: string; desc: string; icon: React.ReactNode }> = {
-    0: { title: 'Photography & Cinema', desc: 'Cinematic storytelling for weddings, corporate events, and brand narratives', icon: <Camera className="w-6 h-6" /> },
-    1: { title: 'Event & Decoration', desc: 'Stunning event design with premium balloon installations and decor', icon: <Lightbulb className="w-6 h-6" /> },
-    2: { title: 'IT Solutions', desc: 'Custom web apps, cloud infrastructure, and digital transformation', icon: <Code className="w-6 h-6" /> },
-    3: { title: 'Travel & Logistics', desc: 'Luxury vehicle fleet and curated tour packages worldwide', icon: <Plane className="w-6 h-6" /> }
+  // Service descriptions derived from card.page (prevents index mismatch)
+  const serviceDescriptionsByPage: Partial<Record<ActivePage, { title: string; desc: string; icon: React.ReactNode }>> = {
+    [ActivePage.Photography]: {
+      title: 'Photography & Cinema',
+      desc: 'Cinematic storytelling for weddings, corporate events, and brand narratives',
+      icon: <Camera className="w-6 h-6" />
+    },
+    [ActivePage.Decoration]: {
+      title: 'Event & Decoration',
+      desc: 'Stunning event design with premium balloon installations and decor',
+      icon: <Lightbulb className="w-6 h-6" />
+    },
+    [ActivePage.ItSolutions]: {
+      title: 'IT Solutions',
+      desc: 'Custom web apps, cloud infrastructure, and digital transformation',
+      icon: <Code className="w-6 h-6" />
+    },
+    [ActivePage.Travels]: {
+      title: 'Travel & Logistics',
+      desc: 'Luxury vehicle fleet and curated tour packages worldwide',
+      icon: <Plane className="w-6 h-6" />
+    }
   };
 
   useEffect(() => {
@@ -107,7 +123,11 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
           {cards.slice(0, 4).map((card, idx) => {
             const isActive = selected === idx;
-            const desc = serviceDescriptions[idx];
+            const desc = serviceDescriptionsByPage[card.page] ?? {
+              title: card.title,
+              desc: card.description ?? 'Explore this service',
+              icon: card.icon
+            };
             
             return (
               <motion.div
@@ -123,12 +143,13 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
                     scale: isActive ? 1.05 : 1,
                     y: isActive ? -8 : 0,
                   }}
-                  transition={{ duration: 0.25, ...smoothEase }}
+                  transition={{ duration: 0.28, ...smoothEase }}
                   className={`relative h-full rounded-2xl overflow-hidden border transition-all duration-300 shadow-lg will-change-transform ${
-                    isActive 
-                      ? `${card.borderColor} shadow-2xl` 
+                    isActive
+                      ? `${card.borderColor} shadow-2xl`
                       : `${isDarkMode ? 'border-slate-700' : 'border-slate-200'} shadow-lg`
                   }`}
+                  style={{ transformOrigin: 'center' }}
                 >
                   {/* Background Image with lazy loading */}
                   <img
@@ -188,15 +209,16 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
                         {desc.desc}
                       </p>
                       
-                      <motion.button
-                        whileHover={{ x: 4 }}
-                        transition={{ duration: 0.2 }}
-                        onClick={() => onNavigate(card.page)}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/15 hover:bg-white/25 text-white font-semibold text-sm transition-all duration-300 border border-white/20 hover:border-white/40"
-                      >
-                        <span>Explore</span>
-                        <ArrowRight size={16} />
-                      </motion.button>
+                        <motion.button
+                          whileHover={{ x: 4 }}
+                          whileTap={{ scale: 0.98 }}
+                          transition={{ duration: 0.18, ease: 'easeOut' }}
+                          onClick={() => onNavigate(card.page)}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/15 hover:bg-white/25 text-white font-semibold text-sm transition-all duration-300 border border-white/20 hover:border-white/40"
+                        >
+                          <span>Explore</span>
+                          <ArrowRight size={16} />
+                        </motion.button>
                     </motion.div>
 
                     {/* Active Indicator */}

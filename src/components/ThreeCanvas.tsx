@@ -9,16 +9,24 @@ interface ThreeCanvasProps {
   animationMode?: 'multiverse' | 'decoration' | 'photography' | 'it' | 'erp';
 }
 
-export default function ThreeCanvas({ 
-  intensity = 1, 
-  activePage, 
+export default function ThreeCanvas({
+  intensity = 1,
+  activePage,
   primaryColor = '#a855f7',
-  animationMode = 'multiverse' 
+  animationMode = 'multiverse',
 }: ThreeCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // If reduced motion is enabled, render a static scene (no animation loop).
+    const shouldAnimate = !prefersReducedMotion;
 
     const container = containerRef.current;
     const width = container.clientWidth || window.innerWidth;
@@ -36,16 +44,16 @@ export default function ThreeCanvas({
 
     // 3. Optimized Renderer Setup with Alpha (No antialias needed for particles, saves GPU memory)
     const pixelRatio = Math.min(window.devicePixelRatio, 1.5);
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: false, 
+    const renderer = new THREE.WebGLRenderer({
+      antialias: false,
       alpha: true,
-      powerPreference: 'high-performance'
+      powerPreference: 'high-performance',
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(pixelRatio);
     container.appendChild(renderer.domElement);
 
-    // 4. Shared Particle System (using single buffer geometry for optimal performance)
+    // 4. Shared Particle System
     const particleCount = Math.floor(120 * intensity);
     const particleGeometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
@@ -60,7 +68,7 @@ export default function ThreeCanvas({
 
     particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-    // Shared high-performance soft particle texture
+    // Soft particle texture
     const createParticleTexture = () => {
       const canvas = document.createElement('canvas');
       canvas.width = 16;
@@ -94,17 +102,11 @@ export default function ThreeCanvas({
 
     // 5. Resolve active animation style mode on mount
     let currentMode: 'home' | 'decoration' | 'photography' | 'erp' | 'it' | 'travels' = 'home';
-    if (activePage === ActivePage.Decoration) {
-      currentMode = 'decoration';
-    } else if (activePage === ActivePage.Photography) {
-      currentMode = 'photography';
-    } else if (activePage === ActivePage.ErpSolutions) {
-      currentMode = 'erp';
-    } else if (activePage === ActivePage.ItSolutions) {
-      currentMode = 'it';
-    } else if (activePage === ActivePage.Travels) {
-      currentMode = 'travels';
-    }
+    if (activePage === ActivePage.Decoration) currentMode = 'decoration';
+    else if (activePage === ActivePage.Photography) currentMode = 'photography';
+    else if (activePage === ActivePage.ErpSolutions) currentMode = 'erp';
+    else if (activePage === ActivePage.ItSolutions) currentMode = 'it';
+    else if (activePage === ActivePage.Travels) currentMode = 'travels';
 
     // Interactive custom events to switch modes on the fly
     const handleModeChange = (e: Event) => {
@@ -133,7 +135,6 @@ export default function ThreeCanvas({
       for (const entry of entries) {
         const w = entry.contentRect.width || container.clientWidth;
         const h = entry.contentRect.height || container.clientHeight;
-        
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
@@ -142,11 +143,24 @@ export default function ThreeCanvas({
     resizeObserver.observe(container);
 
     // 8. Animation Loop
-    let animationFrameId: number;
+    let animationFrameId: number | null = null;
     const clock = new THREE.Clock();
     const targetParticleColor = new THREE.Color();
 
+    let isPageHidden = false;
+    const onVisibilityChange = () => {
+      isPageHidden = document.visibilityState === 'hidden';
+      if (isPageHidden && animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      } else if (!isPageHidden && shouldAnimate && !animationFrameId) {
+        animate();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     const animate = () => {
+      if (!shouldAnimate || isPageHidden) return;
       animationFrameId = requestAnimationFrame(animate);
 
       const elapsedTime = clock.getElapsedTime();
@@ -155,52 +169,37 @@ export default function ThreeCanvas({
       targetX += (mouseX - targetX) * 0.05;
       targetY += (mouseY - targetY) * 0.05;
 
-      // Subtle parallax camera rotation
+      // Parallax camera rotation
       camera.position.x = targetX * 1.5;
       camera.position.y = -targetY * 1.5;
       camera.lookAt(0, 0, 0);
 
-      // Define target particle colors based on active mode
-      if (currentMode === 'home') {
-        targetParticleColor.setHex(brandColorNum);
-      } else if (currentMode === 'decoration') {
-        targetParticleColor.setHex(0xd4af37);
-      } else if (currentMode === 'photography') {
-        targetParticleColor.setHex(0x06b6d4);
-      } else if (currentMode === 'erp') {
-        targetParticleColor.setHex(0x10b981);
-      } else if (currentMode === 'it') {
-        targetParticleColor.setHex(0x3b82f6);
-      } else if (currentMode === 'travels') {
-        targetParticleColor.setHex(0xf59e0b);
-      }
+      // Particle colors based on mode
+      if (currentMode === 'home') targetParticleColor.setHex(brandColorNum);
+      else if (currentMode === 'decoration') targetParticleColor.setHex(0xd4af37);
+      else if (currentMode === 'photography') targetParticleColor.setHex(0x06b6d4);
+      else if (currentMode === 'erp') targetParticleColor.setHex(0x10b981);
+      else if (currentMode === 'it') targetParticleColor.setHex(0x3b82f6);
+      else if (currentMode === 'travels') targetParticleColor.setHex(0xf59e0b);
 
-      // Smooth color morphing for particles
       particleMaterial.color.lerp(targetParticleColor, 0.05);
 
-      // Adjust particle size depending on the mode for variety
+      // Particle size based on mode
       let targetParticleSize = 0.22;
-      if (currentMode === 'photography') {
-        targetParticleSize = 0.45; // Cinema bokeh bubbles
-      } else if (currentMode === 'it') {
-        targetParticleSize = 0.28;
-      } else if (currentMode === 'erp') {
-        targetParticleSize = 0.18;
-      } else if (currentMode === 'decoration') {
-        targetParticleSize = 0.25;
-      } else if (currentMode === 'travels') {
-        targetParticleSize = 0.3;
-      }
+      if (currentMode === 'photography') targetParticleSize = 0.45;
+      else if (currentMode === 'it') targetParticleSize = 0.28;
+      else if (currentMode === 'erp') targetParticleSize = 0.18;
+      else if (currentMode === 'decoration') targetParticleSize = 0.25;
+      else if (currentMode === 'travels') targetParticleSize = 0.3;
       particleMaterial.size += (targetParticleSize - particleMaterial.size) * 0.05;
 
-      // Mode-specific particle physics behaviors
+      // Mode-specific particle physics
       const positionsArray = particleGeometry.attributes.position.array as Float32Array;
       for (let i = 0; i < particleCount * 3; i += 3) {
         const idx = i / 3;
         const speed = randomSpeeds[idx];
 
         if (currentMode === 'decoration') {
-          // Warm glowing gold fireflies rising up
           positionsArray[i + 1] += 0.005 * speed;
           positionsArray[i] += Math.sin(elapsedTime * 0.8 + idx) * 0.003;
           if (positionsArray[i + 1] > 8.0) {
@@ -208,7 +207,6 @@ export default function ThreeCanvas({
             positionsArray[i] = (Math.random() - 0.5) * 16;
           }
         } else if (currentMode === 'photography') {
-          // Cinematic camera bokeh floating downwards
           positionsArray[i + 1] -= 0.002 * speed;
           positionsArray[i] += Math.cos(elapsedTime * 0.5 + idx) * 0.002;
           if (positionsArray[i + 1] < -8.0) {
@@ -216,7 +214,6 @@ export default function ThreeCanvas({
             positionsArray[i] = (Math.random() - 0.5) * 16;
           }
         } else if (currentMode === 'erp') {
-          // Fast-rising vertical database stream
           positionsArray[i + 1] += 0.012 * speed;
           positionsArray[i] += Math.sin(elapsedTime * 0.3 + idx) * 0.001;
           if (positionsArray[i + 1] > 8.0) {
@@ -224,7 +221,6 @@ export default function ThreeCanvas({
             positionsArray[i] = (Math.random() - 0.5) * 16;
           }
         } else if (currentMode === 'it') {
-          // Cyber streams flying horizontally
           positionsArray[i] -= 0.014 * speed;
           positionsArray[i + 1] += Math.sin(elapsedTime * 1.2 + idx) * 0.003;
           if (positionsArray[i] < -8.0) {
@@ -232,14 +228,16 @@ export default function ThreeCanvas({
             positionsArray[i + 1] = (Math.random() - 0.5) * 16;
           }
         } else if (currentMode === 'travels') {
-          // Stardust revolving circularly around center
-          const radius = Math.sqrt(positionsArray[i] * positionsArray[i] + positionsArray[i + 2] * positionsArray[i + 2]) || 3;
-          const angle = Math.atan2(positionsArray[i + 2], positionsArray[i]) + 0.003 * speed;
+          const radius =
+            Math.sqrt(
+              positionsArray[i] * positionsArray[i] + positionsArray[i + 2] * positionsArray[i + 2]
+            ) || 3;
+          const angle =
+            Math.atan2(positionsArray[i + 2], positionsArray[i]) + 0.003 * speed;
           positionsArray[i] = Math.cos(angle) * radius;
           positionsArray[i + 2] = Math.sin(angle) * radius;
           positionsArray[i + 1] += Math.sin(elapsedTime * 0.5 + idx) * 0.002;
         } else {
-          // Default magical celestial falling stardust
           positionsArray[i + 1] -= 0.006 * speed;
           positionsArray[i] += Math.sin(elapsedTime * 0.5 + idx) * 0.001;
           if (positionsArray[i + 1] < -8.0) {
@@ -248,24 +246,28 @@ export default function ThreeCanvas({
           }
         }
       }
+
       particleGeometry.attributes.position.needsUpdate = true;
 
-      // Overall dynamic rotators
+      // Overall rotators
       particles.rotation.y = elapsedTime * 0.012 + targetX * 0.05;
       particles.rotation.x = targetY * 0.05;
 
       renderer.render(scene, camera);
     };
 
-    animate();
+    // If animations are disabled, render a single frame.
+    if (shouldAnimate) animate();
+    else renderer.render(scene, camera);
 
     // 9. Cleanups and Disposals
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mahdev-3d-mode-change', handleModeChange);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       resizeObserver.disconnect();
-      cancelAnimationFrame(animationFrameId);
-      
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -274,13 +276,14 @@ export default function ThreeCanvas({
       particleMaterial.dispose();
       renderer.dispose();
     };
-  }, [intensity, primaryColor]);
+  }, [intensity, primaryColor, activePage, animationMode]);
 
   return (
-    <div 
+    <div
       id="three-canvas-root"
-      ref={containerRef} 
+      ref={containerRef}
       className="fixed inset-0 w-full h-full pointer-events-none overflow-hidden z-0"
     />
   );
 }
+

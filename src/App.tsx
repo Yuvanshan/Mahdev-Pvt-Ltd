@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
+import { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion, useScroll, useSpring } from 'motion/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+
 import { ActivePage } from './types';
 
 // Components
@@ -19,29 +20,29 @@ import HomeView from './components/HomeView';
 import DecorationView from './components/DecorationView';
 import PhotographyView from './components/PhotographyView';
 import TravelsView from './components/TravelsView';
-import ErpView from './components/ErpView';
 import ItSolutionsView from './components/ItSolutionsView';
 import ContactView from './components/ContactView';
 import AdminView from './components/AdminView';
 
 // Storage Utility Loaders
-import { 
-  getCompanyContact, 
-  getServicesList, 
-  getPhotoPortfolio, 
-  getPhotoPricing, 
-  getItProjects, 
-  getLeadershipTeam, 
-  getTestimonials,
+import {
+  getCompanyContact,
   getDecorationGallery,
+  getItProjects,
+  getLeadershipTeam,
+  getPhotoPortfolio,
+  getPhotoPricing,
   getRentalItems,
-  getThemeSettings,
+  getServicesList,
   getSeoSettings,
+  getThemeSettings,
+  getTestimonials,
   hydrateDatabaseFromServer
 } from './utils/storage';
 
 // Branding Updater
 import { updateBranding } from './utils/brandingUpdater';
+import { useRealtimeImageState } from './architecture/presentation/hooks/useRealtimeImageState';
 
 // Logo
 import mahadevLogo from './assets/images/mahadev_logo_1782729909050.jpg';
@@ -71,23 +72,23 @@ function syncPageToUrl(page: ActivePage) {
 }
 
 function adjustHex(hex: string, percent: number): string {
-  const cleanHex = hex.replace("#", "");
+  const cleanHex = hex.replace('#', '');
   const num = parseInt(cleanHex, 16);
   let r = (num >> 16) + Math.round(2.55 * percent);
   let g = ((num >> 8) & 0x00ff) + Math.round(2.55 * percent);
   let b = (num & 0x0000ff) + Math.round(2.55 * percent);
-  
+
   r = Math.max(0, Math.min(255, r));
   g = Math.max(0, Math.min(255, g));
   b = Math.max(0, Math.min(255, b));
-  
+
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }
 
 export default function App() {
   const [activePage, setActivePage] = useState<ActivePage>(ActivePage.Home);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true); // Luxurious Dark default
-  const [loading, setLoading] = useState<boolean>(true);
+
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Dynamic States for Admin customization
@@ -104,18 +105,19 @@ export default function App() {
   const [themeSettings, setThemeSettings] = useState(() => getThemeSettings());
   const [seoSettings, setSeoSettings] = useState(() => getSeoSettings());
 
-  const filteredServices = servicesList.filter(service => 
-    service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    service.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredServices = servicesList.filter(
+    (service) =>
+      service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredProjects = itProjects.filter(project => 
-    project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    project.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    project.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProjects = itProjects.filter(
+    (project) =>
+      project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Update states whenever trigger increments
   useEffect(() => {
     setCompanyContact(getCompanyContact());
     setServicesList(getServicesList());
@@ -131,10 +133,9 @@ export default function App() {
   }, [dataRefreshTrigger]);
 
   const handleDataChange = () => {
-    setDataRefreshTrigger(prev => prev + 1);
+    setDataRefreshTrigger((prev) => prev + 1);
   };
 
-  // Update page title and favicon whenever theme settings change
   useEffect(() => {
     updateBranding(themeSettings);
   }, [themeSettings]);
@@ -147,40 +148,73 @@ export default function App() {
     restDelta: 0.001
   });
 
+  // Real-time website image state (Firestore listeners)
+  const { imageState } = useRealtimeImageState();
+
+  // Client-side cache-busting
+  const cacheBustedWebsiteImages = useMemo(() => {
+    const updatedAtEpoch = (() => {
+      try {
+        return new Date(imageState.updatedAt).getTime();
+      } catch {
+        return Date.now();
+      }
+    })();
+
+    const bust = (url?: string) => {
+      if (!url) return url;
+      const sep = url.includes('?') ? '&' : '?';
+      return `${url}${sep}v=${updatedAtEpoch}`;
+    };
+
+    return {
+      brandLogo: bust(imageState.website.brandLogo),
+      decorationBanner: bust(imageState.website.decorationBanner),
+      photographyBanner: bust(imageState.website.photographyBanner),
+      itBanner: bust(imageState.website.itBanner),
+      travelsBanner: bust(imageState.website.travelsBanner),
+      weddingDecorationBanner: bust(imageState.website.weddingDecorationBanner)
+    };
+  }, [imageState.updatedAt, imageState.website]);
+
   // Server-backed dynamic database hydration on app mount
   useEffect(() => {
-    async function syncAndLoad() {
+    let cancelled = false;
+
+    async function syncInBackground() {
       try {
         const success = await hydrateDatabaseFromServer();
+        if (cancelled) return;
+
         if (success) {
           handleDataChange();
-            // Notify any admin UI listeners that the server DB has been synchronized
-            window.dispatchEvent(new Event('mahdev-db-synced'));
+          window.dispatchEvent(new Event('mahdev-db-synced'));
         }
       } catch (err) {
-        console.error("Failed to hydrate database on mount:", err);
-      } finally {
-        setLoading(false);
+        console.error('Failed to hydrate database in background:', err);
       }
     }
-    syncAndLoad();
+
+    syncInBackground();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Dynamic URL hash and path routing listener
   useEffect(() => {
     const handleRouteChange = () => {
-      const matchedPage = normalizeRouteToPage(window.location.hash.replace('#', '') || window.location.pathname.replace(/^\/+|\/+$/g, ''));
-      if (matchedPage) {
-        setActivePage(matchedPage);
-      } else {
-        setActivePage(ActivePage.Home);
-      }
+      const matchedPage = normalizeRouteToPage(
+        window.location.hash.replace('#', '') || window.location.pathname.replace(/^\/+|\/+$/g, '')
+      );
+
+      if (matchedPage) setActivePage(matchedPage);
+      else setActivePage(ActivePage.Home);
     };
 
     window.addEventListener('hashchange', handleRouteChange);
     window.addEventListener('popstate', handleRouteChange);
-
-    // Initial check on mount
     handleRouteChange();
 
     return () => {
@@ -193,7 +227,7 @@ export default function App() {
     syncPageToUrl(activePage);
   }, [activePage]);
 
-  // Update Three.js 3D background mode, page title, and meta description when active page changes
+  // Update 3D mode + title/meta on active page changes
   useEffect(() => {
     let mode = 'home';
     let pageTitle = seoSettings.siteTitle;
@@ -242,13 +276,9 @@ export default function App() {
         break;
     }
 
-    // 1. Dispatch event to update background mode
     window.dispatchEvent(new CustomEvent('mahdev-3d-mode-change', { detail: { mode } }));
-
-    // 2. Dynamically update HTML Document Title
     document.title = pageTitle;
 
-    // 3. Dynamically update or create HTML Meta Description
     let descriptionMeta = document.querySelector('meta[name="description"]');
     if (!descriptionMeta) {
       descriptionMeta = document.createElement('meta');
@@ -257,7 +287,6 @@ export default function App() {
     }
     descriptionMeta.setAttribute('content', metaDesc);
 
-    // 4. Dynamically update or create HTML Meta Keywords
     let keywordsMeta = document.querySelector('meta[name="keywords"]');
     if (!keywordsMeta) {
       keywordsMeta = document.createElement('meta');
@@ -266,7 +295,6 @@ export default function App() {
     }
     keywordsMeta.setAttribute('content', seoSettings.metaKeywords);
 
-    // 5. Dynamically update or create Open Graph Tags
     let ogTitleMeta = document.querySelector('meta[property="og:title"]');
     if (!ogTitleMeta) {
       ogTitleMeta = document.createElement('meta');
@@ -296,80 +324,87 @@ export default function App() {
     switch (activePage) {
       case ActivePage.Home:
         return (
-          <HomeView 
-            setActivePage={setActivePage} 
-            isDarkMode={isDarkMode} 
+          <HomeView
+            setActivePage={setActivePage}
+            isDarkMode={isDarkMode}
             servicesList={filteredServices}
             leadersList={leaders}
             themeSettings={themeSettings}
           />
         );
+
       case ActivePage.Decoration:
         return (
-          <DecorationView 
-            isDarkMode={isDarkMode} 
+          <DecorationView
+            isDarkMode={isDarkMode}
             testimonialsList={testimonials}
             contactInfo={companyContact}
             galleryList={decorationGallery}
             rentalList={rentalItems}
-            themeSettings={themeSettings}
+            themeSettings={{
+              ...themeSettings,
+              decorationBanner: cacheBustedWebsiteImages.decorationBanner || themeSettings.decorationBanner,
+              weddingDecorationBanner:
+                cacheBustedWebsiteImages.weddingDecorationBanner || themeSettings.weddingDecorationBanner
+            }}
           />
         );
+
       case ActivePage.Photography:
         return (
-          <PhotographyView 
-            isDarkMode={isDarkMode} 
+          <PhotographyView
+            isDarkMode={isDarkMode}
             portfolioList={photoPortfolio}
-            pricingList={photoPricing}
-            themeSettings={themeSettings}
+            pricingList={photoPricing as any}
+            themeSettings={{
+              ...themeSettings,
+              photographyBanner: cacheBustedWebsiteImages.photographyBanner || themeSettings.photographyBanner
+            }}
           />
         );
+
       case ActivePage.Travels:
         return (
-          <TravelsView 
-            isDarkMode={isDarkMode} 
-            themeSettings={themeSettings}
+          <TravelsView
+            isDarkMode={isDarkMode}
+            themeSettings={{
+              ...themeSettings,
+              travelsBanner: cacheBustedWebsiteImages.travelsBanner || themeSettings.travelsBanner
+            }}
           />
         );
+
       case ActivePage.ErpSolutions:
         return (
-          <ItSolutionsView 
-            isDarkMode={isDarkMode} 
+          <ItSolutionsView
+            isDarkMode={isDarkMode}
             projectsList={filteredProjects}
-            themeSettings={themeSettings}
+            themeSettings={{ ...themeSettings, itBanner: cacheBustedWebsiteImages.itBanner || themeSettings.itBanner }}
             initialTab="erp"
           />
         );
+
       case ActivePage.ItSolutions:
         return (
-          <ItSolutionsView 
-            isDarkMode={isDarkMode} 
+          <ItSolutionsView
+            isDarkMode={isDarkMode}
             projectsList={filteredProjects}
-            themeSettings={themeSettings}
+            themeSettings={{ ...themeSettings, itBanner: cacheBustedWebsiteImages.itBanner || themeSettings.itBanner }}
             initialTab="custom"
           />
         );
+
       case ActivePage.Contact:
-        return (
-          <ContactView 
-            isDarkMode={isDarkMode} 
-            contactInfo={companyContact}
-            themeSettings={themeSettings}
-          />
-        );
+        return <ContactView isDarkMode={isDarkMode} contactInfo={companyContact} themeSettings={themeSettings} />;
+
       case ActivePage.Admin:
-        return (
-          <AdminView 
-            isDarkMode={isDarkMode} 
-            onDataChange={handleDataChange}
-            themeSettings={themeSettings}
-          />
-        );
+        return <AdminView isDarkMode={isDarkMode} onDataChange={handleDataChange} themeSettings={themeSettings} />;
+
       default:
         return (
-          <HomeView 
-            setActivePage={setActivePage} 
-            isDarkMode={isDarkMode} 
+          <HomeView
+            setActivePage={setActivePage}
+            isDarkMode={isDarkMode}
             servicesList={servicesList}
             leadersList={leaders}
             themeSettings={themeSettings}
@@ -381,7 +416,7 @@ export default function App() {
   const primary = themeSettings.primaryColor;
   const fontName = themeSettings.fontFamily || 'Poppins';
 
-  const shades = {
+  const shades: Record<number, string> = {
     50: adjustHex(primary, 90),
     100: adjustHex(primary, 75),
     200: adjustHex(primary, 50),
@@ -392,7 +427,7 @@ export default function App() {
     700: adjustHex(primary, -25),
     800: adjustHex(primary, -40),
     900: adjustHex(primary, -60),
-    950: adjustHex(primary, -80),
+    950: adjustHex(primary, -80)
   };
 
   const styleContent = `
@@ -418,11 +453,7 @@ export default function App() {
       <>
         <style>{styleContent}</style>
         <div className="min-h-screen bg-neutral-950 text-slate-100 font-sans">
-          <AdminView 
-            isDarkMode={isDarkMode} 
-            onDataChange={handleDataChange}
-            themeSettings={themeSettings}
-          />
+          <AdminView isDarkMode={isDarkMode} onDataChange={handleDataChange} themeSettings={themeSettings} />
         </div>
       </>
     );
@@ -432,116 +463,64 @@ export default function App() {
     <>
       <style>{styleContent}</style>
       <SpeedInsights />
+
       <AnimatePresence mode="wait">
-        {loading ? (
-          /* Premium Monogram Intro Preloader */
+        <motion.div
+          key="main-app"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.35 }}
+          className={`min-h-screen relative flex flex-col justify-between transition-colors duration-500 ${
+            isDarkMode
+              ? 'bg-neutral-950 text-slate-100 selection:bg-emerald-500/30 selection:text-emerald-300'
+              : 'bg-white text-slate-800 selection:bg-emerald-600/20 selection:text-emerald-800'
+          }`}
+        >
           <motion.div
-            key="preloader"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -40 }}
-            transition={{ duration: 0.6, ease: 'easeInOut' }}
-            className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center text-center"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="space-y-6"
-            >
-              <div className="relative w-24 h-24 rounded-2xl mx-auto overflow-hidden border border-emerald-500/30 shadow-2xl shadow-emerald-500/10">
-                <img 
-                  src={companyContact?.logo || logoImage} 
-                  alt="Brand Logo" 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/25 to-transparent animate-pulse" />
-              </div>
+            className="fixed top-0 left-0 right-0 h-1 bg-emerald-500 origin-left z-[60]"
+            style={{ scaleX }}
+          />
 
-              <div className="space-y-1">
-                <h2 className="text-white text-2xl font-bold tracking-widest font-sans leading-none">
-                  {themeSettings.brandName.split(' ')[0] || 'MAHDEV'}
-                </h2>
-                <p className="text-emerald-500 font-mono text-[10px] tracking-[0.3em] uppercase font-semibold">
-                  {themeSettings.brandName.split(' ').slice(1).join(' ') || 'Pvt Ltd'}
-                </p>
-              </div>
+          <ThreeCanvas
+            intensity={activePage === ActivePage.Home ? 1.2 : 0.45}
+            activePage={activePage}
+            primaryColor={themeSettings.primaryColor}
+            animationMode={themeSettings.animationMode}
+          />
 
-              {/* Loader line */}
-              <div className="w-32 h-0.5 bg-neutral-900 rounded-full mx-auto overflow-hidden">
-                <motion.div 
-                  initial={{ x: '-100%' }}
-                  animate={{ x: '100%' }}
-                  transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
-                  className="w-1/2 h-full bg-emerald-500"
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        ) : (
-          /* Master Website Frame */
-          <motion.div
-            key="main-app"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className={`min-h-screen relative flex flex-col justify-between transition-colors duration-500 ${
-              isDarkMode 
-                ? 'bg-neutral-950 text-slate-100 selection:bg-emerald-500/30 selection:text-emerald-300' 
-                : 'bg-white text-slate-800 selection:bg-emerald-600/20 selection:text-emerald-800'
-            }`}
-          >
-            {/* Scroll Progress Bar */}
-            <motion.div 
-              className="fixed top-0 left-0 right-0 h-1 bg-emerald-500 origin-left z-[60]"
-              style={{ scaleX }}
-            />
+          <Navbar
+            activePage={activePage}
+            setActivePage={setActivePage}
+            isDarkMode={isDarkMode}
+            setIsDarkMode={setIsDarkMode}
+            logo={companyContact?.logo || cacheBustedWebsiteImages.brandLogo || themeSettings?.brandLogo || logoImage}
+            themeSettings={themeSettings}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            servicesList={servicesList}
+            itProjects={itProjects}
+          />
 
-            {/* Interactive WebGL Scene */}
-            <ThreeCanvas 
-              intensity={activePage === ActivePage.Home ? 1.2 : 0.45} 
-              activePage={activePage}
-              primaryColor={themeSettings.primaryColor}
-              animationMode={themeSettings.animationMode}
-            />
+          <main id="main-content-flow" className="flex-grow w-full">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activePage}
+                initial={{ opacity: 0, filter: 'blur(10px)', y: 10 }}
+                animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
+                exit={{ opacity: 0, filter: 'blur(10px)', y: -10 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {renderView()}
+              </motion.div>
+            </AnimatePresence>
+          </main>
 
-            {/* Header / Sticky Navigation */}
-            <Navbar 
-              activePage={activePage} 
-              setActivePage={setActivePage} 
-              isDarkMode={isDarkMode} 
-              setIsDarkMode={setIsDarkMode} 
-              logo={companyContact?.logo || themeSettings?.brandLogo}
-              themeSettings={themeSettings}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              servicesList={servicesList}
-              itProjects={itProjects}
-            />
+          <Footer setActivePage={setActivePage} isDarkMode={isDarkMode} contactInfo={companyContact} themeSettings={themeSettings} />
 
-            {/* Main Section with smooth page slide and blur transitions */}
-            <main id="main-content-flow" className="flex-grow w-full">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activePage}
-                  initial={{ opacity: 0, filter: 'blur(10px)', y: 10 }}
-                  animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
-                  exit={{ opacity: 0, filter: 'blur(10px)', y: -10 }}
-                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  {renderView()}
-                </motion.div>
-              </AnimatePresence>
-            </main>
-
-            {/* Footer */}
-            <Footer setActivePage={setActivePage} isDarkMode={isDarkMode} contactInfo={companyContact} themeSettings={themeSettings} />
-
-            {/* Floating Actions (WhatsApp Chat & Back to Top) */}
-            <FloatingActions />
-          </motion.div>
-        )}
+          <FloatingActions />
+        </motion.div>
       </AnimatePresence>
     </>
   );
 }
+

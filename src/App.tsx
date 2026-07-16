@@ -43,6 +43,7 @@ import {
 // Branding Updater
 import { updateBranding } from './utils/brandingUpdater';
 import { useRealtimeImageState } from './architecture/presentation/hooks/useRealtimeImageState';
+import { listenToAllCloudDbUpdates } from './firebaseClient';
 
 // Logo
 import mahadevLogo from './assets/images/mahadev_logo_1782729909050.jpg';
@@ -202,6 +203,32 @@ export default function App() {
     };
   }, []);
 
+  // Real-time synchronization listener
+  useEffect(() => {
+    let unsub: (() => void) | null = null;
+    let cancelled = false;
+
+    async function initRealtimeSync() {
+      try {
+        unsub = await listenToAllCloudDbUpdates((key, value) => {
+          if (cancelled) return;
+          console.log(`[Realtime Sync] Received cloud update for key: ${key}`);
+          localStorage.setItem(key, JSON.stringify(value));
+          handleDataChange();
+        });
+      } catch (err) {
+        console.error('Failed to initialize real-time cloud sync listener:', err);
+      }
+    }
+
+    initRealtimeSync();
+
+    return () => {
+      cancelled = true;
+      if (unsub) unsub();
+    };
+  }, []);
+
   // Dynamic URL hash and path routing listener
   useEffect(() => {
     const handleRouteChange = () => {
@@ -321,6 +348,16 @@ export default function App() {
   }, [activePage, seoSettings]);
 
   const renderView = () => {
+    const cacheBustedTheme = {
+      ...themeSettings,
+      brandLogo: cacheBustedWebsiteImages.brandLogo || themeSettings.brandLogo,
+      decorationBanner: cacheBustedWebsiteImages.decorationBanner || themeSettings.decorationBanner,
+      photographyBanner: cacheBustedWebsiteImages.photographyBanner || themeSettings.photographyBanner,
+      itBanner: cacheBustedWebsiteImages.itBanner || themeSettings.itBanner,
+      travelsBanner: cacheBustedWebsiteImages.travelsBanner || themeSettings.travelsBanner,
+      weddingDecorationBanner: cacheBustedWebsiteImages.weddingDecorationBanner || themeSettings.weddingDecorationBanner
+    };
+
     switch (activePage) {
       case ActivePage.Home:
         return (
@@ -329,7 +366,7 @@ export default function App() {
             isDarkMode={isDarkMode}
             servicesList={filteredServices}
             leadersList={leaders}
-            themeSettings={themeSettings}
+            themeSettings={cacheBustedTheme}
           />
         );
 
@@ -338,15 +375,13 @@ export default function App() {
           <DecorationView
             isDarkMode={isDarkMode}
             testimonialsList={testimonials}
-            contactInfo={companyContact}
+            contactInfo={{
+              ...companyContact,
+              logo: cacheBustedWebsiteImages.brandLogo || companyContact.logo
+            }}
             galleryList={decorationGallery}
             rentalList={rentalItems}
-            themeSettings={{
-              ...themeSettings,
-              decorationBanner: cacheBustedWebsiteImages.decorationBanner || themeSettings.decorationBanner,
-              weddingDecorationBanner:
-                cacheBustedWebsiteImages.weddingDecorationBanner || themeSettings.weddingDecorationBanner
-            }}
+            themeSettings={cacheBustedTheme}
           />
         );
 
@@ -356,10 +391,7 @@ export default function App() {
             isDarkMode={isDarkMode}
             portfolioList={photoPortfolio}
             pricingList={photoPricing as any}
-            themeSettings={{
-              ...themeSettings,
-              photographyBanner: cacheBustedWebsiteImages.photographyBanner || themeSettings.photographyBanner
-            }}
+            themeSettings={cacheBustedTheme}
           />
         );
 
@@ -367,10 +399,7 @@ export default function App() {
         return (
           <TravelsView
             isDarkMode={isDarkMode}
-            themeSettings={{
-              ...themeSettings,
-              travelsBanner: cacheBustedWebsiteImages.travelsBanner || themeSettings.travelsBanner
-            }}
+            themeSettings={cacheBustedTheme}
           />
         );
 
@@ -379,7 +408,7 @@ export default function App() {
           <ItSolutionsView
             isDarkMode={isDarkMode}
             projectsList={filteredProjects}
-            themeSettings={{ ...themeSettings, itBanner: cacheBustedWebsiteImages.itBanner || themeSettings.itBanner }}
+            themeSettings={cacheBustedTheme}
             initialTab="erp"
           />
         );
@@ -389,13 +418,22 @@ export default function App() {
           <ItSolutionsView
             isDarkMode={isDarkMode}
             projectsList={filteredProjects}
-            themeSettings={{ ...themeSettings, itBanner: cacheBustedWebsiteImages.itBanner || themeSettings.itBanner }}
+            themeSettings={cacheBustedTheme}
             initialTab="custom"
           />
         );
 
       case ActivePage.Contact:
-        return <ContactView isDarkMode={isDarkMode} contactInfo={companyContact} themeSettings={themeSettings} />;
+        return (
+          <ContactView 
+            isDarkMode={isDarkMode} 
+            contactInfo={{
+              ...companyContact,
+              logo: cacheBustedWebsiteImages.brandLogo || companyContact.logo
+            }} 
+            themeSettings={cacheBustedTheme} 
+          />
+        );
 
       case ActivePage.Admin:
         return <AdminView isDarkMode={isDarkMode} onDataChange={handleDataChange} themeSettings={themeSettings} />;
@@ -407,7 +445,7 @@ export default function App() {
             isDarkMode={isDarkMode}
             servicesList={servicesList}
             leadersList={leaders}
-            themeSettings={themeSettings}
+            themeSettings={cacheBustedTheme}
           />
         );
     }
@@ -515,7 +553,18 @@ export default function App() {
             </AnimatePresence>
           </main>
 
-          <Footer setActivePage={setActivePage} isDarkMode={isDarkMode} contactInfo={companyContact} themeSettings={themeSettings} />
+          <Footer
+            setActivePage={setActivePage}
+            isDarkMode={isDarkMode}
+            contactInfo={{
+              ...companyContact,
+              logo: cacheBustedWebsiteImages.brandLogo || companyContact.logo
+            }}
+            themeSettings={{
+              ...themeSettings,
+              brandLogo: cacheBustedWebsiteImages.brandLogo || themeSettings.brandLogo
+            }}
+          />
 
           <FloatingActions />
         </motion.div>

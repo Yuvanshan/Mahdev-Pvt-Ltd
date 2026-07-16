@@ -194,6 +194,17 @@ async function startServer() {
       }
     };
 
+    req.setTimeout(30000, () => {
+      console.warn(`[Upload API ${requestId}] Request timed out`);
+      cleanupTemp();
+      if (!res.headersSent) {
+        res.status(408).json({
+          success: false,
+          error: { code: "TIMEOUT", message: "Upload timed out on the server." }
+        });
+      }
+    });
+
     try {
       if (!req.file) {
         return res.status(400).json({
@@ -549,39 +560,76 @@ async function startServer() {
     }
   });
 
-  // API to save a single state collection/key
+  // API to save state collections/keys (supports both single {key, value} and batch {key: value} formats)
   app.post("/api/save-data-key", async (req, res) => {
     try {
-      const { key, value } = req.body;
-      if (!key) {
-        return res.status(400).json({ error: "Missing required key field." });
-      }
+      async function handleSaveKey(k: string, val: any) {
+        if (k === "mahdev_smtp_settings") {
+          const db = await getCloudDb();
+          const existingSettings = db["mahdev_smtp_settings"] || {};
+          const incomingSettings = val || {};
+          let finalPassword = "";
 
-      if (key === "mahdev_smtp_settings") {
-        const db = await getCloudDb();
-        const existingSettings = db["mahdev_smtp_settings"] || {};
-        const incomingSettings = value || {};
-        let finalPassword = "";
+          if (incomingSettings.password === "••••••••••••") {
+            finalPassword = existingSettings.password || "";
+          } else if (incomingSettings.password) {
+            finalPassword = encrypt(incomingSettings.password);
+          }
 
-        if (incomingSettings.password === "••••••••••••") {
-          finalPassword = existingSettings.password || "";
-        } else if (incomingSettings.password) {
-          finalPassword = encrypt(incomingSettings.password);
+          const sanitizedSettings = {
+            ...incomingSettings,
+            password: finalPassword
+          };
+          await saveCloudKey(k, sanitizedSettings);
+          console.log("[SMTP Secure Sync] Saved secure SMTP configurations with encrypted password.");
+        } else {
+          await saveCloudKey(k, val);
         }
 
-        const sanitizedSettings = {
-          ...incomingSettings,
-          password: finalPassword
-        };
-        await saveCloudKey(key, sanitizedSettings);
-        console.log("[SMTP Secure Sync] Saved secure SMTP configurations with encrypted password.");
-        return res.json({ success: true, key });
+        // If theme settings or company contact is updated, sync image URLs to mahdev_image_state_v1
+        if (k === "mahdev_theme_settings" || k === "mahdev_company_contact") {
+          try {
+            const dbState = await getCloudDb();
+            const theme = dbState["mahdev_theme_settings"] || {};
+            const contact = dbState["mahdev_company_contact"] || {};
+            
+            const imageStateVal = {
+              version: (dbState["mahdev_image_state_v1"]?.version || 0) + 1,
+              updatedAt: new Date().toISOString(),
+              website: {
+                brandLogo: contact.logo || theme.brandLogo || "",
+                decorationBanner: theme.decorationBanner || "",
+                photographyBanner: theme.photographyBanner || "",
+                itBanner: theme.itBanner || "",
+                travelsBanner: theme.travelsBanner || "",
+                weddingDecorationBanner: theme.weddingDecorationBanner || ""
+              }
+            };
+            
+            await saveCloudKey("mahdev_image_state_v1", imageStateVal);
+            console.log("[Image Sync] Synced theme and contact images to mahdev_image_state_v1:", imageStateVal.website);
+          } catch (err) {
+            console.error("[Image Sync ERROR] Failed to update mahdev_image_state_v1:", err);
+          }
+        }
       }
 
-      await saveCloudKey(key, value);
-
-      console.log(`[API Sync] Key "${key}" successfully synchronized on Cloud Firestore.`);
-      return res.json({ success: true, key });
+      if (req.body && req.body.key) {
+        const { key, value } = req.body;
+        await handleSaveKey(key, value);
+        console.log(`[API Sync] Key "${key}" successfully synchronized on Cloud Firestore.`);
+        return res.json({ success: true, key });
+      } else if (req.body && typeof req.body === "object") {
+        const savedKeys: string[] = [];
+        for (const [k, val] of Object.entries(req.body)) {
+          await handleSaveKey(k, val);
+          savedKeys.push(k);
+        }
+        console.log(`[API Sync] Batch successfully synchronized on Cloud Firestore: ${savedKeys.join(", ")}`);
+        return res.json({ success: true, keys: savedKeys });
+      } else {
+        return res.status(400).json({ error: "Missing required key field or invalid body." });
+      }
     } catch (error: any) {
       console.error("[API Sync ERROR]", error);
       return res.status(500).json({ error: "Failed to sync key on server database." });

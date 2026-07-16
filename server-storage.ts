@@ -1,10 +1,10 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import fs from "fs";
 import path from "path";
-import { getCloudDb, saveCloudKey } from "./server-firebase";
+import { getCloudDb, saveCloudKey, uploadToFirebaseStorage, deleteFromFirebaseStorage } from "./server-firebase";
 
 export interface StorageSettings {
-  provider: "local" | "r2" | "supabase";
+  provider: "local" | "r2" | "supabase" | "firebase";
   // R2 Config
   r2Endpoint: string;
   r2AccessKeyId: string;
@@ -36,7 +36,7 @@ const STORAGE_SETTINGS_KEY = "mahdev_storage_settings";
 const MEDIA_LIBRARY_KEY = "mahdev_media_library";
 
 const DEFAULT_STORAGE_SETTINGS: StorageSettings = {
-  provider: "local",
+  provider: "firebase",
   r2Endpoint: "",
   r2AccessKeyId: "",
   r2SecretAccessKey: "",
@@ -154,7 +154,16 @@ export async function uploadFile(
   const uniqueId = Date.now() + "_" + Math.round(Math.random() * 1e6);
   const cloudKey = `${folder}/${baseName}_${uniqueId}${fileExtension}`;
 
-  if (settings.provider !== "local") {
+  // If provider is firebase or local (default fallback), use Firebase cloud storage
+  if (settings.provider === "firebase" || settings.provider === "local") {
+    try {
+      return await uploadToFirebaseStorage(fileBuffer, fileName, mimeType, folder);
+    } catch (firebaseErr) {
+      console.warn("[Storage Fallback] Firebase storage upload failed. Falling back to local storage:", firebaseErr);
+    }
+  }
+
+  if (settings.provider === "r2" || settings.provider === "supabase") {
     const s3 = createS3Client(settings);
     if (s3) {
       try {
@@ -211,6 +220,10 @@ export async function uploadFile(
  */
 export async function deleteFile(fileKey: string): Promise<boolean> {
   if (!fileKey) return false;
+
+  if (fileKey.startsWith("firebase:")) {
+    return await deleteFromFirebaseStorage(fileKey);
+  }
 
   if (fileKey.startsWith("local:")) {
     const relativePath = fileKey.substring(6); // remove "local:"

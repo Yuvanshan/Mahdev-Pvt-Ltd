@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { initializeFirestore, doc, getDoc, setDoc, getDocs, collection, setLogLevel } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import fs from "fs";
 import path from "path";
 
@@ -22,6 +23,7 @@ if (fs.existsSync(configPath)) {
 }
 
 let db: any = null;
+let storage: any = null;
 
 if (firebaseConfig && firebaseConfig.projectId) {
   try {
@@ -29,9 +31,10 @@ if (firebaseConfig && firebaseConfig.projectId) {
     db = initializeFirestore(app, {
       experimentalForceLongPolling: true,
     }, firebaseConfig.firestoreDatabaseId || "(default)");
-    console.log("[Firebase Init] Successfully initialized cloud Firestore with experimentalForceLongPolling and Database ID:", firebaseConfig.firestoreDatabaseId);
+    storage = getStorage(app);
+    console.log("[Firebase Init] Successfully initialized cloud Firestore and Storage with Database ID:", firebaseConfig.firestoreDatabaseId);
   } catch (error) {
-    console.error("[Firebase Init ERROR] Failed to initialize Firestore:", error);
+    console.error("[Firebase Init ERROR] Failed to initialize Firestore/Storage:", error);
   }
 } else {
   console.warn("[Firebase Init] firebase-applet-config.json not found or invalid. Falling back to local storage.");
@@ -106,6 +109,46 @@ export async function saveCloudKey(key: string, value: any): Promise<boolean> {
     return true;
   } catch (error) {
     console.error(`[Storage ERROR] Failed to save key "${key}" to Firestore:`, error);
+    return false;
+  }
+}
+
+export async function uploadToFirebaseStorage(
+  fileBuffer: Buffer,
+  fileName: string,
+  mimeType: string,
+  folder: string = "general"
+): Promise<{ url: string; key: string }> {
+  if (!storage) {
+    throw new Error("Firebase Storage not initialized.");
+  }
+
+  const fileExtension = path.extname(fileName);
+  const baseName = path.basename(fileName, fileExtension).replace(/[^a-zA-Z0-9]/g, "_");
+  const uniqueId = Date.now() + "_" + Math.round(Math.random() * 1e6);
+  const cloudKey = `${folder}/${baseName}_${uniqueId}${fileExtension}`;
+
+  const storageRef = ref(storage, cloudKey);
+  const metadata = { contentType: mimeType };
+
+  console.log(`[Firebase Storage] Uploading file with key: ${cloudKey}...`);
+  await uploadBytes(storageRef, fileBuffer, metadata);
+  const downloadUrl = await getDownloadURL(storageRef);
+  console.log(`[Firebase Storage] Successfully uploaded! URL: ${downloadUrl}`);
+  return { url: downloadUrl, key: "firebase:" + cloudKey };
+}
+
+export async function deleteFromFirebaseStorage(fileKey: string): Promise<boolean> {
+  if (!storage) return false;
+  try {
+    const relativeKey = fileKey.startsWith("firebase:") ? fileKey.substring(9) : fileKey;
+    const storageRef = ref(storage, relativeKey);
+    console.log(`[Firebase Storage] Deleting file with key: ${relativeKey}...`);
+    await deleteObject(storageRef);
+    console.log("[Firebase Storage] Successfully deleted file.");
+    return true;
+  } catch (error) {
+    console.error("[Firebase Storage ERROR] Failed to delete file:", error);
     return false;
   }
 }

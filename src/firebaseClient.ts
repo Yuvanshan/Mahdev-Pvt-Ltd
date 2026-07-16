@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, doc } from 'firebase/firestore';
+import { getFirestore, doc, collection, onSnapshot } from 'firebase/firestore';
 
 // Minimal Firebase client initialization.
 // Uses the same firebase-applet-config.json consumed by server.
@@ -42,5 +42,21 @@ export async function getImageStateDocRef() {
   const database = await getFirestoreClient();
   // Schema: app_state/{key} where key is `mahdev_image_state_v1`
   return doc(database, 'app_state', 'mahdev_image_state_v1');
+}
+
+export async function listenToAllCloudDbUpdates(onUpdate: (key: string, value: any) => void) {
+  const database = await getFirestoreClient();
+  const colRef = collection(database, 'app_state');
+
+  return onSnapshot(colRef, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === 'added' || change.type === 'modified') {
+        const docId = change.doc.id;
+        const docData = change.doc.data();
+        const value = docData.data ?? docData;
+        onUpdate(docId, value);
+      }
+    });
+  });
 }
 

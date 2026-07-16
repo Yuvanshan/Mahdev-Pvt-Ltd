@@ -246,6 +246,9 @@ export default function HomeView({
     <div id="home-view-container" className="relative w-full overflow-hidden font-sans">
       {/* Keyframe Styling */}
       <style>{`
+        html {
+          scroll-behavior: smooth;
+        }
         @keyframes floating {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-10px); }
@@ -275,6 +278,16 @@ export default function HomeView({
         .animate-scanner {
           animation: scanner-sweep 3s ease-in-out infinite;
         }
+        .gpu-accelerated {
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+          perspective: 1000px;
+          will-change: transform;
+        }
+        .optimize-render {
+          content-visibility: auto;
+          contain-intrinsic-size: 600px;
+        }
       `}</style>
 
       {/* PREMIUM HERO SECTION */}
@@ -285,7 +298,7 @@ export default function HomeView({
       />
 
       {/* SECTION 01: SWS EVENT MANAGEMENT - Pink Accented Theme */}
-      <section id="sws-section" className={`relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b transition-colors duration-500 ${
+      <section id="sws-section" className={`relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b transition-colors duration-500 optimize-render gpu-accelerated ${
         isDarkMode 
           ? 'bg-neutral-950 text-white border-neutral-900' 
           : 'bg-gradient-to-b from-rose-50/50 via-white to-pink-50/40 border-pink-100 text-slate-800'
@@ -405,7 +418,7 @@ export default function HomeView({
       </section>
 
       {/* SECTION 02: U1 STUDIO - Purple Cinematic Theme */}
-      <section id="u1-section" className={`relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b transition-colors duration-500 ${
+      <section id="u1-section" className={`relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b transition-colors duration-500 optimize-render gpu-accelerated ${
         isDarkMode 
           ? 'bg-neutral-950 text-white border-neutral-900' 
           : 'bg-gradient-to-b from-purple-50/50 via-white to-indigo-50/40 border-purple-100 text-slate-800'
@@ -539,7 +552,7 @@ export default function HomeView({
       </section>
 
       {/* SECTION 03: MAHDEV IT & SOLUTIONS - Light Blue Grid Mesh Theme */}
-      <section id="it-section" className={`relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b transition-colors duration-500 ${
+      <section id="it-section" className={`relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b transition-colors duration-500 optimize-render gpu-accelerated ${
         isDarkMode 
           ? 'bg-neutral-950 text-white border-neutral-900' 
           : 'bg-slate-50 border-slate-200 text-slate-800'
@@ -686,7 +699,7 @@ export default function HomeView({
       </section>
 
       {/* SECTION 04: MAHDEV TRAVELS - Sunset Golden Theme */}
-      <section id="travels-section" className={`relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b transition-colors duration-500 ${
+      <section id="travels-section" className={`relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden border-b transition-colors duration-500 optimize-render gpu-accelerated ${
         isDarkMode 
           ? 'bg-neutral-950 text-white border-neutral-900' 
           : 'bg-gradient-to-b from-amber-50/50 via-white to-orange-50/40 border-amber-100 text-slate-800'
@@ -814,7 +827,7 @@ export default function HomeView({
       </section>
 
       {/* SYNERGY HIGHLIGHT */}
-      <section className={`relative py-24 px-4 sm:px-6 lg:px-8 border-b transition-colors duration-500 ${
+      <section className={`relative py-24 px-4 sm:px-6 lg:px-8 border-b transition-colors duration-500 optimize-render gpu-accelerated ${
         isDarkMode 
           ? 'bg-neutral-950 text-white border-neutral-900' 
           : 'bg-slate-100 text-slate-800 border-slate-200'
@@ -905,7 +918,7 @@ export default function HomeView({
 
       {/* LEADERSHIP SECTION */}
       {leadersList.length > 0 && (
-        <section className={`relative py-24 px-4 sm:px-6 lg:px-8 transition-colors duration-500 ${
+        <section className={`relative py-24 px-4 sm:px-6 lg:px-8 transition-colors duration-500 optimize-render gpu-accelerated ${
           isDarkMode ? 'bg-neutral-950 text-white' : 'bg-white text-slate-800'
         }`}>
           <div className="max-w-7xl mx-auto">

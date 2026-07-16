@@ -77,8 +77,24 @@ export default function InvoicingModule({
         }
       }
 
-      const downloadUrl = await uploadFileToFirebase(fileToUpload, "invoices");
-      setUploadedProofUrl(downloadUrl);
+      const formData = new FormData();
+      formData.append("image", fileToUpload);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload payment proof.");
+      }
+
+      const data = await response.json();
+      if (data.success && data.url) {
+        setUploadedProofUrl(data.url);
+      } else {
+        throw new Error(data.error || "Failed to upload payment proof.");
+      }
     } catch (err: any) {
       console.error("[Proof Upload Error]", err);
       setProofUploadError(err.message || "Upload failed.");
@@ -105,8 +121,24 @@ export default function InvoicingModule({
         }
       }
 
-      const downloadUrl = await uploadFileToFirebase(fileToUpload, "invoices");
-      setPaymentProofUrl(downloadUrl);
+      const formData = new FormData();
+      formData.append("image", fileToUpload);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload payment proof.");
+      }
+
+      const data = await response.json();
+      if (data.success && data.url) {
+        setPaymentProofUrl(data.url);
+      } else {
+        throw new Error(data.error || "Failed to upload payment proof.");
+      }
     } catch (err: any) {
       console.error("[Admin Proof Upload Error]", err);
       setAdminProofUploadError(err.message || "Upload failed.");

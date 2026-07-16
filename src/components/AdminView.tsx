@@ -139,88 +139,73 @@ function AdminImageUploader({
     };
   }, [previewUrl]);
 
-  const startUpload = async (fileObj: File, optimizedFile: File, thumbnailFile: File | null) => {
+  const startUpload = (fileObj: File, optimizedFile: File, thumbnailFile: File | null) => {
     setIsUploading(true);
     setProgress(0);
     setError(null);
     setSuccessMsg(null);
 
-    try {
-      const storage = await getFirebaseStorage();
-      
-      // Enforce folder context based on label
-      let folder = "general";
-      const lowerLabel = label.toLowerCase();
-      if (lowerLabel.includes("logo")) folder = "branding";
-      else if (lowerLabel.includes("decor")) folder = "decorations";
-      else if (lowerLabel.includes("photo") || lowerLabel.includes("camera")) folder = "photography";
-      else if (lowerLabel.includes("it") || lowerLabel.includes("erp") || lowerLabel.includes("developer")) folder = "it_solutions";
-      else if (lowerLabel.includes("travel") || lowerLabel.includes("vehicle") || lowerLabel.includes("car")) folder = "travels";
+    const formData = new FormData();
+    formData.append("image", optimizedFile);
+    if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
 
-      const fileExtension = optimizedFile.name.substring(optimizedFile.name.lastIndexOf('.'));
-      const baseName = optimizedFile.name.substring(0, optimizedFile.name.lastIndexOf('.')).replace(/[^a-zA-Z0-9]/g, "_");
-      const uniqueId = Date.now() + "_" + Math.round(Math.random() * 1e6);
-      const cloudKey = `${folder}/${baseName}_${uniqueId}${fileExtension}`;
+    // Enforce folder context based on label
+    let folder = "general";
+    const lowerLabel = label.toLowerCase();
+    if (lowerLabel.includes("logo")) folder = "branding";
+    else if (lowerLabel.includes("decor")) folder = "decorations";
+    else if (lowerLabel.includes("photo") || lowerLabel.includes("camera")) folder = "photography";
+    else if (lowerLabel.includes("it") || lowerLabel.includes("erp") || lowerLabel.includes("developer")) folder = "it_solutions";
+    else if (lowerLabel.includes("travel") || lowerLabel.includes("vehicle") || lowerLabel.includes("car")) folder = "travels";
 
-      const storageRef = ref(storage, cloudKey);
-      const uploadTask = uploadBytesResumable(storageRef, optimizedFile, {
-        contentType: optimizedFile.type
-      });
+    formData.append("folder", folder);
 
-      uploadTask.on('state_changed', 
-        (snapshot) => {
-          const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-          setProgress(pct);
-        }, 
-        (err) => {
-          setIsUploading(false);
-          setError(err.message || "Upload failed.");
-        }, 
-        async () => {
-          try {
-            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-            setIsUploading(false);
-            onChange(downloadUrl);
-            setSuccessMsg("Uploaded successfully to cloud!");
+    const xhr = new XMLHttpRequest();
+
+    // Track upload progress
+    xhr.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) {
+        const pct = Math.round((event.loaded / event.total) * 100);
+        setProgress(pct);
+      }
+    });
+
+    xhr.addEventListener("load", () => {
+      setIsUploading(false);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.success && data.url) {
+            onChange(data.url);
+            setSuccessMsg("Uploaded successfully!");
             setTimeout(() => setSuccessMsg(null), 3000);
             setLastFileAttempt(null); // Clear retry state on success
             setPreviewUrl(null); // Clear temporary preview URL
-
-            // Update Media Library catalog directly in Firestore
-            try {
-              const database = await getFirestoreClient();
-              const mediaDocRef = doc(database, 'app_state', 'mahdev_media_library');
-              const mediaDocSnap = await getDoc(mediaDocRef);
-              let mediaList = [];
-              if (mediaDocSnap.exists()) {
-                const docData = mediaDocSnap.data();
-                mediaList = docData.data || [];
-              }
-              const newMediaItem = {
-                id: `m-${Date.now()}`,
-                name: optimizedFile.name,
-                url: downloadUrl,
-                type: optimizedFile.type,
-                size: optimizedFile.size,
-                folder,
-                uploadedAt: new Date().toISOString(),
-                version: 1
-              };
-              mediaList.unshift(newMediaItem);
-              await setDoc(mediaDocRef, { data: mediaList, updatedAt: new Date().toISOString() });
-            } catch (mediaErr) {
-              console.error("Failed to save media catalog: ", mediaErr);
-            }
-          } catch (urlErr: any) {
-            setIsUploading(false);
-            setError("Failed to retrieve cloud download URL.");
+          } else {
+            const serverError = data.error?.message || data.error || "Failed to upload image.";
+            setError(serverError);
           }
+        } catch (e) {
+          setError("Failed to parse upload response.");
         }
-      );
-    } catch (err: any) {
+      } else {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          const serverError = data.error?.message || `Upload failed (Status ${xhr.status})`;
+          setError(serverError);
+        } catch {
+          setError(`Upload failed (HTTP ${xhr.status})`);
+        }
+      }
+    });
+
+    xhr.addEventListener("error", () => {
       setIsUploading(false);
-      setError(err.message || "Failed to connect to cloud storage.");
-    }
+      setError("Network error: Upload failed. Please try again.");
+    });
+
+    xhr.open("POST", "/api/upload");
+    xhr.send(formData);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1467,14 +1452,14 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
           const groupTabs = adminTabs.filter(t => t.group === group);
           const isExpanded = expandedGroups[group];
           return (
-            <div key={group} className="space-y-1 border-b border-purple-500/5 pb-3 last:border-0 last:pb-0">
+            <div key={group} className={`space-y-1 pb-3 border-b ${isMobile ? 'border-purple-500/10' : 'border-white/5'} last:border-0 last:pb-0`}>
               <button
                 type="button"
                 onClick={() => toggleGroup(group)}
-                className="w-full flex items-center justify-between px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-400 font-mono hover:text-purple-300 transition-colors"
+                className={`w-full flex items-center justify-between px-3 py-2 text-[10px] font-extrabold uppercase tracking-widest ${isMobile ? 'text-purple-400' : 'text-indigo-200/80'} hover:text-white transition-colors`}
               >
                 <span>{group}</span>
-                <span className="text-purple-400/60">
+                <span>
                   {isExpanded ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
                 </span>
               </button>
@@ -1493,14 +1478,17 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                             setIsMobileMenuOpen(false);
                           }
                         }}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wider transition-all text-left ${isActive
-                            ? 'bg-purple-600 text-white shadow-md font-bold'
-                            : isDarkMode
-                              ? 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/50'
-                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                          }`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all text-left ${
+                          isActive
+                            ? isDarkMode
+                              ? 'bg-slate-900 text-indigo-400 font-bold shadow-md'
+                              : 'bg-white text-[#3b2a9f] font-bold shadow-sm'
+                            : isMobile
+                              ? 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/40'
+                              : 'text-indigo-200/90 hover:text-white hover:bg-white/10'
+                        }`}
                       >
-                        <IconComponent size={14} className={isActive ? 'text-white' : tab.color || (isDarkMode ? 'text-purple-400' : 'text-purple-600')} />
+                        <IconComponent size={14} className={isActive ? (isDarkMode ? 'text-indigo-400' : 'text-[#3b2a9f]') : (isMobile ? 'text-purple-400' : 'text-indigo-200/70')} />
                         <span className="truncate">{tab.label}</span>
                       </button>
                     );
@@ -1621,25 +1609,25 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
       {/* Layout Grid: Left Sidebar (Desktop) + Right Content Area */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Left Side Menu Bar (Desktop only) */}
-        <aside className={`hidden lg:flex flex-col justify-between w-72 shrink-0 sticky top-24 p-5 rounded-2xl border backdrop-blur-md max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin ${isDarkMode ? 'bg-slate-900/30 border-slate-850 scrollbar-thumb-slate-800' : 'bg-slate-50/80 border-slate-200 scrollbar-thumb-slate-300'}`}>
+        <aside className={`hidden lg:flex flex-col justify-between w-72 shrink-0 sticky top-24 p-5 rounded-2xl border backdrop-blur-md max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin ${isDarkMode ? 'bg-[#22185d] border-indigo-950 scrollbar-thumb-indigo-900' : 'bg-[#3b2a9f] border-indigo-800 scrollbar-thumb-indigo-400'}`}>
           <div>
-            <div className={`pb-4 mb-4 border-b flex items-center gap-2.5 ${isDarkMode ? 'border-slate-850' : 'border-slate-200'}`}>
-              <div className={`p-2 rounded-xl ${isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700'}`}>
-                <Settings size={16} />
+            <div className="pb-4 mb-4 border-b flex items-center gap-2.5 border-white/10">
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-base shadow-sm shrink-0 ${isDarkMode ? 'bg-indigo-950 text-indigo-300' : 'bg-white text-[#3b2a9f]'}`}>
+                M
               </div>
               <div>
-                <h2 className={`text-sm font-semibold tracking-wide ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
-                  Editor Console
+                <h2 className="text-sm font-bold text-white tracking-wide leading-none">
+                  MAHDEV
                 </h2>
-                <p className="text-[10px] text-slate-400">All management portals</p>
+                <p className="text-[9px] text-indigo-200 uppercase tracking-widest font-extrabold mt-1">Console</p>
               </div>
             </div>
             {renderCategoryMenu(false)}
           </div>
-          <div className={`pt-4 border-t mt-6 shrink-0 ${isDarkMode ? 'border-slate-850' : 'border-slate-200'}`}>
+          <div className="pt-4 border-t mt-6 shrink-0 border-white/10">
             <button
               onClick={handleLogout}
-              className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all border ${isDarkMode ? 'text-red-400 bg-red-950/20 hover:bg-red-950/30 border-red-900/50' : 'text-red-600 bg-red-50 hover:bg-red-100 border-red-200'}`}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all border border-white/15 text-white hover:bg-white/10 cursor-pointer"
             >
               <LogOut size={14} />
               <span>Exit Admin</span>
@@ -4804,32 +4792,20 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
 
                                       setUploadProgressList(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'uploading', progress: 30 } : item));
 
-                                      const folder = selectedMediaFolder === 'all' ? 'general' : selectedMediaFolder;
-                                      const downloadUrl = await uploadFileToFirebase(fileToUpload, folder);
+                                      const formData = new FormData();
+                                      formData.append("image", fileToUpload);
+                                      formData.append("folder", selectedMediaFolder === 'all' ? 'general' : selectedMediaFolder);
 
-                                      // Add new media catalog item in Firestore
-                                      const database = await getFirestoreClient();
-                                      const mediaDocRef = doc(database, 'app_state', 'mahdev_media_library');
-                                      const mediaDocSnap = await getDoc(mediaDocRef);
-                                      let mediaList = [];
-                                      if (mediaDocSnap.exists()) {
-                                        const docData = mediaDocSnap.data();
-                                        mediaList = docData.data || [];
+                                      const uploadRes = await fetch("/api/upload", {
+                                        method: "POST",
+                                        body: formData
+                                      });
+
+                                      if (uploadRes.ok) {
+                                        setUploadProgressList(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'completed', progress: 100 } : item));
+                                      } else {
+                                        setUploadProgressList(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'error', progress: 100 } : item));
                                       }
-                                      const newMediaItem = {
-                                        id: `m-${Date.now()}`,
-                                        name: fileToUpload.name,
-                                        url: downloadUrl,
-                                        type: fileToUpload.type,
-                                        size: fileToUpload.size,
-                                        folder,
-                                        uploadedAt: new Date().toISOString(),
-                                        version: 1
-                                      };
-                                      mediaList.unshift(newMediaItem);
-                                      await setDoc(mediaDocRef, { data: mediaList, updatedAt: new Date().toISOString() });
-
-                                      setUploadProgressList(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'completed', progress: 100 } : item));
                                     } catch (err) {
                                       setUploadProgressList(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'error', progress: 100 } : item));
                                     }

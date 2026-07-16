@@ -189,7 +189,7 @@ export default function Navbar({
             <nav id="desktop-nav" className="hidden lg:flex items-center space-x-1">
               <button
                 onClick={() => handleNavClick(ActivePage.Home)}
-                className={`px-3 py-2 text-xs font-bold tracking-widest uppercase transition-all duration-200 ${
+                className={`relative px-3 py-2 text-xs font-bold tracking-widest uppercase transition-all duration-200 ${
                   activePage === ActivePage.Home 
                     ? 'text-amber-500' 
                     : isDarkMode 
@@ -197,7 +197,13 @@ export default function Navbar({
                       : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                HOME
+                <span>HOME</span>
+                {activePage === ActivePage.Home && (
+                  <motion.span 
+                    layoutId="activeNavLine" 
+                    className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-amber-500 rounded-full" 
+                  />
+                )}
               </button>
 
               <button
@@ -255,7 +261,7 @@ export default function Navbar({
 
               <button
                 onClick={() => handleNavClick(ActivePage.Contact)}
-                className={`px-3 py-2 text-xs font-bold tracking-widest uppercase transition-colors duration-200 ${
+                className={`relative px-3 py-2 text-xs font-bold tracking-widest uppercase transition-colors duration-200 ${
                   activePage === ActivePage.Contact 
                     ? 'text-amber-500' 
                     : isDarkMode 
@@ -263,7 +269,13 @@ export default function Navbar({
                       : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                CONTACT US
+                <span>CONTACT US</span>
+                {activePage === ActivePage.Contact && (
+                  <motion.span 
+                    layoutId="activeNavLine" 
+                    className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-amber-500 rounded-full" 
+                  />
+                )}
               </button>
             </nav>
 
@@ -338,25 +350,13 @@ export default function Navbar({
                 {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
               </button>
 
-              <a
-                href={COMPANY_CONTACT.whatsapp}
-                target="_blank"
-                rel="noreferrer"
-                className={`flex items-center space-x-1.5 px-3 py-2.5 rounded-xl border text-xs font-bold uppercase tracking-widest transition-all duration-300 ${
-                  isDarkMode ? 'border-neutral-700 bg-neutral-900/70 text-amber-300 hover:bg-neutral-800' : 'border-slate-200 bg-white text-amber-600 hover:bg-slate-50'
-                }`}
+              <button
+                onClick={() => handleNavClick(ActivePage.Contact)}
+                className="flex items-center space-x-1.5 px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 hover:scale-[1.02] shadow-md shadow-amber-500/10 hover:shadow-amber-500/25 transition-all duration-300 border-none cursor-pointer transform active:scale-95"
               >
-                <MessageCircle size={14} />
-                <span>WHATSAPP</span>
-              </a>
-
-              <a
-                href={`tel:${primaryPhone}`}
-                className="flex items-center space-x-1.5 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-amber-500 to-yellow-500 text-black hover:scale-[1.03] shadow-md shadow-amber-500/10 hover:shadow-amber-500/30 transition-all duration-300"
-              >
-                <Phone size={13} />
-                <span>CALL NOW</span>
-              </a>
+                <span>Get In Touch</span>
+                <ArrowRight size={13} />
+              </button>
             </div>
 
             {/* Mobile Hamburg Menu */}

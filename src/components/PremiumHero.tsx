@@ -148,7 +148,7 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   onClick={() => onNavigate(col.page)}
-                  className={`group relative h-full rounded-2xl overflow-hidden border bg-slate-950/40 backdrop-blur-sm transition-all duration-500 flex flex-col justify-between cursor-pointer ${col.borderStyle} ${col.glowColor}`}
+                  className={`group relative h-full rounded-t-[85px] rounded-b-[20px] md:rounded-t-[100px] md:rounded-b-[24px] overflow-hidden border bg-slate-950/40 backdrop-blur-sm transition-all duration-500 flex flex-col justify-between cursor-pointer ${col.borderStyle} ${col.glowColor}`}
                 >
                   {/* Column Image */}
                   <img
@@ -164,11 +164,11 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
                   <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:via-white/30" />
 
                   {/* Header text container (Sector names overlay at top) */}
-                  <div className="relative p-5 text-center z-10 w-full pt-6 select-none">
-                    <h3 className={`text-xl md:text-2xl font-black tracking-tighter transition-all duration-300 ${col.tagColor}`}>
+                  <div className="relative p-4 text-center z-10 w-full pt-8 md:pt-10 select-none">
+                    <h3 className={`text-2xl md:text-3xl font-black tracking-tighter transition-all duration-300 ${col.tagColor}`}>
                       {col.title}
                     </h3>
-                    <p className="text-[9px] md:text-[10px] font-bold tracking-widest text-slate-300 uppercase mt-0.5 leading-none">
+                    <p className="text-[9px] md:text-[10px] font-extrabold tracking-widest text-slate-100 uppercase mt-1 leading-tight max-w-[85%] mx-auto">
                       {col.subtitle}
                     </p>
                   </div>

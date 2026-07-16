@@ -1,8 +1,20 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Image state is public-read (website). Writes must be done server-side or by trusted admin.
+    match /app_state/mahdev_image_state_v1 {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // Everything else in app_state is protected by admin auth.
+    // Note: your admin currently uses a custom username/password stored in sessionStorage.
+    // To enable secure writes without breaking your app, you should set an admin custom claim `admin=true`.
     match /app_state/{key} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
     }
   }
 }
+

@@ -262,7 +262,7 @@ export default function DecorationView({
           >
             {/* After Image (Full Background) */}
             <img 
-              src={themeSettings?.weddingDecorationBanner || weddingDecorationBanner} 
+src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset}
               alt="After Transformation Decor" 
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
               referrerPolicy="no-referrer"

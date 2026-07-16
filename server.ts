@@ -55,7 +55,12 @@ const storage = multer.diskStorage({
     cb(null, "image-" + uniqueSuffix + ext);
   },
 });
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 12 * 1024 * 1024, // 12MB hard limit
+  },
+});
 
 /**
  * Compress image using Sharp if available
@@ -66,9 +71,16 @@ async function compressImageForUpload(
   mimeType: string,
   originalSize: number
 ): Promise<{ buffer: Buffer; metrics: any }> {
+
   if (!sharp) {
-    return { buffer, metrics: { originalSize, skipped: true } };
+    // Ensure buffer is a Node.js Buffer without ArrayBufferLike/SharedArrayBuffer typing mismatches
+    const safeBuffer = Buffer.from(buffer as unknown as Uint8Array);
+    return { buffer: safeBuffer, metrics: { originalSize, skipped: true } };
   }
+
+
+
+
 
   try {
     const originalSizeKB = (originalSize / 1024).toFixed(2);
@@ -97,7 +109,7 @@ async function compressImageForUpload(
       pipeline = pipeline.jpeg({ quality: 85, progressive: true });
     }
 
-    const compressedBuffer = await pipeline.toBuffer();
+const compressedBuffer = Buffer.from(await pipeline.toBuffer());
     const compressedSizeKB = (compressedBuffer.byteLength / 1024).toFixed(2);
     const savingsPercent = (
       ((originalSize - compressedBuffer.byteLength) / originalSize) *
@@ -173,15 +185,46 @@ async function startServer() {
 
   // API to handle image uploads from device, enhanced with Media Library and Cloud Object Storage
   app.post("/api/upload", upload.single("image"), async (req, res) => {
+    const requestId = `up_${Date.now()}_${Math.round(Math.random() * 1e6)}`;
+    const cleanupTemp = () => {
+      try {
+        if (req.file?.path) fs.unlinkSync(req.file.path);
+      } catch (e) {
+        console.warn(`[Upload API ${requestId}] Failed to clean up temp file:`, e);
+      }
+    };
+
     try {
       if (!req.file) {
-        return res.status(400).json({ error: "No file was uploaded." });
+        return res.status(400).json({
+          success: false,
+          error: { code: "NO_FILE", message: "No file was uploaded." }
+        });
       }
 
-      console.log(`[Upload API] Processing file: ${req.file.originalname} (${req.file.size} bytes)`);
+      // Basic server-side validation
+      const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/svg+xml"]; 
+      if (req.file.mimetype && !allowed.includes(req.file.mimetype)) {
+        cleanupTemp();
+        return res.status(415).json({
+          success: false,
+          error: { code: "INVALID_MIME", message: "Unsupported image type." , details: { mimetype: req.file.mimetype } }
+        });
+      }
+
+      const MAX_BYTES = 10 * 1024 * 1024; // 10MB (adjust if needed)
+      if (req.file.size > MAX_BYTES) {
+        cleanupTemp();
+        return res.status(413).json({
+          success: false,
+          error: { code: "FILE_TOO_LARGE", message: "Image is too large. Please upload a smaller file." , details: { maxBytes: MAX_BYTES } }
+        });
+      }
+
+      console.log(`[Upload API ${requestId}] Processing file: ${req.file.originalname} (${req.file.size} bytes)`);
       let fileBuffer = fs.readFileSync(req.file.path);
       let compressionMetrics: any = { skipped: true };
-      
+
       // Compress image if sharp is available
       if (sharp) {
         const compressionResult = await compressImageForUpload(
@@ -189,54 +232,65 @@ async function startServer() {
           req.file.mimetype,
           req.file.size
         );
-        fileBuffer = compressionResult.buffer;
+        fileBuffer = Buffer.from(compressionResult.buffer);
+
         compressionMetrics = compressionResult.metrics;
-      }
-      
-      // Determine folder based on context if possible, or general
-      const folder = req.body.folder || "general";
-      
-      // Upload using server-storage module (handles local or cloud seamlessly)
-      const uploadResult = await uploadFile(fileBuffer, req.file.originalname, req.file.mimetype, folder);
-      
-      // Remove temporary uploaded file
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (e) {
-        console.warn("[Upload API] Failed to clean up temp file:", e);
+
       }
 
-      // Automatically register in Media Library database
+      const folder = req.body.folder || "general";
+
+      const uploadResult = await uploadFile(
+        fileBuffer,
+        req.file.originalname,
+        req.file.mimetype,
+        folder
+      );
+
+      cleanupTemp();
+
       const mediaList = await getMediaLibrary();
       const mediaId = `m-${Date.now()}`;
+
       const newMediaItem: MediaItem = {
         id: mediaId,
         name: req.file.originalname,
         url: uploadResult.url,
         type: req.file.mimetype,
         size: fileBuffer.byteLength,
-        folder: folder,
+        folder,
         uploadedAt: new Date().toISOString(),
         version: 1
       };
-      
+
       mediaList.unshift(newMediaItem);
       await saveMediaLibrary(mediaList);
 
-      console.log(`[Upload API] File uploaded and logged in Media Library: ${uploadResult.url}`);
-      return res.json({ 
-        success: true, 
-        url: uploadResult.url, 
+      console.log(`[Upload API ${requestId}] Success: ${uploadResult.url}`);
+      return res.json({
+        success: true,
+        url: uploadResult.url,
         id: mediaId,
         name: req.file.originalname,
         key: uploadResult.key,
         compression: compressionMetrics
       });
     } catch (error: any) {
-      console.error("[Upload API ERROR]", error);
-      return res.status(500).json({ error: "Failed to process image upload on the server." });
+      console.error(`[Upload API ERROR] ${requestId}`, error);
+      return res.status(500).json({
+        success: false,
+        error: {
+          code: "UPLOAD_FAILED",
+          message: "Failed to process image upload on the server.",
+          details: error?.message || String(error)
+        }
+      });
+    } finally {
+      // Ensure cleanup even if early returns happen
+      cleanupTemp();
     }
   });
+
 
   // Storage settings endpoints
   app.get("/api/storage/settings", async (req, res) => {
@@ -366,7 +420,8 @@ async function startServer() {
           req.file.mimetype,
           req.file.size
         );
-        fileBuffer = compressionResult.buffer;
+        fileBuffer = Buffer.from(compressionResult.buffer);
+
         compressionMetrics = compressionResult.metrics;
       }
       
@@ -861,9 +916,10 @@ Keep all responses highly polished, structured, concise, and professional. Match
       root: process.cwd(),
       configFile: false,
       plugins: [
-        reactPlugin({ fastRefresh: false }),
+        reactPlugin(),
         tailwindcss()
       ],
+
       resolve: {
         alias: {
           '@': path.resolve(process.cwd(), '.'),

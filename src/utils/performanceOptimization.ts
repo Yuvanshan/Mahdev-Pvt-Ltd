@@ -28,7 +28,7 @@ export function useLazyLoad(
           
           // Load srcset if available
           if (img.dataset.srcset) {
-            img.srcSet = img.dataset.srcset;
+img.srcset = img.dataset.srcset;
           }
           
           observer.unobserve(img);
@@ -119,7 +119,7 @@ export function enablePerformanceHints(domains: string[]): void {
 export function initializePerformanceMonitoring(): void {
   if (!window.requestIdleCallback) {
     // Polyfill for older browsers
-    window.requestIdleCallback = (cb: IdleRequestCallback) => {
+(window as any).requestIdleCallback = (cb: IdleRequestCallback) => {
       const start = Date.now();
       return setTimeout(() => {
         cb({

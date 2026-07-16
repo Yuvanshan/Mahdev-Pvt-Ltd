@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, doc, collection, onSnapshot } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // Minimal Firebase client initialization.
 // Uses the same firebase-applet-config.json consumed by server.
@@ -58,5 +59,22 @@ export async function listenToAllCloudDbUpdates(onUpdate: (key: string, value: a
       }
     });
   });
+}
+
+export async function getFirebaseStorage() {
+  await getFirestoreClient();
+  return getStorage(app);
+}
+
+export async function uploadFileToFirebase(file: File, folder: string = "general"): Promise<string> {
+  const storage = await getFirebaseStorage();
+  const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
+  const baseName = file.name.substring(0, file.name.lastIndexOf('.')).replace(/[^a-zA-Z0-9]/g, "_");
+  const uniqueId = Date.now() + "_" + Math.round(Math.random() * 1e6);
+  const cloudKey = `${folder}/${baseName}_${uniqueId}${fileExtension}`;
+
+  const storageRef = ref(storage, cloudKey);
+  await uploadBytes(storageRef, file, { contentType: file.type });
+  return await getDownloadURL(storageRef);
 }
 

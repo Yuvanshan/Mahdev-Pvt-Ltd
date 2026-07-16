@@ -25,6 +25,18 @@ export default defineConfig(() => ({
     watch: process.env.DISABLE_HMR === 'true' ? null : {},
     // Enable compression and caching in dev
     middlewareMode: false,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/uploads': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   },
   build: {
     // Enable code splitting for better caching and parallel loading

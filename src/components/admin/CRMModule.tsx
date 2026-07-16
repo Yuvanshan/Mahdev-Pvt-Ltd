@@ -12,6 +12,7 @@ import {
 import { getBookings } from '../../utils/storage';
 import CustomerFinancialSummary from './CustomerFinancialSummary';
 import { optimizeImageBeforeUpload } from '../../utils/mediaOptimizer';
+import { uploadFileToFirebase } from '../../firebaseClient';
 
 interface CRMModuleProps {
   isDarkMode: boolean;
@@ -502,26 +503,10 @@ export default function CRMModule({
         }
       }
 
-      const formData = new FormData();
-      formData.append("image", fileToUpload);
-
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to upload document.");
-      }
-
-      const data = await response.json();
-      if (data.success && data.url) {
-        setUploadedDocUrl(data.url);
-        const sizeInMb = (file.size / (1024 * 1024)).toFixed(1);
-        setUploadedDocSize(`${sizeInMb} MB`);
-      } else {
-        throw new Error(data.error || "Failed to upload document.");
-      }
+      const downloadUrl = await uploadFileToFirebase(fileToUpload, "documents");
+      setUploadedDocUrl(downloadUrl);
+      const sizeInMb = (file.size / (1024 * 1024)).toFixed(1);
+      setUploadedDocSize(`${sizeInMb} MB`);
     } catch (err: any) {
       console.error("[Doc Upload Error]", err);
       setDocUploadError(err.message || "Upload failed.");

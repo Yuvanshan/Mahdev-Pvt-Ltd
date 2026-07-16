@@ -38,6 +38,9 @@ import {
   getEmployees, saveEmployees
 } from '../utils/storage';
 import { optimizeImageBeforeUpload, formatBytes } from '../utils/mediaOptimizer';
+import { getFirebaseStorage, getFirestoreClient, uploadFileToFirebase } from '../firebaseClient';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { ServiceCard, PhotoPortfolioItem, ItProject, Leader, Testimonial, DecorationGalleryItem, RentalItem, ThemeSettings, Booking, TravelsVehicle, TravelsTour, SeoSettings, SmtpSettings, SmtpTemplate } from '../types';
 
 function adjustHex(hex: string, percent: number): string {
@@ -136,79 +139,88 @@ function AdminImageUploader({
     };
   }, [previewUrl]);
 
-  const startUpload = (fileObj: File, optimizedFile: File, thumbnailFile: File | null) => {
+  const startUpload = async (fileObj: File, optimizedFile: File, thumbnailFile: File | null) => {
     setIsUploading(true);
     setProgress(0);
     setError(null);
     setSuccessMsg(null);
 
-    const formData = new FormData();
-    formData.append("image", optimizedFile);
-    if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
+    try {
+      const storage = await getFirebaseStorage();
+      
+      // Enforce folder context based on label
+      let folder = "general";
+      const lowerLabel = label.toLowerCase();
+      if (lowerLabel.includes("logo")) folder = "branding";
+      else if (lowerLabel.includes("decor")) folder = "decorations";
+      else if (lowerLabel.includes("photo") || lowerLabel.includes("camera")) folder = "photography";
+      else if (lowerLabel.includes("it") || lowerLabel.includes("erp") || lowerLabel.includes("developer")) folder = "it_solutions";
+      else if (lowerLabel.includes("travel") || lowerLabel.includes("vehicle") || lowerLabel.includes("car")) folder = "travels";
 
-    const xhr = new XMLHttpRequest();
+      const fileExtension = optimizedFile.name.substring(optimizedFile.name.lastIndexOf('.'));
+      const baseName = optimizedFile.name.substring(0, optimizedFile.name.lastIndexOf('.')).replace(/[^a-zA-Z0-9]/g, "_");
+      const uniqueId = Date.now() + "_" + Math.round(Math.random() * 1e6);
+      const cloudKey = `${folder}/${baseName}_${uniqueId}${fileExtension}`;
 
-    // Track upload progress
-    xhr.upload.addEventListener("progress", (event) => {
-      if (event.lengthComputable) {
-        const pct = Math.round((event.loaded / event.total) * 100);
-        setProgress(pct);
-      }
-    });
+      const storageRef = ref(storage, cloudKey);
+      const uploadTask = uploadBytesResumable(storageRef, optimizedFile, {
+        contentType: optimizedFile.type
+      });
 
-    xhr.addEventListener("load", () => {
-      setIsUploading(false);
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          if (data.success && data.url) {
-            onChange(data.url);
-            setSuccessMsg("Uploaded successfully!");
-            // Automatically clear success message after 3 seconds
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+          setProgress(pct);
+        }, 
+        (err) => {
+          setIsUploading(false);
+          setError(err.message || "Upload failed.");
+        }, 
+        async () => {
+          try {
+            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+            setIsUploading(false);
+            onChange(downloadUrl);
+            setSuccessMsg("Uploaded successfully to cloud!");
             setTimeout(() => setSuccessMsg(null), 3000);
             setLastFileAttempt(null); // Clear retry state on success
             setPreviewUrl(null); // Clear temporary preview URL
-          } else {
-            const serverError = data.error?.message || data.error || "Failed to upload image.";
-            setError(serverError);
+
+            // Update Media Library catalog directly in Firestore
+            try {
+              const database = await getFirestoreClient();
+              const mediaDocRef = doc(database, 'app_state', 'mahdev_media_library');
+              const mediaDocSnap = await getDoc(mediaDocRef);
+              let mediaList = [];
+              if (mediaDocSnap.exists()) {
+                const docData = mediaDocSnap.data();
+                mediaList = docData.data || [];
+              }
+              const newMediaItem = {
+                id: `m-${Date.now()}`,
+                name: optimizedFile.name,
+                url: downloadUrl,
+                type: optimizedFile.type,
+                size: optimizedFile.size,
+                folder,
+                uploadedAt: new Date().toISOString(),
+                version: 1
+              };
+              mediaList.unshift(newMediaItem);
+              await setDoc(mediaDocRef, { data: mediaList, updatedAt: new Date().toISOString() });
+            } catch (mediaErr) {
+              console.error("Failed to save media catalog: ", mediaErr);
+            }
+          } catch (urlErr: any) {
+            setIsUploading(false);
+            setError("Failed to retrieve cloud download URL.");
           }
-        } catch (e) {
-          setError("Failed to parse upload response.");
         }
-      } else {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          const serverError = data.error?.message || `Upload failed (Status ${xhr.status})`;
-          setError(serverError);
-        } catch {
-          setError(`Upload failed (HTTP ${xhr.status})`);
-        }
-      }
-    });
-
-    xhr.addEventListener("error", () => {
+      );
+    } catch (err: any) {
       setIsUploading(false);
-      setError("Network error: Upload failed. Please try again.");
-    });
-
-    xhr.addEventListener("abort", () => {
-      setIsUploading(false);
-      setError("Upload aborted.");
-    });
-
-    // Enforce folder context based on label
-    let folder = "general";
-    const lowerLabel = label.toLowerCase();
-    if (lowerLabel.includes("logo")) folder = "branding";
-    else if (lowerLabel.includes("decor")) folder = "decorations";
-    else if (lowerLabel.includes("photo") || lowerLabel.includes("camera")) folder = "photography";
-    else if (lowerLabel.includes("it") || lowerLabel.includes("erp") || lowerLabel.includes("developer")) folder = "it_solutions";
-    else if (lowerLabel.includes("travel") || lowerLabel.includes("vehicle") || lowerLabel.includes("car")) folder = "travels";
-
-    formData.append("folder", folder);
-
-    xhr.open("POST", "/api/upload");
-    xhr.send(formData);
+      setError(err.message || "Failed to connect to cloud storage.");
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -4798,22 +4810,32 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
 
                                       setUploadProgressList(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'uploading', progress: 30 } : item));
 
-                                      // Prepare FormData
-                                      const formData = new FormData();
-                                      formData.append("image", fileToUpload);
-                                      formData.append("folder", selectedMediaFolder === 'all' ? 'general' : selectedMediaFolder);
+                                      const folder = selectedMediaFolder === 'all' ? 'general' : selectedMediaFolder;
+                                      const downloadUrl = await uploadFileToFirebase(fileToUpload, folder);
 
-                                      // Upload
-                                      const uploadRes = await fetch("/api/upload", {
-                                        method: "POST",
-                                        body: formData
-                                      });
-
-                                      if (uploadRes.ok) {
-                                        setUploadProgressList(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'completed', progress: 100 } : item));
-                                      } else {
-                                        setUploadProgressList(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'error', progress: 100 } : item));
+                                      // Add new media catalog item in Firestore
+                                      const database = await getFirestoreClient();
+                                      const mediaDocRef = doc(database, 'app_state', 'mahdev_media_library');
+                                      const mediaDocSnap = await getDoc(mediaDocRef);
+                                      let mediaList = [];
+                                      if (mediaDocSnap.exists()) {
+                                        const docData = mediaDocSnap.data();
+                                        mediaList = docData.data || [];
                                       }
+                                      const newMediaItem = {
+                                        id: `m-${Date.now()}`,
+                                        name: fileToUpload.name,
+                                        url: downloadUrl,
+                                        type: fileToUpload.type,
+                                        size: fileToUpload.size,
+                                        folder,
+                                        uploadedAt: new Date().toISOString(),
+                                        version: 1
+                                      };
+                                      mediaList.unshift(newMediaItem);
+                                      await setDoc(mediaDocRef, { data: mediaList, updatedAt: new Date().toISOString() });
+
+                                      setUploadProgressList(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'completed', progress: 100 } : item));
                                     } catch (err) {
                                       setUploadProgressList(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'error', progress: 100 } : item));
                                     }

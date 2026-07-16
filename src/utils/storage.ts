@@ -1,3 +1,5 @@
+import { getFirestoreClient } from '../firebaseClient';
+import { doc, setDoc, collection, getDocs } from 'firebase/firestore';
 import { COMPANY_CONTACT, SERVICES_LIST, DECORATION_CATEGORIES, DECORATION_GALLERY, PHOTO_PORTFOLIO, PHOTO_PRICING, ERP_MODULES, IT_PROJECTS, CLIENT_TESTIMONIALS } from '../data';
 import { 
   Leader, ServiceCard, DecorationCategory, PhotoPortfolioItem, ItProject, Testimonial, 
@@ -66,11 +68,12 @@ export function setItemAndSync(key: string, value: any) {
   syncTimeout = setTimeout(() => processSyncQueue(), BATCH_DELAY);
 }
 
-// Process batched sync queue
+// Process batched sync queue directly to Cloud Firestore
 async function processSyncQueue() {
   if (syncQueue.size === 0) return;
   
   const batchData = Object.fromEntries(syncQueue);
+  const keysToSync = Array.from(syncQueue.keys());
   syncQueue.clear();
   
   // Check if online
@@ -83,26 +86,24 @@ async function processSyncQueue() {
   const maxAttempts = 3;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const response = await fetch('/api/save-data-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(batchData),
-        signal: AbortSignal.timeout(6000)
-      });
+      console.log(`[Storage] Client-direct syncing ${keysToSync.length} keys to Firestore...`);
+      const database = await getFirestoreClient();
       
-      if (response.ok) {
-        console.log(`[Storage] ✅ Batch saved ${syncQueue.size} keys to server`);
-        return;
-      } else {
-        throw new Error(`HTTP ${response.status}`);
+      // Perform writes
+      for (const [key, value] of Object.entries(batchData)) {
+        const docRef = doc(database, 'app_state', key);
+        await setDoc(docRef, { data: value, updatedAt: new Date().toISOString() });
       }
+      
+      console.log(`[Storage] ✅ Client-direct sync completed for: ${keysToSync.join(", ")}`);
+      return;
     } catch (err) {
       if (attempt < maxAttempts) {
         const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-        console.warn(`[Storage] Retry ${attempt}/${maxAttempts} in ${delay}ms:`, err);
+        console.warn(`[Storage] Direct sync retry ${attempt}/${maxAttempts} in ${delay}ms:`, err);
         await new Promise(resolve => setTimeout(resolve, delay));
       } else {
-        console.error(`[Storage ERROR] Failed to sync batch after ${maxAttempts} attempts:`, err);
+        console.error(`[Storage ERROR] Direct sync failed after ${maxAttempts} attempts:`, err);
       }
     }
   }
@@ -125,26 +126,19 @@ export async function hydrateDatabaseFromServer(): Promise<boolean> {
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`[Database Sync] Loading from server (Attempt ${attempt}/${maxRetries})...`);
+      console.log(`[Database Sync] Client-direct loading from Firestore (Attempt ${attempt}/${maxRetries})...`);
       
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // Reduced from 8s
+      const database = await getFirestoreClient();
+      const colRef = collection(database, 'app_state');
+      const querySnapshot = await getDocs(colRef);
       
-      const response = await fetch('/api/get-all-data', {
-        signal: controller.signal,
-        method: 'GET',
-        headers: { 
-          'Accept': 'application/json',
-          'Cache-Control': 'max-age=300' // Ask for 5-min cache on server
-        }
+      const db: Record<string, any> = {};
+      querySnapshot.forEach((doc) => {
+        const docData = doc.data();
+        db[doc.id] = docData.data ?? docData;
       });
-      
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      
-      const db = await response.json();
-      if (db && typeof db === 'object' && Object.keys(db).length > 0) {
+
+      if (Object.keys(db).length > 0) {
         let itemsSync = 0;
         const startTime = performance.now();
         
@@ -166,13 +160,13 @@ export async function hydrateDatabaseFromServer(): Promise<boolean> {
         
         localStorage.setItem(cacheKey, now.toString());
         const duration = (performance.now() - startTime).toFixed(0);
-        console.log(`[Database Sync] ✅ Synced ${itemsSync} keys in ${duration}ms`);
+        console.log(`[Database Sync] ✅ Client-direct synced ${itemsSync} keys in ${duration}ms`);
         return true;
       }
     } catch (error) {
       const delayMs = baseDelayMs * Math.pow(2, attempt - 1);
       if (attempt < maxRetries) {
-        console.warn(`[Database Sync] Retry in ${delayMs}ms: ${error instanceof Error ? error.message : error}`);
+        console.warn(`[Database Sync] Retry direct load in ${delayMs}ms: ${error instanceof Error ? error.message : error}`);
         await new Promise(resolve => setTimeout(resolve, delayMs));
       } else {
         console.warn(`[Database Sync] Using local cache after ${maxRetries} attempts`);

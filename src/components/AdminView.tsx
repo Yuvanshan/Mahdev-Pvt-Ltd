@@ -1326,35 +1326,30 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
   if (!isAuthenticated) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-4 relative z-10 py-12">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[400px] h-[400px] bg-purple-600/10 blur-[120px] rounded-full" />
-          <div className="absolute bottom-1/4 left-1/3 w-[300px] h-[300px] bg-blue-600/10 blur-[100px] rounded-full" />
-        </div>
-
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className={`w-full max-w-md p-8 rounded-3xl border backdrop-blur-xl relative z-10 transition-colors duration-300 ${isDarkMode
-              ? 'bg-neutral-900/80 border-purple-500/20 shadow-2xl shadow-purple-500/5'
-              : 'bg-white border-slate-200 shadow-xl'
+          transition={{ duration: 0.4 }}
+          className={`w-full max-w-md p-8 rounded-2xl border relative z-10 transition-colors duration-300 ${isDarkMode
+              ? 'bg-slate-900/90 border-slate-800/80 shadow-2xl shadow-slate-950/50'
+              : 'bg-white border-slate-200/80 shadow-xl'
             }`}
         >
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 to-blue-500 flex items-center justify-center mx-auto mb-4 border border-purple-500/30 shadow-lg">
-              <Lock className="text-white" size={28} />
+            <div className="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-center mx-auto mb-4 text-indigo-400 shadow-inner">
+              <Lock size={20} />
             </div>
-            <h2 className={`text-2xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+            <h2 className={`text-xl font-bold tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
               Administrative Control Portal
             </h2>
-            <p className={`text-xs mt-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-              Please log in to customize and manage products, leadership, pricing and contact metrics across Mahdev Pvt Ltd.
+            <p className={`text-xs mt-2 leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              Log in to configure core company packages, team dynamics, fleet rentals and cloud modules across Mahdev portals.
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className={`block text-xs font-mono font-bold uppercase tracking-wider mb-2 ${isDarkMode ? 'text-purple-300' : 'text-slate-700'
+              <label className={`block text-[11px] font-semibold uppercase tracking-wider mb-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'
                 }`}>
                 Admin Username
               </label>
@@ -1365,19 +1360,19 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                 <input
                   type="text"
                   required
-                  placeholder="Enter admin"
+                  placeholder="Enter username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className={`w-full pl-10 pr-4 py-3 text-sm rounded-xl border focus:outline-none transition-all ${isDarkMode
-                      ? 'bg-neutral-950 border-purple-500/15 focus:border-purple-500 text-white'
-                      : 'bg-slate-50 border-slate-200 focus:border-purple-600 text-slate-800'
+                      ? 'bg-slate-950 border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-100'
+                      : 'bg-slate-50 border-slate-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 text-slate-800'
                     }`}
                 />
               </div>
             </div>
 
             <div>
-              <label className={`block text-xs font-mono font-bold uppercase tracking-wider mb-2 ${isDarkMode ? 'text-purple-300' : 'text-slate-700'
+              <label className={`block text-[11px] font-semibold uppercase tracking-wider mb-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'
                 }`}>
                 Secret Password
               </label>
@@ -1392,8 +1387,8 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`w-full pl-10 pr-4 py-3 text-sm rounded-xl border focus:outline-none transition-all ${isDarkMode
-                      ? 'bg-neutral-950 border-purple-500/15 focus:border-purple-500 text-white'
-                      : 'bg-slate-50 border-slate-200 focus:border-purple-600 text-slate-800'
+                      ? 'bg-slate-950 border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-100'
+                      : 'bg-slate-50 border-slate-200 focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 text-slate-800'
                     }`}
                 />
               </div>
@@ -1412,7 +1407,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-xs uppercase tracking-widest hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-purple-600/20 flex items-center justify-center space-x-2"
+              className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase tracking-widest active:scale-[0.98] transition-all shadow-lg shadow-indigo-600/15 flex items-center justify-center space-x-2 cursor-pointer"
             >
               <span>Unlock Console</span>
               <Unlock size={14} />
@@ -1521,20 +1516,19 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative z-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 border-b border-purple-500/10 pb-8">
+      <div className={`flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 border-b pb-8 ${isDarkMode ? 'border-slate-850' : 'border-slate-200'}`}>
         <div>
-          <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-semibold tracking-wider uppercase mb-3 border border-purple-500/20">
-            <Settings size={12} />
+          <div className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase mb-3 border ${isDarkMode ? 'bg-slate-800/60 text-slate-300 border-slate-700/50' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+            <Settings size={12} className="text-indigo-400" />
             <span>Administrator Workspace</span>
           </div>
-          <h1 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+          <h1 className={`text-3xl font-bold tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
             Live Content Editor
           </h1>
-          <p className={`text-sm mt-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-            Instant live synchronization. Customize images, rates, team leads, services, and dynamic text blocks across the site.
+          <p className={`text-sm mt-1.5 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+            Configure pricing structures, dynamic service blocks, media assets, and leadership directory in real-time.
           </p>
         </div>
-
       </div>
 
       {/* Mobile Top Navigation Toggle Bar */}
@@ -1627,25 +1621,25 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
       {/* Layout Grid: Left Sidebar (Desktop) + Right Content Area */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Left Side Menu Bar (Desktop only) */}
-        <aside className="hidden lg:flex flex-col justify-between w-72 shrink-0 sticky top-24 bg-neutral-950/40 p-5 rounded-3xl border border-purple-500/10 backdrop-blur-md max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/20">
+        <aside className={`hidden lg:flex flex-col justify-between w-72 shrink-0 sticky top-24 p-5 rounded-2xl border backdrop-blur-md max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin ${isDarkMode ? 'bg-slate-900/30 border-slate-850 scrollbar-thumb-slate-800' : 'bg-slate-50/80 border-slate-200 scrollbar-thumb-slate-300'}`}>
           <div>
-            <div className="pb-4 mb-4 border-b border-purple-500/10 flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-purple-600/10 text-purple-400">
+            <div className={`pb-4 mb-4 border-b flex items-center gap-2.5 ${isDarkMode ? 'border-slate-850' : 'border-slate-200'}`}>
+              <div className={`p-2 rounded-xl ${isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700'}`}>
                 <Settings size={16} />
               </div>
               <div>
-                <h2 className="text-sm font-extrabold text-white tracking-widest uppercase font-mono">
+                <h2 className={`text-sm font-semibold tracking-wide ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
                   Editor Console
                 </h2>
-                <p className="text-[10px] text-neutral-400">All management portals</p>
+                <p className="text-[10px] text-slate-400">All management portals</p>
               </div>
             </div>
             {renderCategoryMenu(false)}
           </div>
-          <div className="pt-4 border-t border-purple-500/10 mt-6 shrink-0">
+          <div className={`pt-4 border-t mt-6 shrink-0 ${isDarkMode ? 'border-slate-850' : 'border-slate-200'}`}>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-red-400 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all"
+              className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all border ${isDarkMode ? 'text-red-400 bg-red-950/20 hover:bg-red-950/30 border-red-900/50' : 'text-red-600 bg-red-50 hover:bg-red-100 border-red-200'}`}
             >
               <LogOut size={14} />
               <span>Exit Admin</span>
@@ -1655,20 +1649,20 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
 
         {/* Right Main Content Area */}
         <main className="flex-1 w-full min-w-0">
-          <div className={`p-6 sm:p-8 rounded-3xl border ${isDarkMode ? 'bg-neutral-900/40 border-purple-500/10' : 'bg-white border-slate-200 shadow-xl'}`}>
+          <div className={`p-6 sm:p-8 rounded-2xl border ${isDarkMode ? 'bg-slate-900/20 border-slate-850 shadow-sm shadow-slate-950/20' : 'bg-white border-slate-200/80 shadow-md'}`}>
 
             {/* Central CRM & Bookings Dashboard Tab */}
             {activeTab === 'dashboard' && (
               <div className="space-y-10">
                 {/* Board Role Switcher & Header */}
-                <div className={`p-5 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-6 ${isDarkMode ? 'bg-neutral-950 border-purple-500/10' : 'bg-slate-50 border-slate-200'
+                <div className={`p-5 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-6 ${isDarkMode ? 'bg-slate-950/80 border-slate-850' : 'bg-slate-50 border-slate-200'
                   }`}>
                   <div className="space-y-1">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-purple-400 font-bold block">
+                    <span className={`text-[10px] font-semibold uppercase tracking-wider block ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>
                       Interactive Board Role Simulator
                     </span>
-                    <h4 className="text-sm font-bold text-white flex items-center gap-1.5">
-                      <ShieldCheck size={16} className="text-purple-400" />
+                    <h4 className={`text-sm font-bold flex items-center gap-1.5 ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
+                      <ShieldCheck size={16} className="text-indigo-500" />
                       Viewing Workspace as: <span className="text-purple-400">{adminRole === 'ceo' ? 'Yuvanshan Prabakaran (CEO)' : 'Divaincy Fernando (Managing Director)'}</span>
                     </h4>
                     <p className="text-xs text-slate-400">

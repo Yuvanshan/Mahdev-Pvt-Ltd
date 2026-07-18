@@ -10,6 +10,10 @@ interface ThreeCanvasProps {
 }
 
 class HeartCurve extends THREE.Curve<THREE.Vector3> {
+  constructor() {
+    super();
+  }
+
   getPoint(t: number, optionalTarget?: THREE.Vector3): THREE.Vector3 {
     const point = optionalTarget || new THREE.Vector3();
     const angle = t * Math.PI * 2;

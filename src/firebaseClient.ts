@@ -24,19 +24,32 @@ async function loadConfig(): Promise<FirebaseConfig> {
   return configCache!;
 }
 
+let initPromise: Promise<any> | null = null;
+
 export async function getFirestoreClient() {
   if (db) return db;
+  if (initPromise) return initPromise;
 
-  const cfg = await loadConfig();
+  initPromise = (async () => {
+    try {
+      const cfg = await loadConfig();
 
-  if (!getApps().length) {
-    app = initializeApp(cfg);
-  } else {
-    app = getApps()[0];
-  }
+      if (!getApps().length) {
+        app = initializeApp(cfg);
+      } else {
+        app = getApps()[0];
+      }
 
-  db = getFirestore(app);
-  return db;
+      const dbId = cfg.firestoreDatabaseId || '(default)';
+      db = getFirestore(app, dbId);
+      return db;
+    } catch (err) {
+      initPromise = null; // Reset to allow retry
+      throw err;
+    }
+  })();
+
+  return initPromise;
 }
 
 export async function getImageStateDocRef() {

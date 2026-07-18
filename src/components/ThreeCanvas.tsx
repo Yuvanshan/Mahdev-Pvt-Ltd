@@ -31,6 +31,11 @@ export default function ThreeCanvas({
   animationMode = 'multiverse',
 }: ThreeCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const intensityRef = useRef(intensity);
+
+  useEffect(() => {
+    intensityRef.current = intensity;
+  }, [intensity]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -282,7 +287,7 @@ export default function ThreeCanvas({
     groupTravels.scale.setScalar(0.001);
 
     // 6. Ambient Particle System
-    const particleCount = Math.floor(110 * intensity);
+    const particleCount = 132;
     const particleGeometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const randomSpeeds = new Float32Array(particleCount);
@@ -433,7 +438,8 @@ export default function ThreeCanvas({
       targetLightColor.setHex(activeColor);
       particleMaterial.color.lerp(targetParticleColor, 0.05);
       pointLight.color.lerp(targetLightColor, 0.05);
-      particleMaterial.size += (activeSize - particleMaterial.size) * 0.05;
+      const currentIntensity = intensityRef.current;
+      particleMaterial.size += (activeSize * (currentIntensity / 1.2) - particleMaterial.size) * 0.05;
 
       // Group visibility checking to bypass draw calls on completely hidden meshes
       const checkVisibility = (grp: THREE.Group, isActive: boolean) => {
@@ -634,7 +640,7 @@ export default function ThreeCanvas({
 
       renderer.dispose();
     };
-  }, [intensity, primaryColor, activePage, animationMode]);
+  }, [primaryColor, animationMode]);
 
   return (
     <div

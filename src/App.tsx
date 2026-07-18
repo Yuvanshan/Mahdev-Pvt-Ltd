@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { AnimatePresence, motion, useScroll, useSpring } from 'motion/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
@@ -22,7 +22,7 @@ import PhotographyView from './components/PhotographyView';
 import TravelsView from './components/TravelsView';
 import ItSolutionsView from './components/ItSolutionsView';
 import ContactView from './components/ContactView';
-import AdminView from './components/AdminView';
+const AdminView = lazy(() => import('./components/AdminView'));
 
 // Storage Utility Loaders
 import {
@@ -436,7 +436,16 @@ export default function App() {
         );
 
       case ActivePage.Admin:
-        return <AdminView isDarkMode={isDarkMode} onDataChange={handleDataChange} themeSettings={themeSettings} />;
+        return (
+          <Suspense fallback={
+            <div className="flex flex-col items-center justify-center gap-4 min-h-[50vh]">
+              <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-xs font-bold uppercase tracking-wider text-purple-400 animate-pulse">Loading Panel...</p>
+            </div>
+          }>
+            <AdminView isDarkMode={isDarkMode} onDataChange={handleDataChange} themeSettings={themeSettings} />
+          </Suspense>
+        );
 
       default:
         return (
@@ -491,7 +500,14 @@ export default function App() {
       <>
         <style>{styleContent}</style>
         <div className="min-h-screen bg-neutral-950 text-slate-100 font-sans">
-          <AdminView isDarkMode={isDarkMode} onDataChange={handleDataChange} themeSettings={themeSettings} />
+          <Suspense fallback={
+            <div className="flex flex-col items-center justify-center gap-4 min-h-screen">
+              <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-sm font-bold uppercase tracking-wider text-purple-400 animate-pulse">Loading Admin Control Panel...</p>
+            </div>
+          }>
+            <AdminView isDarkMode={isDarkMode} onDataChange={handleDataChange} themeSettings={themeSettings} />
+          </Suspense>
         </div>
       </>
     );

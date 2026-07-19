@@ -115,7 +115,7 @@ export async function hydrateDatabaseFromServer(): Promise<boolean> {
   const cacheKey = 'mahdev_cache_timestamp';
   const cacheTimestamp = localStorage.getItem(cacheKey);
   const now = Date.now();
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  const CACHE_DURATION = 2000; // 2 seconds to prevent duplicate mounting fetches while ensuring fresh loads on reload
   
   if (cacheTimestamp && (now - parseInt(cacheTimestamp)) < CACHE_DURATION) {
     console.log('[Database Sync] Using cached data (still valid)');

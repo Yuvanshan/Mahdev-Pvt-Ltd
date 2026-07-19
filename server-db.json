@@ -1266,25 +1266,37 @@
   },
   "mahdev_media_library": [
     {
-      "id": "m-1783631890110",
-      "name": "it_robot_developer_1783346302442.jpg",
-      "url": "/uploads/general/it_robot_developer_1783346302442_1783631889943_960124.jpg",
+      "id": "m-1784424722457",
+      "name": "test_upload_logo.jpg",
+      "url": "/uploads/general/test_upload_logo_1784424716104_888553.jpg",
       "type": "image/jpeg",
-      "size": 1772081,
+      "size": 11950,
       "folder": "general",
-      "uploadedAt": "2026-07-09T21:18:10.111Z",
+      "uploadedAt": "2026-07-19T01:32:02.457Z",
       "version": 1
     },
     {
-      "type": "text/plain",
-      "uploadedAt": "2026-07-09T21:17:50.029Z",
-      "name": "tmp-upload-test.txt",
+      "version": 1,
+      "uploadedAt": "2026-07-09T21:18:10.111Z",
+      "url": "/uploads/general/it_robot_developer_1783346302442_1783631889943_960124.jpg",
+      "type": "image/jpeg",
+      "name": "it_robot_developer_1783346302442.jpg",
+      "id": "m-1783631890110",
+      "folder": "general",
+      "size": 1772081
+    },
+    {
       "url": "/uploads/general/tmp_upload_test_1783631869847_274669.txt",
-      "size": 7,
+      "uploadedAt": "2026-07-09T21:17:50.029Z",
       "version": 1,
       "folder": "general",
+      "size": 7,
+      "type": "text/plain",
+      "name": "tmp-upload-test.txt",
       "id": "m-1783631870029"
     }
   ],
-  "test_sync": "hello"
+  "test_sync": {
+    "val": "working_1784423278710"
+  }
 }

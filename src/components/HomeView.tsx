@@ -295,6 +295,7 @@ export default function HomeView({
         isDarkMode={isDarkMode} 
         onNavigate={handleNavClick}
         cards={heroCards}
+        themeSettings={themeSettings}
       />
 
       {/* SECTION 01: SWS EVENT MANAGEMENT - Pink Accented Theme */}

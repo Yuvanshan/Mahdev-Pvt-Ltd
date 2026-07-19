@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
-import { ActivePage } from '../types';
+import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { ActivePage, ThemeSettings } from '../types';
 import { COMPANY_CONTACT } from '../data';
 
 interface HeroCard {
@@ -22,9 +22,10 @@ interface PremiumHeroProps {
   isDarkMode: boolean;
   onNavigate: (page: ActivePage) => void;
   cards: HeroCard[];
+  themeSettings?: ThemeSettings;
 }
 
-export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHeroProps) {
+export default function PremiumHero({ isDarkMode, onNavigate, cards, themeSettings }: PremiumHeroProps) {
   const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
   const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
 
@@ -169,50 +170,59 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
           
           {/* Left Text Block */}
-          <div className="w-full lg:w-[35%] flex flex-col justify-center text-left">
+          <div className="w-full lg:w-[35%] flex flex-col justify-center text-left relative">
+            {/* Background text glow to highlight content on both themes */}
+            <div className="absolute -inset-10 bg-gradient-to-tr from-purple-500/10 to-indigo-500/5 blur-3xl rounded-full opacity-60 pointer-events-none" />
+
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ type: "spring", stiffness: 80, damping: 15 }}
-              className="space-y-6"
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 90, damping: 18 }}
+              className="space-y-6 relative z-10"
             >
-              <div className="space-y-1">
-                <h1 className={`text-5xl md:text-6xl font-extrabold tracking-tight font-sans uppercase leading-none ${
+              {/* Premium Pill Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-bold uppercase tracking-widest animate-pulse">
+                <Sparkles size={11} className="text-amber-400" />
+                <span>Conglomerate Group</span>
+              </div>
+
+              <div className="space-y-2">
+                <h1 className={`text-4xl md:text-5xl font-black tracking-tight font-sans uppercase leading-tight ${
                   isDarkMode ? 'text-white' : 'text-[#3b118b]'
                 }`}>
-                  MAHDEV
+                  {themeSettings?.heroTitle1 || 'MAHDEV'}
                 </h1>
-                <h2 className="text-2xl md:text-3xl font-extrabold tracking-wider bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent uppercase leading-none mt-1">
-                  ELITE SERVICE SUITE
+                <h2 className="text-xl md:text-2xl font-extrabold tracking-wider bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent uppercase leading-snug">
+                  {themeSettings?.heroTitle2 || 'ELITE SERVICE SUITE'}
                 </h2>
               </div>
               
               {/* Short solid gold divider line */}
               <div className="h-[3px] w-14 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full" />
               
-              <div className="space-y-3">
-                <p className={`text-lg md:text-xl font-semibold leading-normal tracking-wide ${
-                  isDarkMode ? 'text-slate-200' : 'text-slate-800'
+              <div className="space-y-4">
+                <p className={`text-base md:text-lg font-medium leading-relaxed tracking-wide ${
+                  isDarkMode ? 'text-slate-300' : 'text-slate-700'
                 }`}>
-                  One Vision, Four Powerful Solutions.
+                  {themeSettings?.heroDescription || 'One Vision, Four Powerful Solutions.'}
                 </p>
-                <div className={`flex items-center gap-2 text-sm md:text-base font-medium flex-wrap ${
+                <div className={`flex items-center gap-2 text-xs md:text-sm font-semibold flex-wrap ${
                   isDarkMode ? 'text-slate-400' : 'text-slate-500'
                 }`}>
-                  <span>AI Driven</span>
+                  <span className="hover:text-purple-400 transition-colors">AI Driven</span>
                   <span className="text-amber-500/60">•</span>
-                  <span>Expert Powered</span>
+                  <span className="hover:text-purple-400 transition-colors">Expert Powered</span>
                   <span className="text-amber-500/60">•</span>
-                  <span>Excellence Delivered.</span>
+                  <span className="hover:text-purple-400 transition-colors">Excellence Delivered</span>
                 </div>
               </div>
 
               <button
                 onClick={handleConsultation}
-                className="group px-7 py-3.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-slate-950 font-bold text-sm tracking-wider uppercase transition-all duration-300 shadow-lg shadow-amber-500/15 hover:shadow-amber-500/25 flex items-center gap-2 cursor-pointer border-none transform active:scale-[0.98]"
+                className="group px-7 py-3.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-slate-950 font-bold text-xs tracking-widest uppercase transition-all duration-300 shadow-lg shadow-amber-500/15 hover:shadow-amber-500/25 flex items-center gap-2 cursor-pointer border-none transform active:scale-[0.98]"
               >
                 <span>Discover More</span>
-                <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
               </button>
             </motion.div>
           </div>

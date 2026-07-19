@@ -1,60 +1,40 @@
-/**
- * Customer Entity - Domain Layer
- * Represents a customer in the business domain
- * Contains only data properties, no business logic
- */
+import { Customer } from '../../../types';
 
-export interface CustomerEntity {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  companyId?: string;
-  companyName?: string;
-  status: 'New Lead' | 'Active' | 'Inactive' | 'Blacklisted' | 'Lead';
-  customerType?: 'Individual' | 'Company';
-  tags?: string[];
-  notes?: string;
+export interface CustomerEntity extends Customer {
   address?: string;
-  city?: string;
-  country?: string;
   createdAt?: Date;
   updatedAt?: Date;
   deleted?: boolean;
 }
 
-/**
- * Factory function to create a new customer entity
- */
 export const createCustomerEntity = (data: Partial<CustomerEntity>): CustomerEntity => {
   return {
     id: data.id || '',
     name: data.name || '',
     email: data.email || '',
     phone: data.phone || '',
-    status: data.status || 'New Lead',
+    status: (data.status as any) || 'New Lead',
     companyId: data.companyId,
     companyName: data.companyName,
     customerType: data.customerType,
     tags: data.tags || [],
     notes: data.notes || '',
-    address: data.address,
-    city: data.city,
-    country: data.country,
+    address: data.address || '',
+    city: data.city || '',
+    country: data.country || '',
     createdAt: data.createdAt || new Date(),
     updatedAt: data.updatedAt || new Date(),
-    deleted: data.deleted || false
+    deleted: data.deleted || false,
+    history: data.history || [],
+    documents: data.documents || []
   };
 };
 
-/**
- * Value object for customer status validation
- */
 export class CustomerStatus {
   private readonly value: string;
 
   constructor(value: string) {
-    const validStatuses = ['New Lead', 'Active', 'Inactive', 'Blacklisted', 'Lead'];
+    const validStatuses = ['New Lead', 'Active', 'Inactive', 'Blacklisted', 'Lead', 'Active Customer', 'Returning Customer', 'VIP Customer', 'Corporate Customer', 'Government Customer', 'Inactive Customer'];
     if (!validStatuses.includes(value)) {
       throw new Error(`Invalid customer status: ${value}`);
     }

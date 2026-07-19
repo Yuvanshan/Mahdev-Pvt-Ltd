@@ -14,7 +14,7 @@ import { getCustomers, saveCustomers } from '../../../utils/storage';
 export class CustomerRepository implements ICustomerRepository {
   async create(customer: CustomerEntity): Promise<string> {
     try {
-      const customers = await getCustomers();
+      const customers = (await getCustomers()) as CustomerEntity[];
       const newId = `customer_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const newCustomer: CustomerEntity = {
         ...customer,
@@ -32,7 +32,7 @@ export class CustomerRepository implements ICustomerRepository {
 
   async getById(id: string): Promise<CustomerEntity | null> {
     try {
-      const customers = await getCustomers();
+      const customers = (await getCustomers()) as CustomerEntity[];
       return customers.find(c => c.id === id) || null;
     } catch (error) {
       throw new Error(`Failed to get customer: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -41,7 +41,7 @@ export class CustomerRepository implements ICustomerRepository {
 
   async getAll(): Promise<CustomerEntity[]> {
     try {
-      return await getCustomers();
+      return (await getCustomers()) as CustomerEntity[];
     } catch (error) {
       throw new Error(`Failed to get customers: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -49,7 +49,7 @@ export class CustomerRepository implements ICustomerRepository {
 
   async update(id: string, customer: Partial<CustomerEntity>): Promise<void> {
     try {
-      const customers = await getCustomers();
+      const customers = (await getCustomers()) as CustomerEntity[];
       const index = customers.findIndex(c => c.id === id);
       if (index === -1) {
         throw new Error(`Customer with ID ${id} not found`);
@@ -68,7 +68,7 @@ export class CustomerRepository implements ICustomerRepository {
 
   async delete(id: string): Promise<void> {
     try {
-      let customers = await getCustomers();
+      let customers = (await getCustomers()) as CustomerEntity[];
       customers = customers.filter(c => c.id !== id);
       await saveCustomers(customers);
     } catch (error) {
@@ -94,7 +94,7 @@ export class CustomerRepository implements ICustomerRepository {
 
   async search(criteria: CustomerSearchCriteria): Promise<CustomerEntity[]> {
     try {
-      let customers = await getCustomers();
+      let customers = (await getCustomers()) as CustomerEntity[];
 
       // Filter by active status (not deleted by default)
       customers = customers.filter(c => !c.deleted);
@@ -143,7 +143,7 @@ export class CustomerRepository implements ICustomerRepository {
 
   async findByStatus(status: string): Promise<CustomerEntity[]> {
     try {
-      const customers = await getCustomers();
+      const customers = (await getCustomers()) as CustomerEntity[];
       return customers.filter(c => c.status === status && !c.deleted);
     } catch (error) {
       throw new Error(`Failed to find customers by status: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -152,7 +152,7 @@ export class CustomerRepository implements ICustomerRepository {
 
   async findByCompany(companyId: string): Promise<CustomerEntity[]> {
     try {
-      const customers = await getCustomers();
+      const customers = (await getCustomers()) as CustomerEntity[];
       return customers.filter(c => c.companyId === companyId && !c.deleted);
     } catch (error) {
       throw new Error(`Failed to find customers by company: ${error instanceof Error ? error.message : 'Unknown error'}`);

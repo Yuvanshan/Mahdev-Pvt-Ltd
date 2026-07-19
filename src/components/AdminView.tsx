@@ -235,7 +235,7 @@ function AdminImageUploader({
       const attempt = {
         file,
         optimizedFile: result.optimizedFile,
-        thumbnailFile: result.thumbnailFile
+        thumbnailFile: result.thumbnailFile || null
       };
 
       setLastFileAttempt(attempt);
@@ -632,7 +632,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
   const [isDraggingLogo, setIsDraggingLogo] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
-  const handleLogoFile = (file: File) => {
+  const handleLogoFile = async (file: File) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
       setUploadError('Please select a valid image file (PNG, JPG, WebP, SVG).');
@@ -640,46 +640,42 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
     }
     setUploadError('');
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result as string;
-      if (!result) return;
+    try {
+      let fileToUpload = file;
+      try {
+        const optimizedResult = await optimizeImageBeforeUpload(file, {
+          maxWidth: 500,
+          maxHeight: 500,
+          quality: 0.85,
+        });
+        fileToUpload = optimizedResult.optimizedFile;
+      } catch (err) {
+        console.warn("Logo browser-side optimization failed, uploading raw:", err);
+      }
 
-      // Automatically scale down high-res images to keep localStorage slim and performant
-      const img = new window.Image();
-      img.onload = () => {
-        const maxDim = 320; // 320px is perfect for professional logos
-        let width = img.width;
-        let height = img.height;
+      const formData = new FormData();
+      formData.append("image", fileToUpload);
+      formData.append("folder", "branding");
 
-        if (width > maxDim || height > maxDim) {
-          if (width > height) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          } else {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL('image/png'); // Preserve transparent backgrounds
-          setContact((prev: typeof contact) => ({ ...prev, logo: compressedBase64 }));
-        } else {
-          setContact((prev: typeof contact) => ({ ...prev, logo: result }));
-        }
-      };
-      img.onerror = () => {
-        setContact((prev: typeof contact) => ({ ...prev, logo: result }));
-      };
-      img.src = result;
-    };
-    reader.readAsDataURL(file);
+      if (!response.ok) {
+        throw new Error(`Upload failed (Status ${response.status})`);
+      }
+
+      const data = await response.json();
+      if (data.success && data.url) {
+        setContact((prev: typeof contact) => ({ ...prev, logo: data.url }));
+      } else {
+        throw new Error(data.error?.message || data.error || "Failed to upload logo.");
+      }
+    } catch (err: any) {
+      console.error("[Logo Upload Error]", err);
+      setUploadError(err.message || "Failed to upload logo.");
+    }
   };
 
   // Active sub-panel tab
@@ -1452,11 +1448,13 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
           const groupTabs = adminTabs.filter(t => t.group === group);
           const isExpanded = expandedGroups[group];
           return (
-            <div key={group} className={`space-y-1 pb-3 border-b ${isMobile ? 'border-purple-500/10' : 'border-white/5'} last:border-0 last:pb-0`}>
+            <div key={group} className="space-y-1">
               <button
                 type="button"
                 onClick={() => toggleGroup(group)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-[10px] font-extrabold uppercase tracking-widest ${isMobile ? 'text-purple-400' : 'text-indigo-200/80'} hover:text-white transition-colors`}
+                className={`w-full flex items-center justify-between px-6 py-2 text-[9px] font-black uppercase tracking-widest ${
+                  isMobile ? 'text-purple-400' : 'text-indigo-200/50'
+                } hover:text-white transition-colors text-left`}
               >
                 <span>{group}</span>
                 <span>
@@ -1465,10 +1463,22 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
               </button>
 
               {isExpanded && (
-                <div className="space-y-1 mt-1 pl-1">
+                <div className="space-y-1.5 mt-1">
                   {groupTabs.map((tab) => {
                     const IconComponent = tab.icon as React.ElementType;
                     const isActive = activeTab === tab.id;
+
+                    let btnClass = "";
+                    if (isMobile) {
+                      btnClass = isActive
+                        ? "bg-purple-600/20 text-purple-400 border-l-4 border-purple-500 pl-6 pr-4"
+                        : "text-neutral-400 hover:text-white pl-6 pr-4";
+                    } else {
+                      btnClass = isActive
+                        ? "bg-[#f8f7fa] dark:bg-[#0f1129] text-[#3b118b] dark:text-purple-400 font-bold rounded-l-full ml-4 pl-6 relative"
+                        : "text-indigo-200 hover:text-white hover:bg-white/5 ml-4 pl-6 rounded-l-full";
+                    }
+
                     return (
                       <button
                         key={tab.id}
@@ -1478,17 +1488,23 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                             setIsMobileMenuOpen(false);
                           }
                         }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all text-left ${
-                          isActive
-                            ? isDarkMode
-                              ? 'bg-slate-900 text-indigo-400 font-bold shadow-md'
-                              : 'bg-white text-[#3b2a9f] font-bold shadow-sm'
-                            : isMobile
-                              ? 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/40'
-                              : 'text-indigo-200/90 hover:text-white hover:bg-white/10'
-                        }`}
+                        className={`w-[calc(100%-16px)] flex items-center gap-3 py-3 text-xs font-semibold tracking-wide transition-all text-left ${btnClass}`}
                       >
-                        <IconComponent size={14} className={isActive ? (isDarkMode ? 'text-indigo-400' : 'text-[#3b2a9f]') : (isMobile ? 'text-purple-400' : 'text-indigo-200/70')} />
+                        {/* Cutout notch rounded corners for active tab on desktop */}
+                        {isActive && !isMobile && (
+                          <>
+                            <div className="absolute right-0 -top-4 w-4 h-4 bg-[#f8f7fa] dark:bg-[#0f1129] rounded-br-2xl pointer-events-none" />
+                            <div className="absolute right-0 -bottom-4 w-4 h-4 bg-[#f8f7fa] dark:bg-[#0f1129] rounded-tr-2xl pointer-events-none" />
+                          </>
+                        )}
+                        <IconComponent
+                          size={14}
+                          className={
+                            isActive
+                              ? isDarkMode ? "text-purple-400" : "text-[#3b118b]"
+                              : "text-indigo-300/70 group-hover:text-white"
+                          }
+                        />
                         <span className="truncate">{tab.label}</span>
                       </button>
                     );
@@ -1503,49 +1519,78 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative z-10">
-      <div className={`flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 border-b pb-8 ${isDarkMode ? 'border-slate-850' : 'border-slate-200'}`}>
-        <div>
-          <div className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase mb-3 border ${isDarkMode ? 'bg-slate-800/60 text-slate-300 border-slate-700/50' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
-            <Settings size={12} className="text-indigo-400" />
-            <span>Administrator Workspace</span>
-          </div>
-          <h1 className={`text-3xl font-bold tracking-tight ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
-            Live Content Editor
-          </h1>
-          <p className={`text-sm mt-1.5 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-            Configure pricing structures, dynamic service blocks, media assets, and leadership directory in real-time.
-          </p>
-        </div>
-      </div>
-
-      {/* Mobile Top Navigation Toggle Bar */}
-      <div className="lg:hidden mb-6 flex items-center justify-between bg-neutral-900/60 p-4 rounded-2xl border border-purple-500/10 backdrop-blur-md">
-        <div className="flex items-center gap-3 min-w-0">
-          {(() => {
-            const currentTab = adminTabs.find(t => t.id === activeTab);
-            const TabIcon = (currentTab?.icon || Settings) as React.ElementType;
-            return (
-              <>
-                <div className="p-2 rounded-lg bg-purple-500/15 text-purple-400">
-                  <TabIcon size={18} />
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase font-mono tracking-wider text-purple-400/80">Active Section</div>
-                  <div className="text-sm font-bold text-white max-w-[220px] sm:max-w-full break-words leading-tight">{currentTab?.label || 'Dashboard'}</div>
-                </div>
-              </>
-            );
-          })()}
-        </div>
-        <button
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold tracking-wider transition-all shadow-lg shadow-purple-600/20"
-        >
-          <Menu size={16} />
-          <span>Editor Menu</span>
-        </button>
-      </div>
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-20 relative z-10 admin-dashboard-container">
+      {/* Injecting CSS rules for notches and table layouts */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .admin-dashboard-container table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        .admin-dashboard-container thead th {
+          text-transform: uppercase;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          color: #94a3b8;
+          padding: 16px 20px;
+          border-bottom: 2px solid #f1f5f9;
+          text-align: left;
+        }
+        .dark .admin-dashboard-container thead th {
+          color: #64748b;
+          border-bottom: 2px solid #1e293b;
+        }
+        .admin-dashboard-container tbody tr {
+          transition: all 0.2s ease;
+          border-bottom: 1px solid #f1f5f9;
+        }
+        .dark .admin-dashboard-container tbody tr {
+          border-bottom: 1px solid #1e293b;
+        }
+        .admin-dashboard-container tbody tr:hover {
+          background-color: rgba(59, 17, 139, 0.02);
+        }
+        .dark .admin-dashboard-container tbody tr:hover {
+          background-color: rgba(168, 85, 247, 0.04);
+        }
+        .admin-dashboard-container tbody td {
+          padding: 16px 20px;
+          font-size: 13px;
+          color: #334155;
+          vertical-align: middle;
+        }
+        .dark .admin-dashboard-container tbody td {
+          color: #cbd5e1;
+        }
+        
+        /* Badges status matching mock */
+        .badge-status {
+          padding: 4px 12px;
+          border-radius: 9999px;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.03em;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .badge-status-pending {
+          background-color: #fef3c7;
+          color: #d97706;
+          border: 1px solid #fde68a;
+        }
+        .badge-status-onhold {
+          background-color: #ffedd5;
+          color: #ea580c;
+          border: 1px solid #fed7aa;
+        }
+        .badge-status-candidate {
+          background-color: #dcfce7;
+          color: #15803d;
+          border: 1px solid #bbf7d0;
+        }
+      ` }} />
 
       {/* Mobile Menu Drawer (Left slide-out) */}
       <AnimatePresence>
@@ -1566,13 +1611,13 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-neutral-950 border-r border-purple-500/15 p-6 shadow-2xl z-50 flex flex-col h-full lg:hidden overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/20"
+              className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-[#3b118b] p-6 shadow-2xl z-50 flex flex-col h-full lg:hidden overflow-y-auto scrollbar-thin scrollbar-thumb-white/20"
             >
               {/* Drawer Header */}
-              <div className="flex items-center justify-between pb-6 mb-6 border-b border-purple-500/10">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-purple-600/20 text-purple-400">
-                    <Settings size={16} />
+              <div className="flex items-center justify-between pb-6 mb-6 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                    <span className="text-[#3b118b] font-bold text-sm">M</span>
                   </div>
                   <span className="text-sm font-extrabold tracking-wider text-white uppercase font-mono">
                     Editor Sections
@@ -1580,7 +1625,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1.5 rounded-lg text-neutral-400 hover:text-white bg-neutral-900 hover:bg-neutral-800 transition-colors"
+                  className="p-1.5 rounded-lg text-white/70 hover:text-white bg-white/10 hover:bg-white/20 transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -1592,10 +1637,10 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
               </div>
 
               {/* Drawer Footer */}
-              <div className="pt-4 border-t border-purple-500/10 mt-auto flex flex-col gap-2">
+              <div className="pt-4 border-t border-white/10 mt-auto flex flex-col gap-2">
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-neutral-300 bg-neutral-900/10 hover:bg-neutral-900/20 transition-all"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white bg-white/10 hover:bg-white/20 transition-all"
                 >
                   <X size={14} />
                   <span>Close Menu</span>
@@ -1606,38 +1651,121 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
         )}
       </AnimatePresence>
 
-      {/* Layout Grid: Left Sidebar (Desktop) + Right Content Area */}
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
-        {/* Left Side Menu Bar (Desktop only) */}
-        <aside className={`hidden lg:flex flex-col justify-between w-72 shrink-0 sticky top-24 p-5 rounded-2xl border backdrop-blur-md max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-thin ${isDarkMode ? 'bg-[#22185d] border-indigo-950 scrollbar-thumb-indigo-900' : 'bg-[#3b2a9f] border-indigo-800 scrollbar-thumb-indigo-400'}`}>
+      {/* Main dashboard frame */}
+      <div className={`w-full rounded-[32px] overflow-hidden border shadow-2xl flex flex-col lg:flex-row min-h-[85vh] ${
+        isDarkMode ? 'border-slate-800 bg-[#0f1129]' : 'border-slate-200 bg-[#f8f7fa]'
+      }`}>
+
+        {/* Desktop Sidebar Panel */}
+        <aside className="hidden lg:flex flex-col justify-between w-64 shrink-0 bg-[#3b118b] text-white p-0 relative">
           <div>
-            <div className="pb-4 mb-4 border-b flex items-center gap-2.5 border-white/10">
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-base shadow-sm shrink-0 ${isDarkMode ? 'bg-indigo-950 text-indigo-300' : 'bg-white text-[#3b2a9f]'}`}>
-                M
+            {/* Sidebar Logo Box (Jobie style) */}
+            <div className="p-6 border-b border-white/5 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg shrink-0">
+                <span className="text-[#3b118b] font-black text-xl font-display">M</span>
               </div>
               <div>
-                <h2 className="text-sm font-bold text-white tracking-wide leading-none">
-                  MAHDEV
+                <h2 className="text-base font-extrabold text-white tracking-tight leading-none uppercase">
+                  Mahdev
                 </h2>
-                <p className="text-[9px] text-indigo-200 uppercase tracking-widest font-extrabold mt-1">Console</p>
+                <p className="text-[9px] text-indigo-200 uppercase tracking-widest font-extrabold mt-1">Super Admin</p>
               </div>
             </div>
-            {renderCategoryMenu(false)}
+
+            {/* Render categories layout */}
+            <div className="py-6">
+              {renderCategoryMenu(false)}
+            </div>
           </div>
-          <div className="pt-4 border-t mt-6 shrink-0 border-white/10">
+
+          {/* Sidebar Footer Logout */}
+          <div className="p-6 border-t border-white/5">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all border border-white/15 text-white hover:bg-white/10 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border border-white/10 hover:bg-white/5 text-slate-300 hover:text-white cursor-pointer"
             >
               <LogOut size={14} />
-              <span>Exit Admin</span>
+              <span>Exit Console</span>
             </button>
           </div>
         </aside>
 
-        {/* Right Main Content Area */}
-        <main className="flex-1 w-full min-w-0">
-          <div className={`p-6 sm:p-8 rounded-2xl border ${isDarkMode ? 'bg-slate-900/20 border-slate-850 shadow-sm shadow-slate-950/20' : 'bg-white border-slate-200/80 shadow-md'}`}>
+        {/* Right workspace partition */}
+        <div className="flex-grow flex flex-col min-w-0">
+          
+          {/* Top Header Panel (Jobie style search, bell and profile) */}
+          <header className={`h-20 shrink-0 border-b flex items-center justify-between px-6 sm:px-8 ${
+            isDarkMode ? 'border-slate-800 bg-slate-950/80' : 'border-slate-100 bg-white'
+          }`}>
+            
+            {/* Left side: Hamburger menu / Search bar */}
+            <div className="flex items-center gap-4 flex-1">
+              <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-slate-100 hover:bg-slate-900/40 transition-colors"
+              >
+                <Menu size={20} />
+              </button>
+
+              <div className="relative w-64 max-w-xs hidden sm:block">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
+                  <Search size={16} />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search something here..."
+                  className={`w-full pl-9 pr-4 py-2 text-xs rounded-full border focus:outline-none transition-all ${
+                    isDarkMode 
+                      ? 'bg-slate-900/60 border-slate-800 focus:border-purple-500 text-white' 
+                      : 'bg-slate-50 border-slate-200 focus:border-[#3b118b] text-slate-800'
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* Right side: Messages, Notifications and Profile */}
+            <div className="flex items-center gap-4">
+              
+              {/* Messages Badge indicator */}
+              <div className="relative p-2.5 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 cursor-pointer hover:scale-105 transition-transform">
+                <Mail size={16} />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#3b118b] text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                  18
+                </span>
+              </div>
+
+              {/* Notification Badge indicator */}
+              <div className="relative p-2.5 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 cursor-pointer hover:scale-105 transition-transform">
+                <AlertCircle size={16} />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-indigo-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                  52
+                </span>
+              </div>
+
+              {/* Vertical Divider */}
+              <div className="h-6 w-px bg-slate-200 dark:bg-slate-800" />
+
+              {/* Super Admin Profile Section */}
+              <div className="flex items-center gap-3">
+                <div className="text-right hidden md:block">
+                  <div className={`text-xs font-black leading-none ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>
+                    {adminRole === 'ceo' ? 'Yuvan Prabakaran' : 'Divaincy Fernando'}
+                  </div>
+                  <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block mt-1">
+                    {adminRole === 'ceo' ? 'Super Admin' : 'Managing Director'}
+                  </span>
+                </div>
+                <div className="w-10 h-10 rounded-full border border-purple-500/20 bg-purple-100 dark:bg-purple-950/60 overflow-hidden flex items-center justify-center font-bold text-sm text-purple-700 dark:text-purple-300">
+                  {adminRole === 'ceo' ? 'YP' : 'DF'}
+                </div>
+              </div>
+
+            </div>
+
+          </header>
+
+          {/* Main Content Workspace viewport */}
+          <main className="flex-1 p-6 sm:p-8 overflow-y-auto max-h-[calc(100vh-200px)]">
 
             {/* Central CRM & Bookings Dashboard Tab */}
             {activeTab === 'dashboard' && (
@@ -2482,14 +2610,26 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                           id="favicon-file-input"
                           type="file"
                           accept="image/*,.ico"
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             if (e.target.files?.[0]) {
                               const file = e.target.files[0];
-                              const reader = new FileReader();
-                              reader.onload = (event) => {
-                                setTheme({ ...theme, faviconUrl: event.target?.result as string });
-                              };
-                              reader.readAsDataURL(file);
+                              try {
+                                const formData = new FormData();
+                                formData.append("image", file);
+                                formData.append("folder", "branding");
+                                const res = await fetch("/api/upload", {
+                                  method: "POST",
+                                  body: formData
+                                });
+                                if (res.ok) {
+                                  const data = await res.json();
+                                  if (data.success && data.url) {
+                                    setTheme({ ...theme, faviconUrl: data.url });
+                                  }
+                                }
+                              } catch (err) {
+                                console.error("Favicon upload failed:", err);
+                              }
                             }
                           }}
                           className="hidden"
@@ -5400,8 +5540,8 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                 </div>
               </div>
             )}
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
 
       {/* Dynamic Editing Modal Popup */}

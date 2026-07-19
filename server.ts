@@ -213,13 +213,21 @@ async function startServer() {
         });
       }
 
-      // Basic server-side validation
-      const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/svg+xml"]; 
+      // Basic server-side validation - allowing images and common document/archive formats
+      const allowed = [
+        "image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/svg+xml", "image/bmp", "image/x-icon", "image/vnd.microsoft.icon", "image/tiff",
+        "application/pdf",
+        "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "text/plain", "text/csv",
+        "application/zip", "application/x-zip-compressed", "application/x-tar", "application/gzip"
+      ]; 
       if (req.file.mimetype && !allowed.includes(req.file.mimetype)) {
         cleanupTemp();
         return res.status(415).json({
           success: false,
-          error: { code: "INVALID_MIME", message: "Unsupported image type." , details: { mimetype: req.file.mimetype } }
+          error: { code: "INVALID_MIME", message: "Unsupported file type." , details: { mimetype: req.file.mimetype } }
         });
       }
 
@@ -228,7 +236,7 @@ async function startServer() {
         cleanupTemp();
         return res.status(413).json({
           success: false,
-          error: { code: "FILE_TOO_LARGE", message: "Image is too large. Please upload a smaller file." , details: { maxBytes: MAX_BYTES } }
+          error: { code: "FILE_TOO_LARGE", message: "File is too large. Please upload a smaller file." , details: { maxBytes: MAX_BYTES } }
         });
       }
 
@@ -236,8 +244,8 @@ async function startServer() {
       let fileBuffer = fs.readFileSync(req.file.path);
       let compressionMetrics: any = { skipped: true };
 
-      // Compress image if sharp is available
-      if (sharp) {
+      // Compress image if sharp is available and it is actually an image
+      if (sharp && req.file.mimetype && req.file.mimetype.startsWith("image/")) {
         const compressionResult = await compressImageForUpload(
           fileBuffer,
           req.file.mimetype,

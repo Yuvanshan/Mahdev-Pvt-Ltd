@@ -1,5 +1,5 @@
-import { motion } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'motion/react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { ActivePage } from '../types';
 import { COMPANY_CONTACT } from '../data';
 
@@ -41,9 +41,18 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
       subtitle: 'EVENT MANAGEMENT',
       image: swsImage,
       page: ActivePage.Decoration,
-      glowColor: 'group-hover:shadow-[0_0_35px_rgba(244,63,94,0.3)]',
+      glowColor: 'group-hover:shadow-[0_0_35px_rgba(244,63,94,0.4)]',
       borderStyle: 'border-pink-500/20 group-hover:border-pink-500/60',
-      tagColor: 'text-pink-400 group-hover:text-pink-300'
+      tagColor: 'text-pink-400 group-hover:text-pink-300',
+      accent: 'pink',
+      badgeColor: 'bg-pink-500/10 text-pink-400 border border-pink-500/20',
+      services: [
+        "Luxury Weddings & Stages",
+        "Themed Entrance Walkways",
+        "Church Floral Arrangements",
+        "Corporate VIP Banquets"
+      ],
+      metric: "500+ Completed Events"
     },
     {
       id: 'u1',
@@ -51,9 +60,18 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
       subtitle: 'STUDIO',
       image: u1Image,
       page: ActivePage.Photography,
-      glowColor: 'group-hover:shadow-[0_0_35px_rgba(139,92,246,0.3)]',
+      glowColor: 'group-hover:shadow-[0_0_35px_rgba(139,92,246,0.4)]',
       borderStyle: 'border-violet-500/20 group-hover:border-violet-500/60',
-      tagColor: 'text-violet-400 group-hover:text-violet-300'
+      tagColor: 'text-violet-400 group-hover:text-violet-300',
+      accent: 'violet',
+      badgeColor: 'bg-violet-500/10 text-violet-400 border border-violet-500/20',
+      services: [
+        "Cinematic Videography",
+        "Pro Drone Cinematography",
+        "Intimate Portrait Shoots",
+        "Luxury Wedding Albums"
+      ],
+      metric: "4K Cinema Precision"
     },
     {
       id: 'it',
@@ -61,9 +79,18 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
       subtitle: 'IT & SOLUTIONS',
       image: itImage,
       page: ActivePage.ItSolutions,
-      glowColor: 'group-hover:shadow-[0_0_35px_rgba(6,182,212,0.3)]',
+      glowColor: 'group-hover:shadow-[0_0_35px_rgba(6,182,212,0.4)]',
       borderStyle: 'border-cyan-500/20 group-hover:border-cyan-500/60',
-      tagColor: 'text-cyan-400 group-hover:text-cyan-300'
+      tagColor: 'text-cyan-400 group-hover:text-cyan-300',
+      accent: 'cyan',
+      badgeColor: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20',
+      services: [
+        "Custom ERP Ecosystems",
+        "Fullstack App Development",
+        "Cloud Native Engineering",
+        "UI/UX Branding & Strategy"
+      ],
+      metric: "99.9% Uptime SLA"
     },
     {
       id: 'travels',
@@ -71,14 +98,42 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
       subtitle: 'TRAVELS',
       image: travelsImage,
       page: ActivePage.Travels,
-      glowColor: 'group-hover:shadow-[0_0_35px_rgba(245,158,11,0.3)]',
+      glowColor: 'group-hover:shadow-[0_0_35px_rgba(245,158,11,0.4)]',
       borderStyle: 'border-amber-500/20 group-hover:border-amber-500/60',
-      tagColor: 'text-amber-400 group-hover:text-amber-300'
+      tagColor: 'text-amber-400 group-hover:text-amber-300',
+      accent: 'amber',
+      badgeColor: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+      services: [
+        "Luxury Chauffeur Vans",
+        "Royal Wedding Fleet",
+        "Custom Vacation Packages",
+        "Island-wide Coordination"
+      ],
+      metric: "24/7 Roadside Assist"
     }
   ];
 
+  const { scrollY } = useScroll();
+
   return (
     <section className="relative w-full bg-[#0b0c10] overflow-hidden py-20 lg:py-28 min-h-[95vh] flex items-center">
+      {/* CSS 3D Card Flip helper rules */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .perspective-1000 {
+          perspective: 1200px;
+        }
+        .transform-style-3d {
+          transform-style: preserve-3d;
+        }
+        .backface-hidden {
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+          transform: rotateY(180deg);
+        }
+      ` }} />
+
       {/* Circuit lines backdrop overlay */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]" />
       
@@ -131,7 +186,7 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
             </motion.div>
           </div>
 
-          {/* Right Arches Section */}
+          {/* Right Arches Section with 3D Card Flips & Parallax Scroll */}
           <div className="w-full lg:w-[65%] relative">
             
             {/* Curved canopy ring projection */}
@@ -140,47 +195,107 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards }: PremiumHe
             {/* Metallic stage base reflection */}
             <div className="absolute bottom-[-20px] left-1/2 -translate-x-1/2 w-[110%] h-[70px] bg-gradient-to-t from-slate-950 via-slate-900/10 to-transparent rounded-[100%] border-t border-indigo-500/10 shadow-[0_-8px_20px_rgba(99,102,241,0.03)] pointer-events-none z-20" />
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 h-[480px] md:h-[540px] relative z-10">
-              {columns.map((col, index) => (
-                <motion.div
-                  key={col.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  onClick={() => onNavigate(col.page)}
-                  className={`group relative h-full rounded-t-[85px] rounded-b-[20px] md:rounded-t-[100px] md:rounded-b-[24px] overflow-hidden border bg-slate-950/40 backdrop-blur-sm transition-all duration-500 flex flex-col justify-between cursor-pointer ${col.borderStyle} ${col.glowColor}`}
-                >
-                  {/* Column Image */}
-                  <img
-                    src={col.image}
-                    alt={`${col.title} ${col.subtitle}`}
-                    className="absolute inset-0 w-full h-full object-cover transform duration-700 group-hover:scale-105"
-                  />
-                  
-                  {/* Shading overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/30 opacity-90 group-hover:opacity-75 transition-opacity duration-300" />
-                  
-                  {/* Glowing header indicators matching the sector theme */}
-                  <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:via-white/30" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 h-[480px] md:h-[540px] relative z-10 perspective-1000">
+              {columns.map((col, index) => {
+                // Generate a custom scroll translation offset per card (creating a staggered float on scroll)
+                const speeds = [-0.07, -0.11, -0.04, -0.09]; // Staggered speed factors
+                const yParallax = useTransform(scrollY, [0, 800], [0, speeds[index] * 180]);
+                const rotateXScroll = useTransform(scrollY, [0, 800], [0, (index % 2 === 0 ? 1 : -1) * 6]);
 
-                  {/* Header text container (Sector names overlay at top) */}
-                  <div className="relative p-4 text-center z-10 w-full pt-8 md:pt-10 select-none">
-                    <h3 className={`text-2xl md:text-3xl font-black tracking-tighter transition-all duration-300 ${col.tagColor}`}>
-                      {col.title}
-                    </h3>
-                    <p className="text-[9px] md:text-[10px] font-extrabold tracking-widest text-slate-100 uppercase mt-1 leading-tight max-w-[85%] mx-auto">
-                      {col.subtitle}
-                    </p>
-                  </div>
+                return (
+                  <motion.div
+                    key={col.id}
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    style={{ y: yParallax, rotateX: rotateXScroll }}
+                    className="relative w-full h-full group"
+                  >
+                    <div className="w-full h-full relative transform-style-3d transition-transform duration-700 group-hover:rotate-y-180">
+                      
+                      {/* CARD FRONT FACE */}
+                      <div className={`absolute inset-0 backface-hidden rounded-t-[85px] rounded-b-[20px] md:rounded-t-[100px] md:rounded-b-[24px] overflow-hidden border bg-slate-950/40 backdrop-blur-sm transition-all duration-500 flex flex-col justify-between cursor-pointer ${col.borderStyle} ${col.glowColor}`}>
+                        
+                        {/* Column Image */}
+                        <img
+                          src={col.image}
+                          alt={`${col.title} ${col.subtitle}`}
+                          className="absolute inset-0 w-full h-full object-cover transform duration-700 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                        
+                        {/* Shading overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/30 opacity-90 group-hover:opacity-75 transition-opacity duration-300" />
+                        
+                        {/* Glowing header indicators matching the sector theme */}
+                        <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:via-white/30" />
 
-                  {/* Footer call-to-action */}
-                  <div className="relative p-5 z-10 w-full flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pb-6">
-                    <span className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-bold tracking-widest text-white uppercase border border-white/10">
-                      Explore
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
+                        {/* Header text container (Sector names overlay at top) */}
+                        <div className="relative p-4 text-center z-10 w-full pt-8 md:pt-10 select-none">
+                          <h3 className={`text-2xl md:text-3xl font-black tracking-tighter transition-all duration-300 ${col.tagColor}`}>
+                            {col.title}
+                          </h3>
+                          <p className="text-[9px] md:text-[10px] font-extrabold tracking-widest text-slate-100 uppercase mt-1 leading-tight max-w-[85%] mx-auto">
+                            {col.subtitle}
+                          </p>
+                        </div>
+
+                        {/* Footer call-to-action */}
+                        <div className="relative p-5 z-10 w-full flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pb-6">
+                          <span className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-bold tracking-widest text-white uppercase border border-white/10">
+                            Explore
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* CARD BACK FACE */}
+                      <div
+                        onClick={() => onNavigate(col.page)}
+                        className={`absolute inset-0 backface-hidden rotate-y-180 rounded-t-[85px] rounded-b-[20px] md:rounded-t-[100px] md:rounded-b-[24px] overflow-hidden border bg-[#0e0f14] border-purple-500/25 p-5 md:p-6 flex flex-col justify-between cursor-pointer select-none transition-all duration-300 hover:border-purple-400`}
+                      >
+                        {/* Decorative grid pattern backdrop */}
+                        <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:12px_12px]" />
+
+                        {/* Header metadata */}
+                        <div className="relative space-y-1 text-center">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider ${col.badgeColor}`}>
+                            {col.subtitle}
+                          </span>
+                          <h4 className="text-xl font-bold tracking-tight text-white mt-1.5">
+                            {col.title}
+                          </h4>
+                          <div className="h-[2px] w-8 bg-purple-500/40 mx-auto rounded-full mt-2" />
+                        </div>
+
+                        {/* Middle Bullet Lists */}
+                        <ul className="relative space-y-2.5 my-auto">
+                          {col.services.map((svc, i) => (
+                            <li key={i} className="flex items-start gap-2 text-left">
+                              <CheckCircle2 size={13} className="text-purple-400 shrink-0 mt-0.5" />
+                              <span className="text-[10px] md:text-[11px] leading-tight font-medium text-slate-300 tracking-wide">
+                                {svc}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        {/* Footer call-to-action */}
+                        <div className="relative space-y-2 text-center pt-2">
+                          <div className="text-[9px] font-mono text-purple-300/80 font-bold uppercase tracking-widest bg-purple-950/40 py-1 rounded-lg">
+                            {col.metric}
+                          </div>
+                          <span className="w-full flex items-center justify-center gap-1 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-[10px] font-bold uppercase tracking-wider text-white transition-colors">
+                            <span>Explore Page</span>
+                            <ArrowRight size={10} />
+                          </span>
+                        </div>
+
+                      </div>
+
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
 

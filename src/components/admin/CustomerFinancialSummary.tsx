@@ -250,7 +250,7 @@ export default function CustomerFinancialSummary({
                         color: isDarkMode ? '#f8fafc' : '#0f172a',
                         fontSize: '11px'
                       }}
-                      formatter={(value: number) => [`Rs. ${value.toLocaleString()}`, '']}
+                      formatter={(value: any) => [`Rs. ${value?.toLocaleString() || 0}`, '']}
                     />
                     <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
                     <Bar dataKey="paid" name="Paid Amount" stackId="a" fill="#10b981" />
@@ -296,7 +296,7 @@ export default function CustomerFinancialSummary({
                           color: isDarkMode ? '#f8fafc' : '#0f172a',
                           fontSize: '11px'
                         }}
-                        formatter={(value: number) => [`Rs. ${value.toLocaleString()}`, 'Total Value']}
+                        formatter={(value: any) => [`Rs. ${value?.toLocaleString() || 0}`, 'Total Value']}
                       />
                     </PieChart>
                   </ResponsiveContainer>

@@ -1,5 +1,3 @@
-import { getFirestoreClient } from '../firebaseClient';
-import { doc, setDoc, collection, getDocs } from 'firebase/firestore';
 import { COMPANY_CONTACT, SERVICES_LIST, DECORATION_CATEGORIES, DECORATION_GALLERY, PHOTO_PORTFOLIO, PHOTO_PRICING, ERP_MODULES, IT_PROJECTS, CLIENT_TESTIMONIALS } from '../data';
 import { 
   Leader, ServiceCard, DecorationCategory, PhotoPortfolioItem, ItProject, Testimonial, 

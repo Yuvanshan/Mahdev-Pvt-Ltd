@@ -12,7 +12,6 @@ import {
 import { getBookings } from '../../utils/storage';
 import CustomerFinancialSummary from './CustomerFinancialSummary';
 import { optimizeImageBeforeUpload } from '../../utils/mediaOptimizer';
-import { uploadFileToFirebase } from '../../firebaseClient';
 
 interface CRMModuleProps {
   isDarkMode: boolean;

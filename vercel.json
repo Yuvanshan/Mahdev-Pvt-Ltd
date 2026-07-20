@@ -2,16 +2,9 @@
   "version": 2,
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm ci",
   "framework": "vite",
   "outputDirectory": "dist",
   "env": {
-    "VITE_FIREBASE_API_KEY": "",
-    "VITE_FIREBASE_AUTH_DOMAIN": "",
-    "VITE_FIREBASE_PROJECT_ID": "",
-    "VITE_FIREBASE_STORAGE_BUCKET": "",
-    "VITE_FIREBASE_MESSAGING_SENDER_ID": "",
-    "VITE_FIREBASE_APP_ID": "",
     "VITE_ADMIN_PASSWORD": "Yuvan@1709",
     "VITE_ADMIN_USERNAME": "Yuvanshan875@gmail.com"
   },
@@ -51,14 +44,11 @@
       ]
     }
   ],
-  "redirects": [
-    {
-      "source": "/old-page",
-      "destination": "/",
-      "permanent": true
-    }
-  ],
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.ts"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

@@ -1,13 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import { onSnapshot, DocumentData } from 'firebase/firestore';
-import { getImageStateDocRef } from '../../../firebaseClient';
+import { useEffect, useState } from 'react';
 
 export type ImageStateDoc = {
   version: number;
   updatedAt: string;
-  // Stores content image URLs for the website.
-  // Example keys: brandLogo, decorationBanner, photographyBanner, itBanner, travelsBanner, weddingDecorationBanner,
-  // plus arrays like photoPortfolio, decorationGallery, leadershipTeam (if you want to extend).
   website: {
     brandLogo?: string;
     decorationBanner?: string;
@@ -28,8 +23,6 @@ function normalizeUrl(url: unknown) {
   if (typeof url !== 'string') return undefined;
   const v = url.trim();
   if (!v) return undefined;
-  // Ensure cache-busting is always honored: append ?v=<updatedAtEpoch> if not present.
-  // We avoid double ? by appending with correct separator.
   return v;
 }
 
@@ -38,67 +31,62 @@ export function useRealtimeImageState() {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
 
-  const docRefPromise = useMemo(() => getImageStateDocRef(), []);
-
   useEffect(() => {
-    let unsub: (() => void) | null = null;
     let cancelled = false;
+    let timerId: NodeJS.Timeout | null = null;
 
-    async function start() {
+    async function fetchImageState() {
       try {
-        const docRef = await docRefPromise;
+        const response = await fetch('/api/get-all-data', {
+          headers: { 'Accept': 'application/json' },
+          signal: AbortSignal.timeout(5000),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const db = await response.json();
         if (cancelled) return;
 
-        unsub = onSnapshot(
-          docRef,
-          (snap) => {
-            const raw = snap.exists() ? (snap.data() as DocumentData) : null;
-            if (!raw) {
-              setData(DEFAULT_DOC);
-              setStatus('ready');
-              return;
-            }
+        const value = db?.mahdev_image_state_v1;
 
-            // Expected format from server: { data: value, updatedAt: ... }
-            const value = raw?.data ?? raw;
+        if (value) {
+          const next: ImageStateDoc = {
+            version: typeof value?.version === 'number' ? value.version : 1,
+            updatedAt: typeof value?.updatedAt === 'string' ? value.updatedAt : new Date().toISOString(),
+            website: value?.website ?? {},
+          };
 
-            const next: ImageStateDoc = {
-              version: typeof value?.version === 'number' ? value.version : 1,
-              updatedAt: typeof value?.updatedAt === 'string' ? value.updatedAt : new Date().toISOString(),
-              website: value?.website ?? {},
-            };
-
-            setData({
-              ...next,
-              website: {
-                brandLogo: normalizeUrl(next.website.brandLogo),
-                decorationBanner: normalizeUrl(next.website.decorationBanner),
-                photographyBanner: normalizeUrl(next.website.photographyBanner),
-                itBanner: normalizeUrl(next.website.itBanner),
-                travelsBanner: normalizeUrl(next.website.travelsBanner),
-                weddingDecorationBanner: normalizeUrl(next.website.weddingDecorationBanner),
-              },
-            });
-            setStatus('ready');
-          },
-          (e) => {
-            setStatus('error');
-            setError(e?.message || String(e));
-          }
-        );
+          setData({
+            ...next,
+            website: {
+              brandLogo: normalizeUrl(next.website.brandLogo),
+              decorationBanner: normalizeUrl(next.website.decorationBanner),
+              photographyBanner: normalizeUrl(next.website.photographyBanner),
+              itBanner: normalizeUrl(next.website.itBanner),
+              travelsBanner: normalizeUrl(next.website.travelsBanner),
+              weddingDecorationBanner: normalizeUrl(next.website.weddingDecorationBanner),
+            },
+          });
+        }
+        setStatus('ready');
+        setError(null);
       } catch (e: any) {
-        setStatus('error');
-        setError(e?.message || String(e));
+        if (cancelled) return;
+        setStatus('ready'); // Graceful fallback to default
       }
     }
 
-    start();
+    fetchImageState();
+    // Poll state periodically every 15s to keep UI updated
+    timerId = setInterval(fetchImageState, 15000);
+
     return () => {
       cancelled = true;
-      if (unsub) unsub();
+      if (timerId) clearInterval(timerId);
     };
-  }, [docRefPromise]);
+  }, []);
 
   return { imageState: data, status, error };
 }
-

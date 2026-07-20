@@ -43,7 +43,6 @@ import {
 // Branding Updater
 import { updateBranding } from './utils/brandingUpdater';
 import { useRealtimeImageState } from './architecture/presentation/hooks/useRealtimeImageState';
-import { listenToAllCloudDbUpdates } from './firebaseClient';
 
 // Logo
 import mahadevLogo from './assets/images/mahadev_logo_1782729909050.jpg';
@@ -203,29 +202,26 @@ export default function App() {
     };
   }, []);
 
-  // Real-time synchronization listener
+  // Periodic server database synchronization listener
   useEffect(() => {
-    let unsub: (() => void) | null = null;
     let cancelled = false;
 
-    async function initRealtimeSync() {
+    async function syncRealtimeState() {
       try {
-        unsub = await listenToAllCloudDbUpdates((key, value) => {
-          if (cancelled) return;
-          console.log(`[Realtime Sync] Received cloud update for key: ${key}`);
-          localStorage.setItem(key, JSON.stringify(value));
+        const success = await hydrateDatabaseFromServer();
+        if (success && !cancelled) {
           handleDataChange();
-        });
+        }
       } catch (err) {
-        console.error('Failed to initialize real-time cloud sync listener:', err);
+        // Quiet fallback
       }
     }
 
-    initRealtimeSync();
+    const interval = setInterval(syncRealtimeState, 20000);
 
     return () => {
       cancelled = true;
-      if (unsub) unsub();
+      clearInterval(interval);
     };
   }, []);
 

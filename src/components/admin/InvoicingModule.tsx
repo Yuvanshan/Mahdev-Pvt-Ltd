@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { Invoice, InvoiceItem, PaymentRecord, Customer, Company, InvoiceLog, CompanyProfile } from '../../types';
 import { optimizeImageBeforeUpload } from '../../utils/mediaOptimizer';
-import { uploadFileToFirebase } from '../../firebaseClient';
 
 interface InvoicingModuleProps {
   isDarkMode: boolean;

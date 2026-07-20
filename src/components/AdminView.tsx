@@ -38,9 +38,6 @@ import {
   getEmployees, saveEmployees
 } from '../utils/storage';
 import { optimizeImageBeforeUpload, formatBytes } from '../utils/mediaOptimizer';
-import { getFirebaseStorage, getFirestoreClient, uploadFileToFirebase } from '../firebaseClient';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { ServiceCard, PhotoPortfolioItem, ItProject, Leader, Testimonial, DecorationGalleryItem, RentalItem, ThemeSettings, Booking, TravelsVehicle, TravelsTour, SeoSettings, SmtpSettings, SmtpTemplate } from '../types';
 
 function adjustHex(hex: string, percent: number): string {

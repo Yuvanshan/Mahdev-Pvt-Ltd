@@ -182,9 +182,8 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, the
       <motion.section
         ref={heroRef}
         style={{ opacity: heroOpacity }}
-        className={`relative w-full overflow-hidden pt-10 pb-16 lg:pt-16 lg:pb-20 min-h-[95vh] flex flex-col justify-between ${
-          isDarkMode ? 'bg-[#06070a]' : 'bg-[#f4f3f8]'
-        }`}
+        className={`relative w-full overflow-hidden pt-24 sm:pt-28 lg:pt-32 pb-16 lg:pb-20 min-h-[95vh] flex flex-col justify-between ${isDarkMode ? 'bg-[#06070a]' : 'bg-[#f4f3f8]'
+          }`}
       >
         {/* ── PARALLAX CYBER GRID (fastest layer) ── */}
         <motion.div
@@ -233,9 +232,8 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, the
                   initial={{ opacity: 0, y: 40 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-                  className={`text-4xl sm:text-5xl lg:text-[3.8rem] font-black tracking-tight leading-[1.05] ${
-                    isDarkMode ? 'text-white' : 'text-slate-950'
-                  }`}
+                  className={`text-4xl sm:text-5xl lg:text-[3.8rem] font-black tracking-tight leading-[1.05] ${isDarkMode ? 'text-white' : 'text-slate-950'
+                    }`}
                 >
                   {themeSettings?.heroTitle1 || 'Building Experiences.'}
                 </motion.h1>
@@ -254,9 +252,8 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, the
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                className={`text-base sm:text-lg max-w-xl leading-relaxed ${
-                  isDarkMode ? 'text-slate-300' : 'text-slate-700'
-                }`}
+                className={`text-base sm:text-lg max-w-xl leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-slate-700'
+                  }`}
               >
                 {themeSettings?.heroDescription ||
                   'We deliver next-generation solutions that empower businesses, elevate brands, and create unforgettable experiences.'}
@@ -283,11 +280,10 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, the
                   whileHover={{ scale: 1.04, y: -2 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setIsVideoModalOpen(true)}
-                  className={`px-6 py-3.5 rounded-full border backdrop-blur-md text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 cursor-pointer ${
-                    isDarkMode
+                  className={`px-6 py-3.5 rounded-full border backdrop-blur-md text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 cursor-pointer ${isDarkMode
                       ? 'border-slate-700/80 bg-slate-900/60 text-slate-200 hover:bg-slate-800/80 hover:border-purple-500/40'
                       : 'border-slate-300 bg-white/80 text-slate-800 hover:bg-slate-100'
-                  }`}
+                    }`}
                 >
                   <div className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center">
                     <Play size={11} className="fill-purple-400 ml-0.5" />
@@ -384,11 +380,10 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, the
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className={`grid grid-cols-2 md:grid-cols-4 gap-4 p-4 sm:p-5 rounded-2xl border backdrop-blur-xl shadow-2xl ${
-              isDarkMode
+            className={`grid grid-cols-2 md:grid-cols-4 gap-4 p-4 sm:p-5 rounded-2xl border backdrop-blur-xl shadow-2xl ${isDarkMode
                 ? 'bg-slate-950/70 border-purple-500/20'
                 : 'bg-white/80 border-slate-200 shadow-purple-500/5'
-            }`}
+              }`}
           >
             {stats.map((st, i) => (
               <motion.div

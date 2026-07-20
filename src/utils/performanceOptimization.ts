@@ -214,39 +214,34 @@ export function scheduleAnimationFrames(
 }
 
 /**
- * Cache manager for localStorage
+ * In-memory cache manager — no localStorage
  */
+const _memCache = new Map<string, { value: any; timestamp: number; ttl: number }>();
+
 export const cacheManager = {
   set: (key: string, value: any, ttl: number = 3600000) => {
-    const data = {
-      value,
-      timestamp: Date.now(),
-      ttl
-    };
-    localStorage.setItem(key, JSON.stringify(data));
+    _memCache.set(key, { value, timestamp: Date.now(), ttl });
   },
 
   get: (key: string): any => {
-    const data = localStorage.getItem(key);
-    if (!data) return null;
-
-    const parsed = JSON.parse(data);
-    if (Date.now() - parsed.timestamp > parsed.ttl) {
-      localStorage.removeItem(key);
+    const entry = _memCache.get(key);
+    if (!entry) return null;
+    if (Date.now() - entry.timestamp > entry.ttl) {
+      _memCache.delete(key);
       return null;
     }
-
-    return parsed.value;
+    return entry.value;
   },
 
   remove: (key: string) => {
-    localStorage.removeItem(key);
+    _memCache.delete(key);
   },
 
   clear: () => {
-    localStorage.clear();
+    _memCache.clear();
   }
 };
+
 
 /**
  * Font loading optimization

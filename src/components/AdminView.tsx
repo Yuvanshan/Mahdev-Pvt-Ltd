@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Lock, Unlock, Settings, Mail, Phone, MapPin, Clock, Sparkles,
@@ -35,7 +35,13 @@ import {
   getPayments, savePayments,
   getExpenses, saveExpenses,
   getIncomes, saveIncomes,
-  getEmployees, saveEmployees
+  getEmployees, saveEmployees,
+  fetchAllFromCloud,
+  parseThemeSettings,
+  DEFAULT_SMTP_SETTINGS,
+  DEFAULT_SMTP_TEMPLATES,
+  DEFAULT_SEO_SETTINGS,
+  KEYS
 } from '../utils/storage';
 import { optimizeImageBeforeUpload, formatBytes } from '../utils/mediaOptimizer';
 import { ServiceCard, PhotoPortfolioItem, ItProject, Leader, Testimonial, DecorationGalleryItem, RentalItem, ThemeSettings, Booking, TravelsVehicle, TravelsTour, SeoSettings, SmtpSettings, SmtpTemplate } from '../types';
@@ -398,10 +404,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
   const [testRecipient, setTestRecipient] = useState<string>('yuvanshan875@gmail.com');
   const [isSendingTest, setIsSendingTest] = useState<boolean>(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string; details?: string } | null>(null);
-  const [smtpLogs, setSmtpLogs] = useState<{ id: string; timestamp: string; action: string; details: string; user: string }[]>(() => {
-    const stored = localStorage.getItem('mahdev_smtp_logs');
-    return stored ? JSON.parse(stored) : [];
-  });
+  const [smtpLogs, setSmtpLogs] = useState<{ id: string; timestamp: string; action: string; details: string; user: string }[]>([]);
   const [emailSubTab, setEmailSubTab] = useState<'config' | 'templates' | 'logs' | 'cloud_storage' | 'media_library' | 'backups'>('config');
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -420,6 +423,43 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
   });
   const [mediaItems, setMediaItems] = useState<any[]>([]);
   const [backupsList, setBackupsList] = useState<any[]>([]);
+  // Stores the full server DB — passed to EnterpriseHub as initialData
+  const initialDataRef = useRef<Record<string, any>>({});
+
+
+  // ── CLOUD HYDRATION ── Load all data from server on mount (no localStorage)
+  useEffect(() => {
+    let cancelled = false;
+    async function hydrateFromCloud() {
+      try {
+        const db = await fetchAllFromCloud();
+        if (cancelled) return;
+        if (db[KEYS.CONTACT])           setContact(db[KEYS.CONTACT]);
+        if (db[KEYS.SERVICES])          setServices(db[KEYS.SERVICES]);
+        if (db[KEYS.PHOTO_PORTFOLIO])   setPhotoPortfolio(db[KEYS.PHOTO_PORTFOLIO]);
+        if (db[KEYS.PHOTO_PRICING])     setPhotoPricing(db[KEYS.PHOTO_PRICING]);
+        if (db[KEYS.IT_PROJECTS])       setItProjects(db[KEYS.IT_PROJECTS]);
+        if (db[KEYS.LEADERSHIP])        setLeaders(db[KEYS.LEADERSHIP]);
+        if (db[KEYS.TESTIMONIALS])      setTestimonials(db[KEYS.TESTIMONIALS]);
+        if (db[KEYS.DECOR_GALLERY])     setDecorGallery(db[KEYS.DECOR_GALLERY]);
+        if (db[KEYS.RENTAL_ITEMS])      setRentalItems(db[KEYS.RENTAL_ITEMS]);
+        if (db[KEYS.THEME_SETTINGS])    setTheme(parseThemeSettings(db[KEYS.THEME_SETTINGS]));
+        if (db[KEYS.TRAVELS_VEHICLES])  setTravelsVehicles(db[KEYS.TRAVELS_VEHICLES]);
+        if (db[KEYS.TRAVELS_TOURS])     setTravelsTours(db[KEYS.TRAVELS_TOURS]);
+        if (db[KEYS.SEO_SETTINGS])      setSeo({ ...DEFAULT_SEO_SETTINGS, ...db[KEYS.SEO_SETTINGS] });
+        if (db[KEYS.SMTP_SETTINGS])     setSmtpSettings({ ...DEFAULT_SMTP_SETTINGS, ...db[KEYS.SMTP_SETTINGS] });
+        if (db[KEYS.SMTP_TEMPLATES] && Array.isArray(db[KEYS.SMTP_TEMPLATES]) && db[KEYS.SMTP_TEMPLATES].length > 0) {
+          setSmtpTemplates(db[KEYS.SMTP_TEMPLATES]);
+        }
+        // EnterpriseHub-managed data stored in a ref, passed as initialData
+        initialDataRef.current = db;
+      } catch (err) {
+        console.warn('[AdminView] Cloud hydration error:', err);
+      }
+    }
+    hydrateFromCloud();
+    return () => { cancelled = true; };
+  }, []);
 
   const [isStorageLoading, setIsStorageLoading] = useState(false);
   const [isMediaLoading, setIsMediaLoading] = useState(false);
@@ -829,7 +869,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
     };
     const updatedLogs = [newLog, ...smtpLogs];
     setSmtpLogs(updatedLogs);
-    localStorage.setItem('mahdev_smtp_logs', JSON.stringify(updatedLogs));
+    // Logs are kept in-memory only (no localStorage)
   };
 
   const handleProviderChange = (provider: 'gmail' | 'brevo' | 'mailjet' | 'zoho' | 'custom') => {
@@ -4525,7 +4565,6 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                         type="button"
                         onClick={() => {
                           setSmtpLogs([]);
-                          localStorage.removeItem('mahdev_smtp_logs');
                           alert('Audit history cleared successfully!');
                         }}
                         className="px-3 py-1.5 rounded bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/10 text-[10px] font-semibold transition-all cursor-pointer"

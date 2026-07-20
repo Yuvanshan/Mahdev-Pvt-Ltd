@@ -24,7 +24,7 @@ import ItSolutionsView from './components/ItSolutionsView';
 import ContactView from './components/ContactView';
 const AdminView = lazy(() => import('./components/AdminView'));
 
-// Storage Utility Loaders
+// Storage Utility Loaders — zero localStorage
 import {
   getCompanyContact,
   getDecorationGallery,
@@ -37,7 +37,11 @@ import {
   getSeoSettings,
   getThemeSettings,
   getTestimonials,
-  hydrateDatabaseFromServer
+  fetchAllFromCloud,
+  parseThemeSettings,
+  DEFAULT_SEO_SETTINGS,
+  DEFAULT_THEME_SETTINGS,
+  KEYS
 } from './utils/storage';
 
 // Branding Updater
@@ -118,18 +122,30 @@ export default function App() {
       project.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Load ALL data from the cloud API — no localStorage
   useEffect(() => {
-    setCompanyContact(getCompanyContact());
-    setServicesList(getServicesList());
-    setPhotoPortfolio(getPhotoPortfolio());
-    setPhotoPricing(getPhotoPricing());
-    setItProjects(getItProjects());
-    setLeaders(getLeadershipTeam());
-    setTestimonials(getTestimonials());
-    setDecorationGallery(getDecorationGallery());
-    setRentalItems(getRentalItems());
-    setThemeSettings(getThemeSettings());
-    setSeoSettings(getSeoSettings());
+    let cancelled = false;
+    async function loadFromCloud() {
+      try {
+        const db = await fetchAllFromCloud();
+        if (cancelled) return;
+        if (db[KEYS.CONTACT])           setCompanyContact(db[KEYS.CONTACT]);
+        if (db[KEYS.SERVICES])          setServicesList(db[KEYS.SERVICES]);
+        if (db[KEYS.PHOTO_PORTFOLIO])   setPhotoPortfolio(db[KEYS.PHOTO_PORTFOLIO]);
+        if (db[KEYS.PHOTO_PRICING])     setPhotoPricing(db[KEYS.PHOTO_PRICING]);
+        if (db[KEYS.IT_PROJECTS])       setItProjects(db[KEYS.IT_PROJECTS]);
+        if (db[KEYS.LEADERSHIP])        setLeaders(db[KEYS.LEADERSHIP]);
+        if (db[KEYS.TESTIMONIALS])      setTestimonials(db[KEYS.TESTIMONIALS]);
+        if (db[KEYS.DECOR_GALLERY])     setDecorationGallery(db[KEYS.DECOR_GALLERY]);
+        if (db[KEYS.RENTAL_ITEMS])      setRentalItems(db[KEYS.RENTAL_ITEMS]);
+        if (db[KEYS.THEME_SETTINGS])    setThemeSettings(parseThemeSettings(db[KEYS.THEME_SETTINGS]));
+        if (db[KEYS.SEO_SETTINGS])      setSeoSettings({ ...DEFAULT_SEO_SETTINGS, ...db[KEYS.SEO_SETTINGS] });
+      } catch (err) {
+        console.warn('[App] Cloud load error — using defaults:', err);
+      }
+    }
+    loadFromCloud();
+    return () => { cancelled = true; };
   }, [dataRefreshTrigger]);
 
   const handleDataChange = () => {
@@ -177,52 +193,12 @@ export default function App() {
     };
   }, [imageState.updatedAt, imageState.website]);
 
-  // Server-backed dynamic database hydration on app mount
+  // Periodic live sync — re-fetch from cloud every 25 seconds
   useEffect(() => {
-    let cancelled = false;
-
-    async function syncInBackground() {
-      try {
-        const success = await hydrateDatabaseFromServer();
-        if (cancelled) return;
-
-        if (success) {
-          handleDataChange();
-          window.dispatchEvent(new Event('mahdev-db-synced'));
-        }
-      } catch (err) {
-        console.error('Failed to hydrate database in background:', err);
-      }
-    }
-
-    syncInBackground();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Periodic server database synchronization listener
-  useEffect(() => {
-    let cancelled = false;
-
-    async function syncRealtimeState() {
-      try {
-        const success = await hydrateDatabaseFromServer();
-        if (success && !cancelled) {
-          handleDataChange();
-        }
-      } catch (err) {
-        // Quiet fallback
-      }
-    }
-
-    const interval = setInterval(syncRealtimeState, 20000);
-
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
+    const interval = setInterval(() => {
+      setDataRefreshTrigger(prev => prev + 1);
+    }, 25000);
+    return () => clearInterval(interval);
   }, []);
 
   // Dynamic URL hash and path routing listener

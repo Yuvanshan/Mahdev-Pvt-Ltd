@@ -17,7 +17,8 @@ import {
   getInvoices, saveInvoices, getPayments, savePayments, 
   getExpenses, saveExpenses, getIncomes, saveIncomes, 
   getEmployees, saveEmployees, getCompanyProfile, saveCompanyProfile,
-  getSeoSettings, saveSeoSettings, getThemeSettings, saveThemeSettings
+  getSeoSettings, saveSeoSettings, getThemeSettings, saveThemeSettings,
+  fetchAllFromCloud, DEFAULT_SEO_SETTINGS, parseThemeSettings, KEYS
 } from '../../utils/storage';
 import CRMModule from './CRMModule';
 import InvoicingModule from './InvoicingModule';
@@ -82,7 +83,34 @@ export default function EnterpriseHub({ isDarkMode, onDataChange, activeTab }: E
   // Active Document Viewer (Quotation/Invoice printable modal)
   const [activeDoc, setActiveDoc] = useState<{ type: 'quotation' | 'invoice' | 'receipt'; data: any } | null>(null);
 
-  // Sync to local storage and trigger global state refresh
+  // ── CLOUD HYDRATION ── no localStorage
+  useEffect(() => {
+    let cancelled = false;
+    async function loadFromCloud() {
+      try {
+        const db = await fetchAllFromCloud();
+        if (cancelled) return;
+        if (db[KEYS.CUSTOMERS])         setCustomers(db[KEYS.CUSTOMERS]);
+        if (db[KEYS.COMPANIES])         setCompanies(db[KEYS.COMPANIES]);
+        if (db[KEYS.ERP_PROJECTS])      setProjects(db[KEYS.ERP_PROJECTS]);
+        if (db[KEYS.QUOTATIONS])        setQuotations(db[KEYS.QUOTATIONS]);
+        if (db[KEYS.INVOICES])          setInvoices(db[KEYS.INVOICES]);
+        if (db[KEYS.PAYMENTS])          setPayments(db[KEYS.PAYMENTS]);
+        if (db[KEYS.EXPENSES])          setExpenses(db[KEYS.EXPENSES]);
+        if (db[KEYS.INCOMES])           setIncomes(db[KEYS.INCOMES]);
+        if (db[KEYS.EMPLOYEES])         setEmployees(db[KEYS.EMPLOYEES]);
+        if (db[KEYS.COMPANY_PROFILE])   setProfile(db[KEYS.COMPANY_PROFILE]);
+        if (db[KEYS.SEO_SETTINGS])      setSeo({ ...DEFAULT_SEO_SETTINGS, ...db[KEYS.SEO_SETTINGS] });
+        if (db[KEYS.THEME_SETTINGS])    setTheme(parseThemeSettings(db[KEYS.THEME_SETTINGS]));
+      } catch (err) {
+        console.warn('[EnterpriseHub] Cloud hydration error:', err);
+      }
+    }
+    loadFromCloud();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Sync state and save to cloud
   const syncDatabase = (type: string, updatedData: any) => {
     switch (type) {
       case 'customers':

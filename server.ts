@@ -545,7 +545,144 @@ app.post("/api/save-data-key", async (req, res) => {
   }
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  ENQUIRY API — Public form submission, auto-email, admin tracking
+// ─────────────────────────────────────────────────────────────────────────────
+
+app.post("/api/enquiry", async (req, res) => {
+  try {
+    const {
+      name, phone, email, eventType, eventDate,
+      location, packageRequired, message, brand, itemId, itemTitle
+    } = req.body;
+
+    if (!name || !phone) {
+      return res.status(400).json({ error: "Name and phone are required." });
+    }
+
+    const db = await getCloudDb();
+    const enquiriesList = Array.isArray(db["mahdev_enquiries_list"]) ? db["mahdev_enquiries_list"] : [];
+
+    const newEnquiry = {
+      id: `enq-${Date.now()}`,
+      name: name || "",
+      phone: phone || "",
+      email: email || "",
+      eventType: eventType || "",
+      eventDate: eventDate || "",
+      location: location || "",
+      packageRequired: packageRequired || "",
+      message: message || "",
+      brand: brand || "General",
+      status: "New",
+      createdAt: new Date().toISOString(),
+      itemId: itemId || "",
+      itemTitle: itemTitle || ""
+    };
+
+    enquiriesList.unshift(newEnquiry);
+    await saveCloudKey("mahdev_enquiries_list", enquiriesList);
+
+    // Auto-send notification email
+    try {
+      const smtpResult = await getSmtpTransporter(db);
+      if (smtpResult) {
+        const itemInfo = itemTitle ? `\nItem/Service: ${itemTitle}` : "";
+        const emailBody = `
+========================================
+  MAHDEV PVT LTD - NEW ENQUIRY RECEIVED
+========================================
+
+ENQUIRY ID: ${newEnquiry.id}
+DIVISION:   ${brand || "General"}
+DATE:       ${new Date().toLocaleString("en-LK", { timeZone: "Asia/Colombo" })}
+
+CUSTOMER DETAILS:
+  Name:     ${name}
+  Phone:    ${phone}
+  Email:    ${email || "Not provided"}
+
+EVENT DETAILS:
+  Event Type:   ${eventType || "Not specified"}
+  Event Date:   ${eventDate || "Not specified"}
+  Location:     ${location || "Not specified"}
+  Package:      ${packageRequired || "Not specified"}${itemInfo}
+
+MESSAGE:
+${message || "(No message provided)"}
+
+========================================
+  Status: NEW — Please follow up ASAP
+========================================
+Action: Log in to Admin Portal > Enquiries
+        to update status and track this enquiry.
+`;
+        await smtpResult.transporter.sendMail({
+          from: `"Mahdev Enquiry System" <${smtpResult.fromEmail}>`,
+          to: smtpResult.fromEmail,
+          subject: `[NEW ENQUIRY] ${brand || "General"} — ${name} — ${eventType || "General Inquiry"}`,
+          text: emailBody,
+          replyTo: email || smtpResult.replyToEmail
+        });
+        console.log(`[Enquiry API] Email notification sent for enquiry ${newEnquiry.id}`);
+      }
+    } catch (emailErr) {
+      console.warn("[Enquiry API] Email notification failed (non-critical):", emailErr);
+    }
+
+    return res.json({ success: true, enquiry: newEnquiry });
+  } catch (error: any) {
+    console.error("[Enquiry API] Error:", error);
+    return res.status(500).json({ error: "Failed to submit enquiry." });
+  }
+});
+
+app.get("/api/enquiries", async (req, res) => {
+  try {
+    const db = await getCloudDb();
+    const enquiries = Array.isArray(db["mahdev_enquiries_list"]) ? db["mahdev_enquiries_list"] : [];
+    return res.json(enquiries);
+  } catch (error) {
+    console.error("[Enquiry API] List failed:", error);
+    return res.status(500).json({ error: "Failed to load enquiries." });
+  }
+});
+
+app.patch("/api/enquiry/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!status) return res.status(400).json({ error: "Missing status field." });
+
+    const db = await getCloudDb();
+    const enquiries = Array.isArray(db["mahdev_enquiries_list"]) ? db["mahdev_enquiries_list"] : [];
+    const idx = enquiries.findIndex((e: any) => e.id === id);
+    if (idx === -1) return res.status(404).json({ error: "Enquiry not found." });
+    enquiries[idx].status = status;
+    await saveCloudKey("mahdev_enquiries_list", enquiries);
+    return res.json({ success: true, enquiry: enquiries[idx] });
+  } catch (error) {
+    console.error("[Enquiry API] Update failed:", error);
+    return res.status(500).json({ error: "Failed to update enquiry status." });
+  }
+});
+
+app.delete("/api/enquiry/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = await getCloudDb();
+    const enquiries = Array.isArray(db["mahdev_enquiries_list"]) ? db["mahdev_enquiries_list"] : [];
+    const filtered = enquiries.filter((e: any) => e.id !== id);
+    await saveCloudKey("mahdev_enquiries_list", filtered);
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("[Enquiry API] Delete failed:", error);
+    return res.status(500).json({ error: "Failed to delete enquiry." });
+  }
+});
+
 // API route to send emails automatically and save booking
+
 app.post("/api/send-email", async (req, res) => {
   try {
     const {

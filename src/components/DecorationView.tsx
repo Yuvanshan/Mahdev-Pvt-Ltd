@@ -8,12 +8,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Heart, Gift, Briefcase, Sparkles, Home, Sun, Star, 
   Phone, MessageSquare, Calendar, Users, Mail, User, CheckCircle2,
-  Search, Layers, Info, ShoppingBag, Plus, Minus, Trash2
+  Search, Layers, Info, ShoppingBag, Plus, Minus, Trash2,
+  ChevronLeft, ChevronRight, X, MapPin, Clock, DollarSign, CheckCircle, Eye, Tag
 } from 'lucide-react';
 import { DECORATION_CATEGORIES, DECORATION_GALLERY, CLIENT_TESTIMONIALS, COMPANY_CONTACT } from '../data';
 import { BookingDetails, DecorationGalleryItem, RentalItem, ThemeSettings } from '../types';
 import { addBooking } from '../utils/storage';
 import EmailCopySection from './EmailCopySection';
+import EnquiryModal from './EnquiryModal';
 import weddingDecorationBannerAsset from '../assets/images/wedding_decoration_1782729925686.jpg';
 
 interface DecorationViewProps {
@@ -56,6 +58,30 @@ export default function DecorationView({
   // Gallery category filter
   const [selectedFilter, setSelectedFilter] = useState('All');
   const filters = ['All', 'Wedding', 'Birthday', 'Church', 'Corporate', 'Stage', 'Outdoor'];
+
+  // Detail Modal States
+  const [selectedDecorItem, setSelectedDecorItem] = useState<DecorationGalleryItem | null>(null);
+  const [selectedRentalItem, setSelectedRentalItem] = useState<RentalItem | null>(null);
+  const [decorImageIndex, setDecorImageIndex] = useState(0);
+  const [rentalImageIndex, setRentalImageIndex] = useState(0);
+  const [enquiryModal, setEnquiryModal] = useState<{
+    open: boolean;
+    brand: 'SWS';
+    itemId?: string;
+    itemTitle?: string;
+    prefillEventType?: string;
+    prefillPackage?: string;
+  }>({ open: false, brand: 'SWS' });
+
+  const openDecorDetail = (item: DecorationGalleryItem) => {
+    setSelectedDecorItem(item);
+    setDecorImageIndex(0);
+  };
+
+  const openRentalDetail = (item: RentalItem) => {
+    setSelectedRentalItem(item);
+    setRentalImageIndex(0);
+  };
 
   // Rental Inventory States
   const [selectedRentalCategory, setSelectedRentalCategory] = useState('All');
@@ -398,9 +424,11 @@ src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
                   key={item.id}
-                  className={`group rounded-2xl overflow-hidden border ${
-                    isDarkMode ? 'bg-neutral-900/30 border-emerald-500/10' : 'bg-white border-slate-100 shadow-md'
-                  }`}
+                  className={`group rounded-2xl overflow-hidden border cursor-pointer ${
+                    isDarkMode ? 'bg-neutral-900/30 border-emerald-500/10 hover:border-emerald-500/40' : 'bg-white border-slate-100 shadow-md hover:shadow-xl'
+                  } transition-all duration-300`}
+                  onClick={() => openDecorDetail(item)}
+                  whileHover={{ y: -4 }}
                 >
                   <div className="relative h-64 overflow-hidden">
                     <img 
@@ -410,12 +438,24 @@ src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset}
                       referrerPolicy="no-referrer"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
-                      <div>
-                        <span className="text-emerald-400 text-xs font-mono font-bold tracking-wider uppercase">{item.category}</span>
-                        <h4 className="text-white text-base font-bold mt-0.5">{item.title}</h4>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-5">
+                      <span className="text-emerald-400 text-xs font-mono font-bold tracking-wider uppercase">{item.category}</span>
+                      <h4 className="text-white text-base font-bold mt-0.5">{item.title}</h4>
+                      {item.startingPrice && (
+                        <span className="text-emerald-300 text-xs font-semibold mt-1">From {item.startingPrice}</span>
+                      )}
+                    </div>
+                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="w-9 h-9 rounded-full bg-emerald-600/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                        <Eye size={15} className="text-white" />
                       </div>
                     </div>
+                  </div>
+                  <div className={`px-5 py-3 flex items-center justify-between ${isDarkMode ? 'bg-neutral-900/50' : 'bg-slate-50'}`}>
+                    <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      {item.location || 'SWS Events'}
+                    </span>
+                    <span className="text-xs font-bold text-emerald-400">View Details →</span>
                   </div>
                 </motion.div>
               ))}
@@ -985,6 +1025,307 @@ src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset}
         </div>
       </section>
 
+      {/* ─── DECORATION DETAIL MODAL ─── */}
+      <AnimatePresence>
+        {selectedDecorItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center p-4"
+            onClick={() => setSelectedDecorItem(null)}
+          >
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 280 }}
+              className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border border-emerald-500/20 bg-slate-950/98 backdrop-blur-2xl shadow-2xl shadow-emerald-900/20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedDecorItem(null)}
+                className="absolute top-4 right-4 z-20 w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all"
+              >
+                <X size={16} />
+              </button>
+
+              {/* Image Slider */}
+              <div className="relative h-72 sm:h-96 overflow-hidden rounded-t-3xl bg-slate-900">
+                {(() => {
+                  const allImages = [selectedDecorItem.image, ...(selectedDecorItem.images || [])].filter(Boolean);
+                  const idx = Math.min(decorImageIndex, allImages.length - 1);
+                  return (
+                    <>
+                      <img
+                        key={allImages[idx]}
+                        src={allImages[idx]}
+                        alt={selectedDecorItem.title}
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                      {allImages.length > 1 && (
+                        <>
+                          <button
+                            onClick={() => setDecorImageIndex(prev => Math.max(0, prev - 1))}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-black/70 transition-all"
+                          >
+                            <ChevronLeft size={18} />
+                          </button>
+                          <button
+                            onClick={() => setDecorImageIndex(prev => Math.min(allImages.length - 1, prev + 1))}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-black/70 transition-all"
+                          >
+                            <ChevronRight size={18} />
+                          </button>
+                          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                            {allImages.map((_, i) => (
+                              <button
+                                key={i}
+                                onClick={() => setDecorImageIndex(i)}
+                                className={`w-2 h-2 rounded-full transition-all ${i === idx ? 'bg-emerald-400 w-5' : 'bg-white/40'}`}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                    </>
+                  );
+                })()}
+              </div>
+
+              {/* Content */}
+              <div className="p-6 sm:p-8 space-y-6">
+                {/* Title + Category */}
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 font-mono bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                      {selectedDecorItem.category}
+                    </span>
+                    <h2 className="text-2xl font-extrabold text-white mt-2">{selectedDecorItem.title}</h2>
+                  </div>
+                  {selectedDecorItem.startingPrice && (
+                    <div className="text-right shrink-0">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">Starting From</span>
+                      <div className="text-2xl font-extrabold text-emerald-400">{selectedDecorItem.startingPrice}</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Meta Info Row */}
+                <div className="flex flex-wrap gap-3">
+                  {selectedDecorItem.location && (
+                    <span className="flex items-center gap-1.5 text-xs text-slate-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+                      <MapPin size={12} className="text-emerald-400" />{selectedDecorItem.location}
+                    </span>
+                  )}
+                  {selectedDecorItem.dateCompleted && (
+                    <span className="flex items-center gap-1.5 text-xs text-slate-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+                      <Clock size={12} className="text-emerald-400" />{selectedDecorItem.dateCompleted}
+                    </span>
+                  )}
+                </div>
+
+                {/* Description */}
+                {selectedDecorItem.description && (
+                  <p className="text-sm text-slate-300 leading-relaxed">{selectedDecorItem.description}</p>
+                )}
+
+                {/* Features */}
+                {(selectedDecorItem.features || []).length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 font-mono">Decoration Features</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {(selectedDecorItem.features || []).map((f, i) => (
+                        <div key={i} className="flex items-center gap-2.5 text-sm text-slate-200">
+                          <CheckCircle size={14} className="text-emerald-400 shrink-0" />
+                          <span>{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Included Services */}
+                {(selectedDecorItem.includedServices || []).length > 0 && (
+                  <div className="p-4 rounded-2xl border border-emerald-500/15 bg-emerald-500/5">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-3 font-mono">Included Services</h3>
+                    <div className="space-y-1.5">
+                      {(selectedDecorItem.includedServices || []).map((s, i) => (
+                        <div key={i} className="flex items-center gap-2 text-sm text-slate-300">
+                          <span className="text-emerald-400">✓</span>{s}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Add-ons */}
+                {(selectedDecorItem.addons || []).length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 font-mono">Available Add-ons</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {(selectedDecorItem.addons || []).map((a, i) => (
+                        <span key={i} className="text-xs bg-white/5 border border-white/10 text-slate-300 px-3 py-1 rounded-full">
+                          + {a}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* CTA */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      setSelectedDecorItem(null);
+                      setEnquiryModal({ open: true, brand: 'SWS', itemId: selectedDecorItem.id, itemTitle: selectedDecorItem.title, prefillEventType: selectedDecorItem.category });
+                    }}
+                    className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-emerald-600/20"
+                  >
+                    <MessageSquare size={16} />
+                    Send Enquiry
+                  </button>
+                  <a
+                    href={COMPANY_CONTACT.whatsapp}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-white/10 transition-all"
+                  >
+                    <Phone size={16} />
+                    WhatsApp Us
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── RENTAL DETAIL MODAL ─── */}
+      <AnimatePresence>
+        {selectedRentalItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center p-4"
+            onClick={() => setSelectedRentalItem(null)}
+          >
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 280 }}
+              className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-emerald-500/20 bg-slate-950/98 backdrop-blur-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setSelectedRentalItem(null)}
+                className="absolute top-4 right-4 z-20 w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all"
+              >
+                <X size={16} />
+              </button>
+
+              {/* Image */}
+              <div className="relative h-64 overflow-hidden rounded-t-3xl bg-slate-900">
+                {(() => {
+                  const allImages = [selectedRentalItem.image, ...(selectedRentalItem.images || [])].filter(Boolean);
+                  const idx = Math.min(rentalImageIndex, allImages.length - 1);
+                  return (
+                    <>
+                      <img src={allImages[idx]} alt={selectedRentalItem.name} className="w-full h-full object-cover" />
+                      {allImages.length > 1 && (
+                        <>
+                          <button onClick={() => setRentalImageIndex(p => Math.max(0, p - 1))} className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 border border-white/20 flex items-center justify-center text-white"><ChevronLeft size={18} /></button>
+                          <button onClick={() => setRentalImageIndex(p => Math.min(allImages.length - 1, p + 1))} className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 border border-white/20 flex items-center justify-center text-white"><ChevronRight size={18} /></button>
+                        </>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                    </>
+                  );
+                })()}
+              </div>
+
+              <div className="p-6 space-y-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 font-mono bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">{selectedRentalItem.category}</span>
+                    <h2 className="text-xl font-extrabold text-white mt-2">{selectedRentalItem.name}</h2>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">Rental Price</span>
+                    <div className="text-xl font-extrabold text-emerald-400">{selectedRentalItem.price}</div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 inline-block ${
+                      (selectedRentalItem.availabilityStatus || 'Available') === 'Available'
+                        ? 'bg-emerald-500/20 text-emerald-400'
+                        : (selectedRentalItem.availabilityStatus || '') === 'On Rental'
+                        ? 'bg-amber-500/20 text-amber-400'
+                        : 'bg-red-500/20 text-red-400'
+                    }`}>
+                      {selectedRentalItem.availabilityStatus || 'Available'}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-sm text-slate-300 leading-relaxed">{selectedRentalItem.description}</p>
+
+                <div className="flex items-center gap-2 text-sm text-slate-300">
+                  <Tag size={14} className="text-emerald-400" />
+                  <span>Available Qty: <strong className="text-white">{selectedRentalItem.availableQty} units</strong></span>
+                </div>
+
+                {selectedRentalItem.rentalTerms && (
+                  <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/15">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-2 font-mono">Rental Terms</h3>
+                    <p className="text-xs text-slate-300 leading-relaxed">{selectedRentalItem.rentalTerms}</p>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      setSelectedRentalItem(null);
+                      setEnquiryModal({ open: true, brand: 'SWS', itemId: selectedRentalItem.id, itemTitle: selectedRentalItem.name, prefillEventType: 'Rental Inquiry', prefillPackage: selectedRentalItem.name });
+                    }}
+                    className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-emerald-600/20"
+                  >
+                    <MessageSquare size={16} />
+                    Enquire Rental
+                  </button>
+                  <a
+                    href={COMPANY_CONTACT.whatsapp}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-white/10 transition-all"
+                  >
+                    <Phone size={16} />
+                    WhatsApp Us
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── ENQUIRY MODAL ─── */}
+      <EnquiryModal
+        isOpen={enquiryModal.open}
+        onClose={() => setEnquiryModal(prev => ({ ...prev, open: false }))}
+        brand="SWS"
+        itemId={enquiryModal.itemId}
+        itemTitle={enquiryModal.itemTitle}
+        prefillEventType={enquiryModal.prefillEventType}
+        prefillPackage={enquiryModal.prefillPackage}
+        isDarkMode={isDarkMode}
+      />
+
     </div>
+
   );
 }

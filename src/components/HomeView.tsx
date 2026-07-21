@@ -1,10 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, useInView } from 'motion/react';
 import { 
   ArrowRight, ArrowUpRight, CheckCircle2, ChevronLeft, ChevronRight, 
-  Sparkles, Star, TrendingUp, ShieldCheck, Zap, Server, Globe, Cpu, Award
+  Sparkles, Star, TrendingUp, ShieldCheck, Zap, Server, Globe, Cpu, Award,
+  Timer, Building2, Heart, Briefcase, ExternalLink
 } from 'lucide-react';
-import { ActivePage, ServiceCard, Leader, ThemeSettings } from '../types';
+import { ActivePage, ServiceCard, Leader, ThemeSettings, CompanyStatistic, CountdownSettings, TrustableClient, CompletedProject } from '../types';
 import { SERVICES_LIST, COMPANY_CONTACT } from '../data';
 import PremiumHero from './PremiumHero';
 
@@ -20,6 +21,10 @@ interface HomeViewProps {
   servicesList?: ServiceCard[];
   leadersList?: Leader[];
   themeSettings?: ThemeSettings;
+  statistics?: CompanyStatistic[];
+  countdownSettings?: CountdownSettings;
+  clients?: TrustableClient[];
+  completedProjects?: CompletedProject[];
 }
 
 // Scroll-triggered Motion Container Component
@@ -43,9 +48,46 @@ function RevealSection({ children, className = '', delay = 0, yOffset = 30 }: { 
 export default function HomeView({ 
   setActivePage, 
   isDarkMode, 
-  themeSettings
+  themeSettings,
+  statistics = [],
+  countdownSettings,
+  clients = [],
+  completedProjects = []
 }: HomeViewProps) {
   const [activeTestimonialIdx, setActiveTestimonialIdx] = useState(0);
+
+  // Countdown timer state
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    if (!countdownSettings?.enabled || !countdownSettings?.targetDate) return;
+    const update = () => {
+      const diff = new Date(countdownSettings.targetDate).getTime() - Date.now();
+      if (diff <= 0) { setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 }); return; }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setTimeLeft({ days, hours, minutes, seconds });
+    };
+    update();
+    const timer = setInterval(update, 1000);
+    return () => clearInterval(timer);
+  }, [countdownSettings]);
+
+  // Icon resolver for statistics
+  const getStatIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Sparkles': return <Sparkles size={28} />;
+      case 'Globe': return <Globe size={28} />;
+      case 'Briefcase': return <Briefcase size={28} />;
+      case 'Heart': return <Heart size={28} />;
+      case 'Award': return <Award size={28} />;
+      case 'Zap': return <Zap size={28} />;
+      case 'Building2': return <Building2 size={28} />;
+      default: return <Star size={28} />;
+    }
+  };
 
   const handleNavClick = (page: ActivePage) => {
     setActivePage(page);
@@ -539,6 +581,179 @@ export default function HomeView({
           </div>
         </RevealSection>
       </section>
+
+      {/* ─── COMPANY STATISTICS SECTION ─── */}
+      {statistics.length > 0 && (
+        <section className="py-20 px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-6xl mx-auto">
+            <RevealSection className="text-center mb-12">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20 inline-block mb-3">By The Numbers</span>
+              <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                Our Impact in Numbers
+              </h2>
+            </RevealSection>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+              {[...statistics].sort((a, b) => (a.order || 0) - (b.order || 0)).map((stat, i) => (
+                <RevealSection key={stat.id} delay={i * 0.1}>
+                  <div className={`rounded-2xl border p-6 text-center group transition-all hover:scale-[1.03] ${
+                    isDarkMode 
+                      ? 'bg-gradient-to-b from-purple-500/5 to-transparent border-purple-500/15 hover:border-purple-500/40 hover:bg-purple-500/10' 
+                      : 'bg-white border-slate-100 shadow-md hover:shadow-xl'
+                  }`}>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 text-purple-400 ${
+                      isDarkMode ? 'bg-purple-500/10 border border-purple-500/20' : 'bg-purple-50 border border-purple-100'
+                    }`}>
+                      {getStatIcon(stat.icon)}
+                    </div>
+                    <div className="text-3xl sm:text-4xl font-extrabold text-white mb-1 tabular-nums">
+                      {stat.value}<span className="text-purple-400">{stat.suffix}</span>
+                    </div>
+                    <div className={`text-xs font-bold uppercase tracking-wider ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      {stat.label}
+                    </div>
+                  </div>
+                </RevealSection>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ─── COUNTDOWN BANNER ─── */}
+      {countdownSettings?.enabled && (
+        <section className="relative py-16 px-4 sm:px-6 lg:px-8 overflow-hidden border-t border-b border-amber-500/15">
+          {countdownSettings.backgroundImage && (
+            <div className="absolute inset-0">
+              <img src={countdownSettings.backgroundImage} alt="" className="w-full h-full object-cover opacity-15" />
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-slate-950" />
+            </div>
+          )}
+          <div className="relative z-10 max-w-4xl mx-auto text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Timer size={18} className="text-amber-400" />
+              <span className="text-[11px] font-bold uppercase tracking-widest text-amber-400 font-mono">Limited Time Offer</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-2">{countdownSettings.title}</h2>
+            <p className="text-sm text-slate-300 mb-8">{countdownSettings.description}</p>
+            
+            <div className="flex items-center justify-center gap-3 sm:gap-6 mb-8">
+              {[{ label: 'Days', value: timeLeft.days }, { label: 'Hours', value: timeLeft.hours }, { label: 'Mins', value: timeLeft.minutes }, { label: 'Secs', value: timeLeft.seconds }].map(({ label, value }) => (
+                <div key={label} className="flex flex-col items-center">
+                  <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-2xl bg-white/5 backdrop-blur-sm border border-amber-500/30 flex items-center justify-center text-3xl sm:text-4xl font-extrabold text-white tabular-nums shadow-lg">
+                    {String(value).padStart(2, '0')}
+                  </div>
+                  <span className="text-[10px] text-amber-400 font-bold uppercase tracking-widest mt-2">{label}</span>
+                </div>
+              ))}
+            </div>
+
+            {countdownSettings.buttonLabel && (
+              <a
+                href={countdownSettings.buttonLink || '#contact'}
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-slate-950 font-extrabold text-sm uppercase tracking-wider shadow-lg shadow-amber-500/30 transition-all hover:scale-105"
+              >
+                {countdownSettings.buttonLabel}
+                <ArrowRight size={16} />
+              </a>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ─── COMPLETED PROJECTS ─── */}
+      {completedProjects.length > 0 && (
+        <section className="py-20 px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-7xl mx-auto">
+            <RevealSection className="text-center mb-12">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20 inline-block mb-3">Portfolio</span>
+              <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                Completed Projects
+              </h2>
+              <p className={`text-sm mt-2 max-w-xl mx-auto ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                A curated showcase of our finest work across all four divisions.
+              </p>
+            </RevealSection>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {completedProjects.map((project, i) => (
+                <RevealSection key={project.id} delay={i * 0.08}>
+                  <div className={`group rounded-2xl overflow-hidden border transition-all hover:scale-[1.02] ${
+                    isDarkMode ? 'border-purple-500/10 hover:border-purple-500/30' : 'border-slate-100 shadow-md hover:shadow-xl'
+                  }`}>
+                    <div className="h-48 overflow-hidden bg-slate-800 relative">
+                      <img src={project.image} alt={project.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      <span className={`absolute bottom-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border backdrop-blur-sm ${
+                        project.category.includes('SWS') ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
+                        project.category.includes('IT') ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
+                        project.category.includes('Photo') ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' :
+                        'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                      }`}>{project.category}</span>
+                    </div>
+                    <div className={`p-4 ${isDarkMode ? 'bg-slate-900/60' : 'bg-white'}`}>
+                      <h3 className={`text-sm font-bold leading-tight mb-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{project.title}</h3>
+                      <p className={`text-xs leading-relaxed line-clamp-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{project.description}</p>
+                      {project.completionDate && (
+                        <span className="text-[10px] text-slate-500 font-mono mt-2 block">{project.completionDate}</span>
+                      )}
+                    </div>
+                  </div>
+                </RevealSection>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ─── TRUSTABLE CLIENTS ─── */}
+      {clients.length > 0 && (
+        <section className={`py-20 px-4 sm:px-6 lg:px-8 relative z-10 border-t ${
+          isDarkMode ? 'border-slate-800/60' : 'border-slate-100'
+        }`}>
+          <div className="max-w-7xl mx-auto">
+            <RevealSection className="text-center mb-12">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20 inline-block mb-3">Trusted By</span>
+              <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                Our Trustable Clients
+              </h2>
+            </RevealSection>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {clients.map((client, i) => (
+                <RevealSection key={client.id} delay={i * 0.08}>
+                  <div className={`rounded-2xl border p-5 h-full flex flex-col gap-3 ${
+                    isDarkMode 
+                      ? 'bg-white/3 border-white/8 hover:border-purple-500/30 hover:bg-purple-500/5' 
+                      : 'bg-white border-slate-100 shadow-md hover:shadow-lg'
+                  } transition-all group`}>
+                    <div className="flex items-center gap-3">
+                      {client.logo ? (
+                        <img src={client.logo} alt={client.companyName} className="w-12 h-12 rounded-xl object-contain bg-white p-1 border border-white/10" />
+                      ) : (
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-extrabold text-lg ${
+                          isDarkMode ? 'bg-purple-500/10 text-purple-300 border border-purple-500/20' : 'bg-purple-50 text-purple-600'
+                        }`}>
+                          {client.companyName.charAt(0)}
+                        </div>
+                      )}
+                      <div>
+                        <div className={`text-sm font-bold leading-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{client.companyName}</div>
+                        <div className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">{client.industry}</div>
+                      </div>
+                    </div>
+                    {client.review && (
+                      <p className={`text-xs leading-relaxed italic flex-1 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
+                        "{client.review}"
+                      </p>
+                    )}
+                    <div className={`text-[10px] font-bold pt-2 border-t ${isDarkMode ? 'border-white/8 text-purple-400' : 'border-slate-100 text-purple-600'}`}>
+                      {client.projectsCompleted} project{parseInt(client.projectsCompleted) !== 1 ? 's' : ''} completed
+                    </div>
+                  </div>
+                </RevealSection>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
     </div>
   );

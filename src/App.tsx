@@ -41,7 +41,11 @@ import {
   parseThemeSettings,
   DEFAULT_SEO_SETTINGS,
   DEFAULT_THEME_SETTINGS,
-  KEYS
+  KEYS,
+  getCompanyStatistics,
+  getCountdownSettings,
+  getTrustableClients,
+  getCompletedProjects,
 } from './utils/storage';
 
 // Branding Updater
@@ -108,6 +112,12 @@ export default function App() {
   const [rentalItems, setRentalItems] = useState(() => getRentalItems());
   const [themeSettings, setThemeSettings] = useState(() => getThemeSettings());
   const [seoSettings, setSeoSettings] = useState(() => getSeoSettings());
+  // New feature states
+  const [statistics, setStatistics] = useState(() => getCompanyStatistics());
+  const [countdownSettings, setCountdownSettings] = useState(() => getCountdownSettings());
+  const [clients, setClients] = useState(() => getTrustableClients());
+  const [completedProjects, setCompletedProjects] = useState(() => getCompletedProjects());
+  const [enquiries, setEnquiries] = useState<any[]>([]);
 
   const filteredServices = servicesList.filter(
     (service) =>
@@ -140,6 +150,12 @@ export default function App() {
         if (db[KEYS.RENTAL_ITEMS])      setRentalItems(db[KEYS.RENTAL_ITEMS]);
         if (db[KEYS.THEME_SETTINGS])    setThemeSettings(parseThemeSettings(db[KEYS.THEME_SETTINGS]));
         if (db[KEYS.SEO_SETTINGS])      setSeoSettings({ ...DEFAULT_SEO_SETTINGS, ...db[KEYS.SEO_SETTINGS] });
+        // New feature keys
+        if (Array.isArray(db[KEYS.STATISTICS]))    setStatistics(db[KEYS.STATISTICS]);
+        if (db[KEYS.COUNTDOWN])                    setCountdownSettings(db[KEYS.COUNTDOWN]);
+        if (Array.isArray(db[KEYS.CLIENTS]))       setClients(db[KEYS.CLIENTS]);
+        if (Array.isArray(db[KEYS.COMPLETED_PROJECTS])) setCompletedProjects(db[KEYS.COMPLETED_PROJECTS]);
+        if (Array.isArray(db[KEYS.ENQUIRIES]))     setEnquiries(db[KEYS.ENQUIRIES]);
       } catch (err) {
         console.warn('[App] Cloud load error — using defaults:', err);
       }
@@ -339,6 +355,10 @@ export default function App() {
             servicesList={filteredServices}
             leadersList={leaders}
             themeSettings={cacheBustedTheme}
+            statistics={statistics}
+            countdownSettings={countdownSettings}
+            clients={clients}
+            completedProjects={completedProjects}
           />
         );
 
@@ -415,7 +435,16 @@ export default function App() {
               <p className="text-xs font-bold uppercase tracking-wider text-purple-400 animate-pulse">Loading Panel...</p>
             </div>
           }>
-            <AdminView isDarkMode={isDarkMode} onDataChange={handleDataChange} themeSettings={themeSettings} />
+            <AdminView
+              isDarkMode={isDarkMode}
+              onDataChange={handleDataChange}
+              themeSettings={themeSettings}
+              enquiries={enquiries}
+              statistics={statistics}
+              countdownSettings={countdownSettings}
+              clients={clients}
+              completedProjects={completedProjects}
+            />
           </Suspense>
         );
 
@@ -478,7 +507,17 @@ export default function App() {
               <p className="text-sm font-bold uppercase tracking-wider text-purple-400 animate-pulse">Loading Admin Control Panel...</p>
             </div>
           }>
-            <AdminView isDarkMode={isDarkMode} onDataChange={handleDataChange} themeSettings={themeSettings} />
+            <AdminView
+              isDarkMode={isDarkMode}
+              onDataChange={handleDataChange}
+              themeSettings={themeSettings}
+              enquiries={enquiries}
+              statistics={statistics}
+              countdownSettings={countdownSettings}
+              clients={clients}
+              completedProjects={completedProjects}
+            />
+
           </Suspense>
         </div>
       </>

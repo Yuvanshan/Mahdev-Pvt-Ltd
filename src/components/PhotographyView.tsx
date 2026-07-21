@@ -5,11 +5,12 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Camera, Video, Compass, MapPin, Eye, CheckCircle, Calculator, ChevronRight, Check } from 'lucide-react';
+import { Camera, Video, Compass, MapPin, Eye, CheckCircle, Calculator, ChevronRight, Check, MessageSquare } from 'lucide-react';
 import { PHOTO_PORTFOLIO, PHOTO_PRICING } from '../data';
 import { PhotoPortfolioItem, ThemeSettings } from '../types';
 import { addBooking } from '../utils/storage';
 import EmailCopySection from './EmailCopySection';
+import EnquiryModal from './EnquiryModal';
 import u1HeroImage from '../assets/images/u1_robot_camera_1783346286743.jpg';
 
 interface PhotographyViewProps {
@@ -41,6 +42,10 @@ export default function PhotographyView({
   const [bookingCompleted, setBookingCompleted] = useState(false);
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
+
+  // Custom enquiry modal state
+  const [enquiryOpen, setEnquiryOpen] = useState(false);
+  const [enquiryPackage, setEnquiryPackage] = useState('');
 
   const handleBookShoot = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +81,9 @@ export default function PhotographyView({
     : portfolioList.filter(p => p.category === activeFilter);
 
   return (
+    <>
     <div id="photography-view-container" className="relative w-full z-10">
+
       
       {/* Hero Banner */}
       <section className="relative py-28 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black">
@@ -356,6 +363,20 @@ export default function PhotographyView({
                   </div>
                 </div>
 
+                {/* Get Custom Quote button */}
+                <div className="mt-4 pt-4 border-t border-emerald-500/10 text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEnquiryPackage(activePlan.title);
+                      setEnquiryOpen(true);
+                    }}
+                    className="w-full py-2.5 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                  >
+                    <MessageSquare size={13} />
+                    Get Custom Quote via Enquiry
+                  </button>
+                </div>
                 {/* Direct Booking form */}
                 <div className="mt-6 border-t border-emerald-500/10 pt-6">
                   <AnimatePresence mode="wait">
@@ -432,5 +453,18 @@ export default function PhotographyView({
       </section>
 
     </div>
+
+    {/* Custom Package Enquiry Modal */}
+    <EnquiryModal
+      isOpen={enquiryOpen}
+      onClose={() => setEnquiryOpen(false)}
+      brand="Photography"
+      itemTitle={enquiryPackage || 'Custom Photography Package'}
+      prefillEventType="Photography Session"
+      prefillPackage={enquiryPackage}
+      isDarkMode={isDarkMode}
+    />
+  </>
   );
 }
+

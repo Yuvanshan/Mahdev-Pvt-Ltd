@@ -11,7 +11,8 @@ import {
   DecorationGalleryItem, RentalItem, ThemeSettings, Booking, TravelsVehicle, TravelsTour, 
   SeoSettings, Customer, Company, ErpProject, ErpTask, Quotation, Invoice, 
   PaymentRecord, ExpenseRecord, IncomeRecord, Employee, CompanyProfile,
-  SmtpSettings, SmtpTemplate
+  SmtpSettings, SmtpTemplate, EnquiryRecord, CompanyStatistic, CountdownSettings,
+  TrustableClient, CompletedProject
 } from '../types';
 import mahadevLogo from '../assets/images/mahadev_logo_1782729909050.jpg';
 import swsDecorBanner from '../assets/images/sws_robot_decor_1783346269673.jpg';
@@ -52,6 +53,12 @@ export const KEYS = {
   COMPANY_PROFILE: 'mahdev_company_profile',
   SMTP_SETTINGS: 'mahdev_smtp_settings',
   SMTP_TEMPLATES: 'mahdev_smtp_templates',
+  // New feature keys
+  ENQUIRIES: 'mahdev_enquiries_list',
+  STATISTICS: 'mahdev_company_statistics',
+  COUNTDOWN: 'mahdev_countdown_settings',
+  CLIENTS: 'mahdev_trustable_clients',
+  COMPLETED_PROJECTS: 'mahdev_completed_projects',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -234,6 +241,12 @@ export function getPayments(): PaymentRecord[] { return [...DEFAULT_PAYMENTS]; }
 export function getExpenses(): ExpenseRecord[] { return [...DEFAULT_EXPENSES]; }
 export function getIncomes(): IncomeRecord[] { return [...DEFAULT_INCOMES]; }
 export function getCompanyProfile(): CompanyProfile { return { ...DEFAULT_COMPANY_PROFILE }; }
+// New feature getters
+export function getEnquiries(): EnquiryRecord[] { return []; }
+export function getCompanyStatistics(): CompanyStatistic[] { return [...DEFAULT_STATISTICS]; }
+export function getCountdownSettings(): CountdownSettings { return { ...DEFAULT_COUNTDOWN }; }
+export function getTrustableClients(): TrustableClient[] { return [...DEFAULT_CLIENTS]; }
+export function getCompletedProjects(): CompletedProject[] { return [...DEFAULT_COMPLETED_PROJECTS]; }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SAVE FUNCTIONS  — all go directly to the cloud API, NO localStorage
@@ -322,6 +335,22 @@ export function saveIncomes(data: IncomeRecord[]): Promise<void> {
 }
 export function saveCompanyProfile(data: CompanyProfile): Promise<void> {
   return saveToCloud(KEYS.COMPANY_PROFILE, data);
+}
+// New feature save functions
+export function saveEnquiries(data: EnquiryRecord[]): Promise<void> {
+  return saveToCloud(KEYS.ENQUIRIES, data);
+}
+export function saveCompanyStatistics(data: CompanyStatistic[]): Promise<void> {
+  return saveToCloud(KEYS.STATISTICS, data);
+}
+export function saveCountdownSettings(data: CountdownSettings): Promise<void> {
+  return saveToCloud(KEYS.COUNTDOWN, data);
+}
+export function saveTrustableClients(data: TrustableClient[]): Promise<void> {
+  return saveToCloud(KEYS.CLIENTS, data);
+}
+export function saveCompletedProjects(data: CompletedProject[]): Promise<void> {
+  return saveToCloud(KEYS.COMPLETED_PROJECTS, data);
 }
 
 /** Add a booking and save the full list to cloud */
@@ -462,3 +491,38 @@ const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
   currency: 'Rs. (LKR)',
   timezone: 'Asia/Colombo',
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  DEFAULT DATA — New Features
+// ─────────────────────────────────────────────────────────────────────────────
+
+const DEFAULT_STATISTICS: CompanyStatistic[] = [
+  { id: 'stat-1', label: 'Events Completed', value: '500', suffix: '+', icon: 'Sparkles', order: 1 },
+  { id: 'stat-2', label: 'Web Projects', value: '100', suffix: '+', icon: 'Globe', order: 2 },
+  { id: 'stat-3', label: 'Business Clients', value: '50', suffix: '+', icon: 'Briefcase', order: 3 },
+  { id: 'stat-4', label: 'Happy Customers', value: '1000', suffix: '+', icon: 'Heart', order: 4 },
+];
+
+const DEFAULT_COUNTDOWN: CountdownSettings = {
+  enabled: false,
+  title: 'Special Offer Ends In',
+  description: 'Book your event package now and save up to 30%!',
+  targetDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+  buttonLabel: 'Claim Offer Now',
+  buttonLink: '#contact',
+  backgroundImage: '',
+};
+
+const DEFAULT_CLIENTS: TrustableClient[] = [
+  { id: 'client-1', logo: '', companyName: 'Nations Trust Bank PLC', industry: 'Banking & Finance', projectsCompleted: '3', review: 'Mahdev IT delivered an exceptional digital solution for our branch network.' },
+  { id: 'client-2', logo: '', companyName: 'Aitken Spence PLC', industry: 'Hospitality & Tourism', projectsCompleted: '2', review: 'The SWS event team transformed our annual gala into an unforgettable experience.' },
+  { id: 'client-3', logo: '', companyName: 'Dilmah Ceylon Tea', industry: 'FMCG', projectsCompleted: '1', review: 'Professional, creative, and always on time. Highly recommended!' },
+  { id: 'client-4', logo: '', companyName: 'Softlogic Holdings', industry: 'Retail & Technology', projectsCompleted: '4', review: 'Outstanding IT solutions that scaled perfectly with our growing operations.' },
+];
+
+const DEFAULT_COMPLETED_PROJECTS: CompletedProject[] = [
+  { id: 'cp-1', image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=70&w=600', title: 'Grand Royal Wedding Stage', description: 'Luxury gold-themed wedding stage with floral canopy at Kingsbury Hotel.', category: 'SWS Event Decoration', completionDate: '2026-06-20' },
+  { id: 'cp-2', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=70&w=600', title: 'Enterprise ERP for NTB Bank', description: 'Custom branch management ERP with real-time analytics dashboard.', category: 'IT Solutions', completionDate: '2026-05-15' },
+  { id: 'cp-3', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=70&w=600', title: 'Cinematic Wedding Videography', description: 'Full-day cinematic drone videography for a luxury Colombo wedding.', category: 'Photography', completionDate: '2026-04-10' },
+  { id: 'cp-4', image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&q=70&w=600', title: 'Sri Lanka Cultural Triangle Tour', description: '5-day premium tour package for international guests from Germany.', category: 'Mahdev Travels', completionDate: '2026-03-28' },
+];

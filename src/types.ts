@@ -105,6 +105,15 @@ export interface DecorationGalleryItem {
   title: string;
   category: string;
   image: string;
+  // Extended fields
+  images?: string[]; // multiple gallery images
+  description?: string;
+  startingPrice?: string;
+  location?: string;
+  dateCompleted?: string;
+  features?: string[];
+  includedServices?: string[];
+  addons?: string[];
 }
 
 export interface RentalItem {
@@ -113,8 +122,65 @@ export interface RentalItem {
   category: string;
   price: string; // e.g. "Rs. 2,500 / day"
   image: string;
+  images?: string[]; // multiple gallery images
   description: string;
   availableQty: number;
+  availabilityStatus?: 'Available' | 'On Rental' | 'Unavailable';
+  rentalTerms?: string;
+}
+
+export interface EnquiryRecord {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  eventType: string;
+  eventDate: string;
+  location: string;
+  packageRequired: string;
+  message: string;
+  brand: 'SWS' | 'Photography' | 'IT' | 'Travels' | 'General';
+  status: 'New' | 'Contacted' | 'Confirmed' | 'Completed';
+  createdAt: string;
+  itemId?: string;
+  itemTitle?: string;
+}
+
+export interface CompanyStatistic {
+  id: string;
+  label: string;
+  value: string;
+  suffix: string;
+  icon: string;
+  order?: number;
+}
+
+export interface CountdownSettings {
+  enabled: boolean;
+  title: string;
+  description: string;
+  targetDate: string; // ISO date string
+  buttonLabel: string;
+  buttonLink: string;
+  backgroundImage?: string;
+}
+
+export interface TrustableClient {
+  id: string;
+  logo: string;
+  companyName: string;
+  industry: string;
+  projectsCompleted: string;
+  review: string;
+}
+
+export interface CompletedProject {
+  id: string;
+  image: string;
+  title: string;
+  description: string;
+  category: string;
+  completionDate: string;
 }
 
 export interface TravelsVehicle {

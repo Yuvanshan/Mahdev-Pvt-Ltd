@@ -9,6 +9,7 @@ import {
   Cloud, Database, HardDrive, Folder, FolderPlus, File
 } from 'lucide-react';
 import EnterpriseHub from './admin/EnterpriseHub';
+import WebsiteContentModule, { WebsiteContentTab } from './admin/WebsiteContentModule';
 import {
   getCompanyContact, saveCompanyContact,
   getServicesList, saveServicesList,
@@ -41,10 +42,15 @@ import {
   DEFAULT_SMTP_SETTINGS,
   DEFAULT_SMTP_TEMPLATES,
   DEFAULT_SEO_SETTINGS,
-  KEYS
+  KEYS,
+  getEnquiries, saveEnquiries,
+  getCompanyStatistics, saveCompanyStatistics,
+  getCountdownSettings, saveCountdownSettings,
+  getTrustableClients, saveTrustableClients,
+  getCompletedProjects, saveCompletedProjects
 } from '../utils/storage';
 import { optimizeImageBeforeUpload, formatBytes } from '../utils/mediaOptimizer';
-import { ServiceCard, PhotoPortfolioItem, ItProject, Leader, Testimonial, DecorationGalleryItem, RentalItem, ThemeSettings, Booking, TravelsVehicle, TravelsTour, SeoSettings, SmtpSettings, SmtpTemplate } from '../types';
+import { ServiceCard, PhotoPortfolioItem, ItProject, Leader, Testimonial, DecorationGalleryItem, RentalItem, ThemeSettings, Booking, TravelsVehicle, TravelsTour, SeoSettings, SmtpSettings, SmtpTemplate, EnquiryRecord, CompanyStatistic, CountdownSettings, TrustableClient, CompletedProject } from '../types';
 
 function adjustHex(hex: string, percent: number): string {
   const cleanHex = (hex || "#a855f7").replace("#", "");
@@ -368,9 +374,14 @@ interface AdminViewProps {
   isDarkMode: boolean;
   onDataChange: () => void;
   themeSettings?: ThemeSettings;
+  enquiries?: EnquiryRecord[];
+  statistics?: CompanyStatistic[];
+  countdownSettings?: CountdownSettings;
+  clients?: TrustableClient[];
+  completedProjects?: CompletedProject[];
 }
 
-export default function AdminView({ isDarkMode, onDataChange, themeSettings }: AdminViewProps) {
+export default function AdminView({ isDarkMode, onDataChange, themeSettings, enquiries: enquiriesProp = [], statistics: statisticsProp, countdownSettings: countdownProp, clients: clientsProp, completedProjects: completedProjectsProp }: AdminViewProps) {
   const adminUsername = (import.meta.env.VITE_ADMIN_USERNAME || 'Yuvanshan875@gmail.com').trim();
   const adminPassword = (import.meta.env.VITE_ADMIN_PASSWORD || 'Yuvan@1709').trim();
 
@@ -715,8 +726,22 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
     }
   };
 
+  // New website content state (sourced from App.tsx props for live data)
+  const [adminEnquiries, setAdminEnquiries] = React.useState<EnquiryRecord[]>(enquiriesProp);
+  const [adminStatistics, setAdminStatistics] = React.useState<CompanyStatistic[]>(statisticsProp || getCompanyStatistics());
+  const [adminCountdown, setAdminCountdown] = React.useState<CountdownSettings>(countdownProp || getCountdownSettings());
+  const [adminClients, setAdminClients] = React.useState<TrustableClient[]>(clientsProp || getTrustableClients());
+  const [adminCompletedProjects, setAdminCompletedProjects] = React.useState<CompletedProject[]>(completedProjectsProp || getCompletedProjects());
+
+  // Keep in sync with prop changes (App.tsx re-fetches every 25s)
+  React.useEffect(() => { setAdminEnquiries(enquiriesProp); }, [enquiriesProp]);
+  React.useEffect(() => { if (statisticsProp) setAdminStatistics(statisticsProp); }, [statisticsProp]);
+  React.useEffect(() => { if (countdownProp) setAdminCountdown(countdownProp); }, [countdownProp]);
+  React.useEffect(() => { if (clientsProp) setAdminClients(clientsProp); }, [clientsProp]);
+  React.useEffect(() => { if (completedProjectsProp) setAdminCompletedProjects(completedProjectsProp); }, [completedProjectsProp]);
+
   // Active sub-panel tab
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'crm' | 'projects_erp' | 'finances' | 'employees' | 'systems' | 'contact' | 'services' | 'portfolio' | 'pricing' | 'projects' | 'leaders' | 'testimonials' | 'decor_posts' | 'rentals' | 'theme' | 'travels_fleet' | 'travels_tours' | 'seo' | 'ai_assistant' | 'email_settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'crm' | 'projects_erp' | 'finances' | 'employees' | 'systems' | 'contact' | 'services' | 'portfolio' | 'pricing' | 'projects' | 'leaders' | 'testimonials' | 'decor_posts' | 'rentals' | 'theme' | 'travels_fleet' | 'travels_tours' | 'seo' | 'ai_assistant' | 'email_settings' | 'enquiries' | 'statistics' | 'countdown' | 'clients' | 'completed_projects'>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Collapsible sidebar groups state
@@ -726,6 +751,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
     'General Content': false,
     'SWS Division': false,
     'Travels Division': false,
+    'Website Content': false,
   });
 
   const toggleGroup = (group: string) => {
@@ -1458,9 +1484,14 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
     { id: 'rentals' as const, label: 'SWS Rental Things', icon: Sparkles, group: 'SWS Division', color: 'text-emerald-400' },
     { id: 'travels_fleet' as const, label: 'Travels Fleet', icon: Car, group: 'Travels Division', color: 'text-emerald-400' },
     { id: 'travels_tours' as const, label: 'Travels Tours', icon: Compass, group: 'Travels Division', color: 'text-emerald-400' },
+    { id: 'enquiries' as const, label: 'Enquiries', icon: Mail, group: 'Website Content', color: 'text-blue-400' },
+    { id: 'statistics' as const, label: 'Statistics Counters', icon: TrendingUp, group: 'Website Content', color: 'text-purple-400' },
+    { id: 'countdown' as const, label: 'Countdown Timer', icon: Clock, group: 'Website Content', color: 'text-amber-400' },
+    { id: 'clients' as const, label: 'Trustable Clients', icon: Building, group: 'Website Content', color: 'text-emerald-400' },
+    { id: 'completed_projects' as const, label: 'Completed Projects', icon: Folder, group: 'Website Content', color: 'text-pink-400' },
   ];
 
-  const tabGroups = ['Operations', 'Design & Config', 'General Content', 'SWS Division', 'Travels Division'] as const;
+  const tabGroups = ['Operations', 'Design & Config', 'General Content', 'SWS Division', 'Travels Division', 'Website Content'] as const;
 
   const handleTabSelect = (tabId: typeof activeTab) => {
     setActiveTab(tabId);
@@ -5566,7 +5597,6 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                           </div>
                         )}
                       </div>
-
                       <div className="pt-4 border-t border-purple-500/10 mt-6 shrink-0 flex justify-between items-center text-[10px] text-slate-500 font-mono">
                         <span>Mahdev Pvt Ltd • Operations Control</span>
                         <span>v1.0 (Enterprise Server API)</span>
@@ -5575,6 +5605,23 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings }: A
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Website Content Module — 5 new tabs */}
+            {(activeTab === 'enquiries' || activeTab === 'statistics' || activeTab === 'countdown' || activeTab === 'clients' || activeTab === 'completed_projects') && (
+              <WebsiteContentModule
+                activeTab={activeTab as WebsiteContentTab}
+                enquiries={adminEnquiries}
+                statistics={adminStatistics}
+                countdownSettings={adminCountdown}
+                clients={adminClients}
+                completedProjects={adminCompletedProjects}
+                onEnquiriesUpdate={(list) => { setAdminEnquiries(list); onDataChange(); }}
+                onStatisticsUpdate={(list) => { setAdminStatistics(list); onDataChange(); }}
+                onCountdownUpdate={(s) => { setAdminCountdown(s); onDataChange(); }}
+                onClientsUpdate={(list) => { setAdminClients(list); onDataChange(); }}
+                onProjectsUpdate={(list) => { setAdminCompletedProjects(list); onDataChange(); }}
+              />
             )}
           </main>
         </div>

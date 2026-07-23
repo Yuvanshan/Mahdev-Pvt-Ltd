@@ -1,205 +1,169 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
+'use client';
 
-import { motion, useInView } from 'motion/react';
-import { useRef } from 'react';
-import { ActivePage, ThemeSettings } from '../types';
-import { COMPANY_CONTACT } from '../data';
-import { Phone, Mail, Clock, MapPin, ExternalLink, Globe, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
-import mahadevLogo from '../assets/images/mahadev_logo_1782729909050.jpg';
+import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { FaFacebook, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Send,
+  CheckCircle
+} from 'lucide-react';
+import confetti from 'canvas-confetti';
 
-const defaultLogo = mahadevLogo;
+export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
 
-interface FooterProps {
-  setActivePage: (page: ActivePage) => void;
-  isDarkMode: boolean;
-  contactInfo?: any;
-  themeSettings?: ThemeSettings;
-}
-
-function Reveal({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 24 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-      transition={{ duration: 0.55, delay, ease: 'easeOut' }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-export default function Footer({ setActivePage, isDarkMode, contactInfo = COMPANY_CONTACT, themeSettings }: FooterProps) {
-  const handleNavClick = (page: ActivePage) => {
-    setActivePage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setSubscribed(true);
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.8 },
+        colors: ['#c5a880', '#dfba73', '#1e40af']
+      });
+      setEmail('');
+      setTimeout(() => setSubscribed(false), 5000);
+    }
   };
 
-  const currentYear = new Date().getFullYear();
-  const logoImage = contactInfo?.logo || themeSettings?.brandLogo || defaultLogo;
-  const brandName = themeSettings?.brandName || 'Mahdev Pvt Ltd';
-  const brandWord1 = brandName.split(' ')[0] || 'MAHDEV';
-  const brandWordRest = brandName.split(' ').slice(1).join(' ') || 'Pvt Ltd';
-
   return (
-    <footer 
-      id="app-footer"
-      className={`border-t transition-colors duration-300 ${
-        isDarkMode 
-          ? 'bg-neutral-950 border-emerald-500/10 text-slate-400' 
-          : 'bg-slate-50 border-slate-200 text-slate-600'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12">
+    <footer className="relative bg-navy-dark border-t border-white/5 pt-20 pb-28 md:pb-12 overflow-hidden">
+      {/* Background glow ball */}
+      <div className="glow-ball glow-ball-purple w-96 h-96 -bottom-20 -left-20 opacity-10" />
+      <div className="glow-ball glow-ball-gold w-96 h-96 -bottom-20 -right-20 opacity-10" />
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
           
-          {/* Column 1: Brand Info */}
-          <Reveal className="flex flex-col space-y-4">
-            <div 
-              className="flex items-center space-x-3 cursor-pointer group"
-              onClick={() => handleNavClick(ActivePage.Home)}
-            >
-              <img 
-                src={logoImage} 
-                alt={`${brandName} Logo`} 
-                className="w-10 h-10 rounded-lg object-cover border border-emerald-500/20"
-                referrerPolicy="no-referrer"
-              />
-              <div className="flex flex-col">
-                <span className={`text-base font-bold tracking-wider leading-none ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                  {brandWord1}
-                </span>
-                <span className="text-[9px] tracking-widest uppercase font-mono text-emerald-500 font-semibold mt-1">
-                  {brandWordRest}
-                </span>
+          {/* Brand Info */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-gold-accent/20">
+                <Image 
+                  src="/images/mahadev_logo_1782729909050.jpg" 
+                  alt="Mahdev Logo" 
+                  fill 
+                  className="object-cover"
+                />
               </div>
-            </div>
-            <p className="text-sm leading-relaxed">
-              Crafting premium visual memories, event atmospheres, custom software solutions, and world-class web systems.
+              <div>
+                <span className="font-display font-bold text-xl tracking-wider text-white">MAHDEV</span>
+                <span className="block text-[10px] tracking-[0.2em] text-gold-accent font-semibold uppercase -mt-0.5">PVT LTD</span>
+              </div>
+            </Link>
+
+            <p className="text-gray-400 font-sans text-sm leading-relaxed max-w-sm">
+              An international elite corporate conglomerate providing enterprise-grade ERP architecture, custom web & mobile apps, cinematic storytelling, wedding decorations, and premium tours.
             </p>
-            
-            {/* Social Icons */}
-            <div className="flex items-center space-x-3 pt-2">
-              {[
-                { icon: <Facebook size={16} />, url: 'https://facebook.com' },
-                { icon: <Instagram size={16} />, url: 'https://instagram.com' },
-                { icon: <Twitter size={16} />, url: 'https://twitter.com' },
-                { icon: <Linkedin size={16} />, url: 'https://linkedin.com' },
-              ].map((item, idx) => (
-                <a
-                  key={idx}
-                  href={item.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`p-2.5 rounded-xl border transition-all ${
-                    isDarkMode 
-                      ? 'border-emerald-500/10 bg-neutral-900/40 text-emerald-400 hover:bg-emerald-500 hover:text-white hover:border-emerald-500' 
-                      : 'border-slate-200 bg-white text-slate-600 hover:bg-emerald-600 hover:text-white hover:border-emerald-600'
-                  }`}
-                >
-                  {item.icon}
-                </a>
-              ))}
-            </div>
-          </Reveal>
 
-          {/* Column 2: Quick Navigation */}
-          <Reveal delay={0.08} className="flex flex-col space-y-4">
-            <h4 className={`text-sm font-bold uppercase tracking-wider ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-              Corporate Pages
-            </h4>
-            <ul className="space-y-2.5 text-sm">
+            {/* Social Links */}
+            <div className="flex items-center gap-3">
               {[
-                { label: 'Home Page', page: ActivePage.Home },
-                { label: 'Event Decoration', page: ActivePage.Decoration },
-                { label: 'Cinematic Photography', page: ActivePage.Photography },
-                { label: 'Mahdev Travels & Tours', page: ActivePage.Travels },
-                { label: 'Enterprise ERP Suite', page: ActivePage.ErpSolutions },
-                { label: 'IT & Cloud Solutions', page: ActivePage.ItSolutions },
-                { label: 'Connect With Us', page: ActivePage.Contact },
-              ].map((item, idx) => (
-                <li key={idx}>
-                  <button
-                    onClick={() => handleNavClick(item.page)}
-                    className="hover:text-emerald-500 transition-colors text-left flex items-center space-x-1.5 focus:outline-none"
+                { icon: FaFacebook, href: 'https://facebook.com/mahdev' },
+                { icon: FaInstagram, href: 'https://instagram.com/mahdev' },
+                { icon: FaLinkedin, href: 'https://linkedin.com/company/mahdev' }
+              ].map((social, idx) => {
+                const Icon = social.icon;
+                return (
+                  <Link 
+                    key={idx}
+                    href={social.href}
+                    target="_blank"
+                    className="w-10 h-10 rounded-xl glass border border-white/5 hover:border-gold-accent/30 flex items-center justify-center text-gray-400 hover:text-gold-soft transition-all duration-300 hover:scale-105"
                   >
-                    <span className="text-emerald-500">›</span>
-                    <span>{item.label}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </Reveal>
-
-          {/* Column 3: Contact details */}
-          <Reveal delay={0.12} className="flex flex-col space-y-4">
-            <h4 className={`text-sm font-bold uppercase tracking-wider ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-              Get In Touch
-            </h4>
-            <ul className="space-y-3.5 text-sm">
-              <li className="flex items-start space-x-3">
-                <MapPin size={16} className="text-emerald-500 shrink-0 mt-0.5" />
-                <span>{contactInfo.address}</span>
-              </li>
-              <li className="flex items-center space-x-3">
-                <Phone size={16} className="text-emerald-500 shrink-0" />
-                <a href={`tel:${contactInfo.phone}`} className="hover:text-emerald-500 transition-colors">
-                  {contactInfo.phone}
-                </a>
-              </li>
-              <li className="flex items-center space-x-3">
-                <Mail size={16} className="text-emerald-500 shrink-0" />
-                <a href={`mailto:${contactInfo.email}`} className="hover:text-emerald-500 transition-colors">
-                  {contactInfo.email}
-                </a>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Clock size={16} className="text-emerald-500 shrink-0 mt-0.5" />
-                <span>{contactInfo.hours}</span>
-              </li>
-            </ul>
-          </Reveal>
-
-          {/* Column 4: Google Map Embed */}
-          <Reveal delay={0.16} className="flex flex-col space-y-4">
-            <h4 className={`text-sm font-bold uppercase tracking-wider ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-              Headquarters Location
-            </h4>
-            <div className="relative w-full h-44 rounded-2xl overflow-hidden border border-emerald-500/20 group shadow-lg shadow-black/10">
-              <iframe
-                src={contactInfo.mapsIframe}
-                className="absolute inset-0 w-full h-full border-0 filter grayscale invert contrast-125 opacity-70 group-hover:opacity-90 transition-opacity duration-300"
-                allowFullScreen={true}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={`${brandName} Corporate Office Map Location`}
-              />
-              <div className="absolute inset-0 bg-emerald-950/10 pointer-events-none" />
-              <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md text-[10px] text-white px-2 py-1 rounded-md flex items-center space-x-1 border border-emerald-500/20">
-                <span>View Google Map</span>
-                <ExternalLink size={10} />
-              </div>
+                    <Icon className="w-5 h-5" />
+                  </Link>
+                );
+              })}
             </div>
-          </Reveal>
+          </div>
 
+          {/* Quick Links */}
+          <div className="lg:col-span-2 flex flex-col gap-4">
+            <h4 className="font-display text-sm font-semibold uppercase text-gold-accent tracking-wider">Company</h4>
+            <div className="flex flex-col gap-2.5 font-sans text-sm">
+              <Link href="/" className="text-gray-400 hover:text-white transition-colors">Home</Link>
+              <Link href="/portfolio" className="text-gray-400 hover:text-white transition-colors">Case Studies</Link>
+              <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Branch Locations</Link>
+              <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Careers</Link>
+            </div>
+          </div>
+
+          {/* Divisions */}
+          <div className="lg:col-span-2 flex flex-col gap-4">
+            <h4 className="font-display text-sm font-semibold uppercase text-gold-accent tracking-wider">Divisions</h4>
+            <div className="flex flex-col gap-2.5 font-sans text-sm">
+              <Link href="/divisions/erp" className="text-gray-400 hover:text-white transition-colors">Mahdev ERP</Link>
+              <Link href="/divisions/sws-events" className="text-gray-400 hover:text-white transition-colors">SWS Events</Link>
+              <Link href="/divisions/u1-studio" className="text-gray-400 hover:text-white transition-colors">U1 Studio</Link>
+              <Link href="/divisions/it-solutions" className="text-gray-400 hover:text-white transition-colors">IT Solutions</Link>
+              <Link href="/divisions/travels" className="text-gray-400 hover:text-white transition-colors">Mahdev Travels</Link>
+            </div>
+          </div>
+
+          {/* Contact Details & Newsletter */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
+              <h4 className="font-display text-sm font-semibold uppercase text-gold-accent tracking-wider">Newsletter</h4>
+              <p className="text-xs text-gray-400 leading-relaxed font-sans">
+                Subscribe to receive seasonal deals, technology audits, and luxury design insights.
+              </p>
+              
+              <form onSubmit={handleSubscribe} className="relative flex items-center">
+                <input 
+                  type="email" 
+                  placeholder="Enter your email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold-accent/50 text-white placeholder-gray-500 font-sans pr-12 transition-all"
+                />
+                <button 
+                  type="submit"
+                  className="absolute right-1.5 p-2 bg-gradient-to-r from-gold-accent to-gold-soft hover:brightness-110 rounded-lg text-navy-dark transition-all"
+                >
+                  {subscribed ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />}
+                </button>
+              </form>
+              {subscribed && (
+                <motion.p 
+                  initial={{ opacity: 0, y: 5 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  className="text-xs text-gold-soft font-semibold font-sans mt-1"
+                >
+                  Thank you! You have successfully subscribed.
+                </motion.p>
+              )}
+            </div>
+
+            {/* Map Preview */}
+            <div className="h-28 rounded-xl overflow-hidden border border-white/5 relative group">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.5905187788484!2d79.86047717498674!3d6.939466593060667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae2593b4f62cae1%3A0xc0fb198eeaa07897!2sPickerings%20Rd%2C%20Colombo!5e0!3m2!1sen!2slk!4v1719650000000!5m2!1sen!2slk"
+                width="100%" 
+                height="100%" 
+                style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) grayscale(80%)' }} 
+                loading="lazy"
+                title="Mahdev Office Location"
+              />
+              <div className="absolute inset-0 bg-navy-dark/10 pointer-events-none group-hover:bg-transparent transition-all duration-300" />
+            </div>
+          </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className={`mt-12 pt-8 border-t flex flex-col md:flex-row items-center justify-between text-xs space-y-4 md:space-y-0 ${
-          isDarkMode ? 'border-emerald-500/10' : 'border-slate-200'
-        }`}>
-          <p>© {currentYear} {brandName}. All Rights Reserved. Private Registry Registered.</p>
-          <div className="flex items-center space-x-6">
-            <a href="#privacy" className="hover:text-emerald-500 transition-colors">Privacy Policy</a>
-            <a href="#terms" className="hover:text-emerald-500 transition-colors">Terms of Service</a>
-            <a href="#sitemap" className="hover:text-emerald-500 transition-colors">Sitemap</a>
+        {/* Footer Bottom */}
+        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-6 font-sans text-xs text-gray-500">
+          <p>© {new Date().getFullYear()} Mahdev Pvt Ltd. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>

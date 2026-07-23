@@ -152,9 +152,7 @@ export default function App() {
     rafId = requestAnimationFrame(raf);
 
     // Immediate scroll reset when consumer views change
-    if (activePage !== ActivePage.Admin) {
-      lenis.scrollTo(0, { immediate: true });
-    }
+    lenis.scrollTo(0, { immediate: true });
 
     return () => {
       cancelAnimationFrame(rafId);

@@ -2022,9 +2022,9 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
                               </td>
                               <td className="py-3">
                                 <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[9px] font-mono mr-1.5 uppercase font-bold">
-                                  {enq.division || 'General'}
+                                  {enq.brand || 'General'}
                                 </span>
-                                <span className="text-slate-200 font-medium">{enq.subject}</span>
+                                <span className="text-slate-200 font-medium">{enq.eventType || enq.packageRequired || 'Enquiry'}</span>
                               </td>
                               <td className="py-3 font-mono text-[10px] text-slate-450">
                                 {new Date(enq.createdAt).toLocaleString()}

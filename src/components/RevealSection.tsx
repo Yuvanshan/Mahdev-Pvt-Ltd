@@ -9,6 +9,7 @@ interface RevealSectionProps {
   parallaxSpeed?: number;
   scaleOffset?: number;
   rotateOffset?: number;
+  id?: string;
 }
 
 export default function RevealSection({
@@ -18,7 +19,8 @@ export default function RevealSection({
   yOffset = 40,
   parallaxSpeed = 25,
   scaleOffset = 1,
-  rotateOffset = 0
+  rotateOffset = 0,
+  id
 }: RevealSectionProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   // Trigger once when 10% of the section is visible
@@ -36,6 +38,7 @@ export default function RevealSection({
   return (
     <motion.div
       ref={ref}
+      id={id}
       initial={{ 
         opacity: 0, 
         y: yOffset,

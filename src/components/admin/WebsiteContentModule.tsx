@@ -433,7 +433,8 @@ function CountdownTab({
 
   // Live preview timer
   const now = Date.now();
-  const diff = settings.enabled && settings.targetDate ? Math.max(0, new Date(settings.targetDate).getTime() - now) : 0;
+  const targetTime = settings.targetDate ? new Date(settings.targetDate).getTime() : 0;
+  const diff = settings.enabled && !isNaN(targetTime) ? Math.max(0, targetTime - now) : 0;
   const previewDays = Math.floor(diff / (1000 * 60 * 60 * 24));
   const previewHours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const previewMins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -478,7 +479,22 @@ function CountdownTab({
             <textarea value={settings.description} onChange={e => change('description', e.target.value)} rows={2} className={inputCls + ' resize-none'} placeholder="Brief description shown under the countdown" />
           </Field>
           <Field label="Target Date & Time">
-            <input type="datetime-local" value={settings.targetDate ? settings.targetDate.slice(0, 16) : ''} onChange={e => change('targetDate', new Date(e.target.value).toISOString())} className={inputCls + ' cursor-pointer'} />
+            <input 
+              type="datetime-local" 
+              value={settings.targetDate ? settings.targetDate.slice(0, 16) : ''} 
+              onChange={e => {
+                const val = e.target.value;
+                if (!val) {
+                  change('targetDate', '');
+                  return;
+                }
+                const date = new Date(val);
+                if (!isNaN(date.getTime())) {
+                  change('targetDate', date.toISOString());
+                }
+              }} 
+              className={inputCls + ' cursor-pointer'} 
+            />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Button Label">

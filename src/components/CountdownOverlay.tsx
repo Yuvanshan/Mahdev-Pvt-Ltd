@@ -14,53 +14,61 @@ interface CountdownOverlayProps {
 }
 
 export default function CountdownOverlay({ settings, onFinished }: CountdownOverlayProps) {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  const [isReady, setIsReady] = useState(false);
+  const calculateTime = React.useCallback(() => {
+    const targetTime = new Date(settings.targetDate).getTime();
+    const difference = targetTime - Date.now();
+
+    if (isNaN(targetTime) || difference <= 0) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
+    }
+
+    return {
+      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+      minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+      seconds: Math.floor((difference % (1000 * 60)) / 1000),
+      expired: false
+    };
+  }, [settings.targetDate]);
+
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const initial = calculateTime();
+    return { days: initial.days, hours: initial.hours, minutes: initial.minutes, seconds: initial.seconds };
+  });
 
   useEffect(() => {
-    setIsReady(true);
-    const targetTime = new Date(settings.targetDate).getTime();
-
-    const calculateTime = () => {
-      const difference = targetTime - Date.now();
-
-      if (difference <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const checkExpiration = () => {
+      const state = calculateTime();
+      if (state.expired) {
         onFinished();
         return false;
       }
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-      setTimeLeft({ days, hours, minutes, seconds });
+      setTimeLeft({ days: state.days, hours: state.hours, minutes: state.minutes, seconds: state.seconds });
       return true;
     };
 
-    const active = calculateTime();
+    const active = checkExpiration();
     if (!active) return;
 
     const timer = setInterval(() => {
-      const ongoing = calculateTime();
+      const ongoing = checkExpiration();
       if (!ongoing) {
         clearInterval(timer);
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [settings.targetDate, onFinished]);
+  }, [calculateTime, onFinished]);
 
   // Generate 25 stars with random properties for background parallax drift
-  const stars = Array.from({ length: 25 }).map((_, i) => ({
+  const stars = React.useMemo(() => Array.from({ length: 25 }).map((_, i) => ({
     id: i,
     size: Math.random() * 2 + 1,
     x: Math.random() * 100,
     y: Math.random() * 100,
     duration: Math.random() * 15 + 10,
     delay: Math.random() * -20,
-  }));
+  })), []);
 
   const timeBlocks = [
     { label: 'Days', value: timeLeft.days },
@@ -68,8 +76,6 @@ export default function CountdownOverlay({ settings, onFinished }: CountdownOver
     { label: 'Minutes', value: timeLeft.minutes },
     { label: 'Seconds', value: timeLeft.seconds },
   ];
-
-  if (!isReady) return null;
 
   return (
     <motion.div

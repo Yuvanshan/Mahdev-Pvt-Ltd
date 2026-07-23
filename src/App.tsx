@@ -569,6 +569,8 @@ export default function App() {
   const showCountdown = 
     countdownSettings?.enabled === true &&
     !isCountdownExpired &&
+    countdownSettings.targetDate &&
+    !isNaN(new Date(countdownSettings.targetDate).getTime()) &&
     new Date(countdownSettings.targetDate).getTime() > Date.now();
 
   return (

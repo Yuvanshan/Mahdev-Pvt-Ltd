@@ -1,0 +1,13 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/contact/page": "/contact",
+  "/divisions/erp/page": "/divisions/erp",
+  "/divisions/it-solutions/page": "/divisions/it-solutions",
+  "/divisions/sws-events/page": "/divisions/sws-events",
+  "/divisions/travels/page": "/divisions/travels",
+  "/divisions/u1-studio/page": "/divisions/u1-studio",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/portfolio/page": "/portfolio"
+}

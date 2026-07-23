@@ -1,0 +1,13 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/contact/page": "app/contact/page.js",
+  "/divisions/erp/page": "app/divisions/erp/page.js",
+  "/divisions/it-solutions/page": "app/divisions/it-solutions/page.js",
+  "/divisions/sws-events/page": "app/divisions/sws-events/page.js",
+  "/divisions/travels/page": "app/divisions/travels/page.js",
+  "/divisions/u1-studio/page": "app/divisions/u1-studio/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js",
+  "/portfolio/page": "app/portfolio/page.js"
+}

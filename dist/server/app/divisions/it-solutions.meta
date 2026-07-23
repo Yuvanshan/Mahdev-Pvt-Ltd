@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/divisions/layout,_N_T_/divisions/it-solutions/layout,_N_T_/divisions/it-solutions/page,_N_T_/divisions/it-solutions"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/divisions/it-solutions/__PAGE__",
+    "/divisions/it-solutions",
+    "/divisions",
+    "/_index",
+    "/_head"
+  ]
+}

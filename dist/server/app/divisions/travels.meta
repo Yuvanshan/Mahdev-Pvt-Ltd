@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/divisions/layout,_N_T_/divisions/travels/layout,_N_T_/divisions/travels/page,_N_T_/divisions/travels"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/divisions/travels/__PAGE__",
+    "/divisions/travels",
+    "/divisions",
+    "/_index",
+    "/_head"
+  ]
+}

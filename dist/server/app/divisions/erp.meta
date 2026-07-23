@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/divisions/layout,_N_T_/divisions/erp/layout,_N_T_/divisions/erp/page,_N_T_/divisions/erp"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/divisions/erp/__PAGE__",
+    "/divisions/erp",
+    "/divisions",
+    "/_index",
+    "/_head"
+  ]
+}

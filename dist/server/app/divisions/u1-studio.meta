@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/divisions/layout,_N_T_/divisions/u1-studio/layout,_N_T_/divisions/u1-studio/page,_N_T_/divisions/u1-studio"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/divisions/u1-studio/__PAGE__",
+    "/divisions/u1-studio",
+    "/divisions",
+    "/_index",
+    "/_head"
+  ]
+}

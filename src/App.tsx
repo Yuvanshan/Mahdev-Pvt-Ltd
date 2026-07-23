@@ -15,6 +15,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ThreeCanvas from './components/ThreeCanvas';
 import FloatingActions from './components/FloatingActions';
+import CountdownOverlay from './components/CountdownOverlay';
 
 // Views
 import HomeView from './components/HomeView';
@@ -119,6 +120,11 @@ export default function App() {
   const [clients, setClients] = useState(() => getTrustableClients());
   const [completedProjects, setCompletedProjects] = useState(() => getCompletedProjects());
   const [enquiries, setEnquiries] = useState<any[]>([]);
+  const [isCountdownExpired, setIsCountdownExpired] = useState(false);
+
+  useEffect(() => {
+    setIsCountdownExpired(false);
+  }, [countdownSettings]);
 
   // Global Lenis Smooth Scroll Setup
   useEffect(() => {
@@ -562,6 +568,11 @@ export default function App() {
     );
   }
 
+  const showCountdown = 
+    countdownSettings?.enabled === true &&
+    !isCountdownExpired &&
+    new Date(countdownSettings.targetDate).getTime() > Date.now();
+
   return (
     <>
       <style>{styleContent}</style>
@@ -632,6 +643,15 @@ export default function App() {
           />
 
           <FloatingActions />
+
+          <AnimatePresence>
+            {showCountdown && (
+              <CountdownOverlay
+                settings={countdownSettings}
+                onFinished={() => setIsCountdownExpired(true)}
+              />
+            )}
+          </AnimatePresence>
         </motion.div>
       </AnimatePresence>
     </>

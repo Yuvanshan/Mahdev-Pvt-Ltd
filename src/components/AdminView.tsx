@@ -1425,7 +1425,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase tracking-widest active:scale-[0.98] transition-all shadow-lg shadow-indigo-600/15 flex items-center justify-center space-x-2 cursor-pointer"
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-widest active:scale-[0.98] transition-all shadow-lg shadow-purple-600/20 hover:shadow-purple-500/40 flex items-center justify-center space-x-2 cursor-pointer"
             >
               <span>Unlock Console</span>
               <Unlock size={14} />
@@ -1495,7 +1495,7 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
                 type="button"
                 onClick={() => toggleGroup(group)}
                 className={`w-full flex items-center justify-between px-6 py-2 text-[9px] font-black uppercase tracking-widest ${
-                  isMobile ? 'text-purple-400' : 'text-indigo-200/50'
+                  isMobile ? 'text-purple-400' : 'text-slate-400/50'
                 } hover:text-white transition-colors text-left`}
               >
                 <span>{group}</span>
@@ -1517,8 +1517,8 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
                         : "text-neutral-400 hover:text-white pl-6 pr-4";
                     } else {
                       btnClass = isActive
-                        ? "bg-[#f8f7fa] dark:bg-[#0f1129] text-[#3b118b] dark:text-purple-400 font-bold rounded-l-full ml-4 pl-6 relative"
-                        : "text-indigo-200 hover:text-white hover:bg-white/5 ml-4 pl-6 rounded-l-full";
+                        ? "bg-[#f8f7fa] dark:bg-[#0f1129] text-purple-600 dark:text-purple-400 font-bold rounded-l-full ml-4 pl-6 relative"
+                        : "text-slate-400 hover:text-white hover:bg-white/5 ml-4 pl-6 rounded-l-full";
                     }
 
                     return (
@@ -1543,8 +1543,8 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
                           size={14}
                           className={
                             isActive
-                              ? isDarkMode ? "text-purple-400" : "text-[#3b118b]"
-                              : "text-indigo-300/70 group-hover:text-white"
+                              ? isDarkMode ? "text-purple-400" : "text-purple-600"
+                              : "text-slate-400/70 group-hover:text-white"
                           }
                         />
                         <span className="truncate">{tab.label}</span>
@@ -1653,13 +1653,13 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-[#3b118b] p-6 shadow-2xl z-50 flex flex-col h-full lg:hidden overflow-y-auto scrollbar-thin scrollbar-thumb-white/20"
+              className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-neutral-950 p-6 shadow-2xl z-50 flex flex-col h-full lg:hidden overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 border-r border-slate-900"
             >
               {/* Drawer Header */}
-              <div className="flex items-center justify-between pb-6 mb-6 border-b border-white/10">
+              <div className="flex items-center justify-between pb-6 mb-6 border-b border-slate-900">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                    <span className="text-[#3b118b] font-bold text-sm">M</span>
+                  <div className="w-8 h-8 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                    <span className="text-purple-400 font-bold text-sm">M</span>
                   </div>
                   <span className="text-sm font-extrabold tracking-wider text-white uppercase font-mono">
                     Editor Sections
@@ -1699,18 +1699,18 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
       }`}>
 
         {/* Desktop Sidebar Panel */}
-        <aside className="hidden lg:flex flex-col justify-between w-64 shrink-0 bg-[#3b118b] text-white p-0 relative">
+        <aside className="hidden lg:flex flex-col justify-between w-64 shrink-0 bg-neutral-950 text-white p-0 relative border-r border-slate-900">
           <div>
             {/* Sidebar Logo Box (Jobie style) */}
-            <div className="p-6 border-b border-white/5 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg shrink-0">
-                <span className="text-[#3b118b] font-black text-xl font-display">M</span>
+            <div className="p-6 border-b border-slate-900 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shadow-lg shrink-0">
+                <span className="text-purple-400 font-black text-xl font-display">M</span>
               </div>
               <div>
                 <h2 className="text-base font-extrabold text-white tracking-tight leading-none uppercase">
                   Mahdev
                 </h2>
-                <p className="text-[9px] text-indigo-200 uppercase tracking-widest font-extrabold mt-1">Super Admin</p>
+                <p className="text-[9px] text-purple-400 uppercase tracking-widest font-extrabold mt-1">Super Admin</p>
               </div>
             </div>
 

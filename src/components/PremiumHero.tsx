@@ -54,6 +54,14 @@ function FloatingTicker({ items }: { items: string[] }) {
 
 export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, themeSettings }: PremiumHeroProps) {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const heroStars = useState(() => Array.from({ length: 18 }).map((_, i) => ({
+    id: i,
+    size: Math.random() * 2 + 0.8,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    duration: Math.random() * 25 + 20,
+    delay: Math.random() * -30,
+  })))[0];
   const heroRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -233,6 +241,29 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, the
           className="absolute inset-0 bg-[radial-gradient(#7c3aed_1px,transparent_1px)] [background-size:32px_32px] pointer-events-none"
         />
 
+        {/* ── SPACE DUST FLOATING STARS ── */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+          {heroStars.map((star) => (
+            <motion.div
+              key={star.id}
+              initial={{ y: '105vh', x: `${star.x}vw` }}
+              animate={{ y: '-5vh' }}
+              transition={{
+                duration: star.duration,
+                repeat: Infinity,
+                ease: 'linear',
+                delay: star.delay,
+              }}
+              className="absolute rounded-full bg-white opacity-20"
+              style={{
+                width: star.size,
+                height: star.size,
+                boxShadow: star.size > 1.8 ? '0 0 6px rgba(255,255,255,0.6)' : 'none',
+              }}
+            />
+          ))}
+        </div>
+
         {/* ── PARALLAX AMBIENT ORB (mid layer) ── */}
         <motion.div
           style={{ y: bgY }}
@@ -322,13 +353,14 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, the
                   whileHover={{ scale: 1.04, y: -2 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setIsVideoModalOpen(true)}
-                  className={`px-6 py-3.5 rounded-full border backdrop-blur-md text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 cursor-pointer ${isDarkMode
+                  className={`px-6 py-3.5 rounded-full border backdrop-blur-md text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 cursor-pointer relative overflow-hidden group ${isDarkMode
                       ? 'border-slate-700/80 bg-slate-900/60 text-slate-200 hover:bg-slate-800/80 hover:border-purple-500/40'
                       : 'border-slate-300 bg-white/80 text-slate-800 hover:bg-slate-100'
                     }`}
                 >
-                  <div className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center">
-                    <Play size={11} className="fill-purple-400 ml-0.5" />
+                  <div className="relative w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                    <span className="absolute inset-0 rounded-full bg-purple-500/35 animate-ping opacity-60 pointer-events-none" />
+                    <Play size={11} className="fill-purple-400 ml-0.5 relative z-10" />
                   </div>
                   <span>Watch Video</span>
                 </motion.button>
@@ -369,17 +401,22 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, the
                 {/* Portal ring 1 */}
                 <div 
                   style={{ transform: 'translateZ(-40px)' }}
-                  className="absolute w-[320px] sm:w-[430px] h-[320px] sm:h-[430px] rounded-full border border-purple-500/20 mhd-ring1 pointer-events-none" 
+                  className="absolute w-[320px] sm:w-[430px] h-[320px] sm:h-[430px] rounded-full border border-dashed border-purple-500/25 mhd-ring1 pointer-events-none" 
                 />
                 {/* Portal ring 2 */}
                 <div 
                   style={{ transform: 'translateZ(-20px)' }}
-                  className="absolute w-[240px] sm:w-[330px] h-[240px] sm:h-[330px] rounded-full border border-pink-500/20 mhd-ring2 pointer-events-none" 
+                  className="absolute w-[240px] sm:w-[330px] h-[240px] sm:h-[330px] rounded-full border border-dotted border-pink-500/25 mhd-ring2 pointer-events-none" 
                 />
                 {/* Ground glow */}
                 <div 
                   style={{ transform: 'translateZ(-50px)' }}
                   className="absolute bottom-6 w-[280px] sm:w-[370px] h-[70px] rounded-[100%] bg-gradient-to-t from-purple-600/35 via-indigo-500/15 to-transparent blur-xl pointer-events-none" 
+                />
+                {/* Mascot Outer Ring Glow */}
+                <div 
+                  style={{ transform: 'translateZ(10px)' }}
+                  className="absolute w-[230px] sm:w-[300px] h-[230px] sm:h-[300px] rounded-full border border-purple-500/20 bg-purple-500/5 animate-pulse pointer-events-none"
                 />
 
                 {/* 3D Mascot */}

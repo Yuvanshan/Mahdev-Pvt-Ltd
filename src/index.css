@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Poppins:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Poppins:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;500;700;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--custom-font-sans, "Inter"), "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--custom-font-display, "Poppins"), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Outfit", var(--custom-font-sans, "Inter"), "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", var(--custom-font-display, "Poppins"), "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   /* Override emerald to be elegant, vibrant royal purple */

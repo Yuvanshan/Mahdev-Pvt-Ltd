@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import RevealSection from './RevealSection';
 import { 
   Globe, Smartphone, Code, Palette, Cloud, Server, 
   ShieldAlert, Wrench, ExternalLink, ArrowRight, X, Laptop, Eye,
@@ -38,6 +39,13 @@ export default function ItSolutionsView({
 }: ItSolutionsViewProps) {
   
   const brandShort = themeSettings?.brandName ? themeSettings.brandName.split(' ')[0] : 'Mahdev';
+
+  const heroRef = React.useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start']
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '35%']);
 
   // State to handle ERP vs Custom Development tabs
   const [activeBrandTab, setActiveBrandTab] = useState<'erp' | 'custom'>(initialTab);
@@ -203,14 +211,14 @@ export default function ItSolutionsView({
   return (
     <div id="it-solutions-view-container" className="relative w-full text-slate-100 bg-neutral-950 min-h-screen">
       
-      {/* Glow Effects */}
-      <div className="absolute top-20 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Glow Effects (Parallax drifting) */}
+      <motion.div style={{ y: bgY }} className="absolute top-20 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+      <motion.div style={{ y: useTransform(scrollYProgress, [0, 1], ['0%', '15%']) }} className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+      <motion.div style={{ y: useTransform(scrollYProgress, [0, 1], ['0%', '45%']) }} className="absolute bottom-10 left-1/3 w-80 h-80 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Brand Hero Header */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 border-b border-blue-500/10 overflow-hidden">
-        <div className="max-w-7xl mx-auto relative z-10 text-center">
+      <section ref={heroRef} className="relative py-20 px-4 sm:px-6 lg:px-8 border-b border-blue-500/10 overflow-hidden">
+        <RevealSection className="max-w-7xl mx-auto relative z-10 text-center">
           <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono flex items-center justify-center gap-1.5 mb-3">
             <Sparkles size={14} className="animate-pulse" />
             MAHDEV IT & SOLUTIONS CO.
@@ -230,18 +238,18 @@ export default function ItSolutionsView({
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
                   activeBrandTab === 'custom' 
                     ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/20' 
-                    : 'text-slate-400 hover:text-white hover:bg-neutral-800'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <Layers size={16} />
-                <span>Custom Web & Apps</span>
+                <Laptop size={16} />
+                <span>Custom Software Dev</span>
               </button>
               <button
                 onClick={() => setActiveBrandTab('erp')}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
                   activeBrandTab === 'erp' 
                     ? 'bg-gradient-to-r from-purple-600 to-indigo-500 text-white shadow-lg shadow-purple-500/20' 
-                    : 'text-slate-400 hover:text-white hover:bg-neutral-800'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
                 <Building2 size={16} />
@@ -249,7 +257,7 @@ export default function ItSolutionsView({
               </button>
             </div>
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* BRAND TABS RENDERING */}
@@ -265,7 +273,7 @@ export default function ItSolutionsView({
               className="space-y-24"
             >
               {/* Technology Capabilities Grid */}
-              <div>
+              <RevealSection className="w-full">
                 <div className="text-center max-w-2xl mx-auto mb-16">
                   <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-4">
                     Fullstack Technical Solutions Suite
@@ -293,10 +301,10 @@ export default function ItSolutionsView({
                     </div>
                   ))}
                 </div>
-              </div>
+              </RevealSection>
 
               {/* Client Showcase Portfolio (with web simulator) */}
-              <div id="projects-showcase">
+              <RevealSection id="projects-showcase" className="w-full">
                 <div className="text-center max-w-2xl mx-auto mb-16">
                   <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider font-mono px-2.5 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-md">
                     Click "Visit Live Website" to Launch Browser Sandbox
@@ -355,7 +363,7 @@ export default function ItSolutionsView({
                     </div>
                   ))}
                 </div>
-              </div>
+              </RevealSection>
             </motion.div>
           ) : (
             <motion.div
@@ -367,7 +375,8 @@ export default function ItSolutionsView({
               className="space-y-12"
             >
               {/* Introduction */}
-              <div className="text-center max-w-2xl mx-auto mb-12">
+              <RevealSection className="w-full">
+                <div className="text-center max-w-2xl mx-auto mb-12">
                 <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider font-mono px-2.5 py-1 bg-purple-500/10 border border-purple-500/20 rounded-md">
                   Interactive Live ERP Modules Sandbox
                 </span>
@@ -401,9 +410,10 @@ export default function ItSolutionsView({
                   </button>
                 ))}
               </div>
+            </RevealSection>
 
               {/* ERP Active Sandbox Panel */}
-              <div className="border border-slate-800 rounded-2xl overflow-hidden bg-neutral-900 shadow-2xl">
+              <RevealSection className="border border-slate-800 rounded-2xl overflow-hidden bg-neutral-900 shadow-2xl w-full">
                 <div className="bg-neutral-950 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full bg-purple-500 animate-ping" />
@@ -650,7 +660,7 @@ export default function ItSolutionsView({
                     </div>
                   )}
                 </div>
-              </div>
+              </RevealSection>
             </motion.div>
           )}
         </AnimatePresence>
@@ -658,7 +668,7 @@ export default function ItSolutionsView({
 
       {/* CRM Consultation Lead Form */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 border-t border-slate-900 bg-neutral-950">
-        <div className="max-w-3xl mx-auto rounded-3xl border border-slate-800 bg-neutral-900/60 p-8 shadow-2xl relative overflow-hidden">
+        <RevealSection className="max-w-3xl mx-auto rounded-3xl border border-slate-800 bg-neutral-900/60 p-8 shadow-2xl relative overflow-hidden">
           
           {/* Subtle Form Accent Background */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -837,7 +847,7 @@ export default function ItSolutionsView({
             )}
           </AnimatePresence>
 
-        </div>
+        </RevealSection>
       </section>
 
       {/* Mock Client Browser Window Modal */}

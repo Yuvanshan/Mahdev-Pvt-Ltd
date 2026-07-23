@@ -4,7 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import RevealSection from './RevealSection';
 import { Camera, Video, Compass, MapPin, Eye, CheckCircle, Calculator, ChevronRight, Check, MessageSquare } from 'lucide-react';
 import { PHOTO_PORTFOLIO, PHOTO_PRICING } from '../data';
 import { PhotoPortfolioItem, ThemeSettings } from '../types';
@@ -29,6 +30,13 @@ export default function PhotographyView({
   const brandName = 'U1 Studio';
   const brandShort = 'U1';
   const heroImage = themeSettings?.photographyBanner || u1HeroImage;
+
+  const heroRef = React.useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start']
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '35%']);
 
   // Filter Portfolio State
   const [activeFilter, setActiveFilter] = useState('All');
@@ -86,9 +94,10 @@ export default function PhotographyView({
 
       
       {/* Hero Banner */}
-      <section className="relative py-28 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black">
-        <div className="absolute inset-0 z-0">
-          <img 
+      <section ref={heroRef} className="relative py-28 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black">
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <motion.img 
+            style={{ y: bgY }}
             src={heroImage} 
             alt="Photography Hero Banner" 
             className="w-full h-full object-cover opacity-20 filter grayscale"
@@ -134,7 +143,7 @@ export default function PhotographyView({
 
       {/* Categories Row & Portfolio Grid */}
       <section id="u1-portfolio-section" className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+        <RevealSection className="max-w-7xl mx-auto">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-4 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
@@ -205,7 +214,7 @@ export default function PhotographyView({
             </AnimatePresence>
           </motion.div>
 
-        </div>
+        </RevealSection>
       </section>
 
       {/* Pricing and Interactive Estimate Builder */}
@@ -215,7 +224,7 @@ export default function PhotographyView({
           isDarkMode ? 'bg-neutral-950/40 border-emerald-500/10' : 'bg-slate-50 border-slate-200'
         }`}
       >
-        <div className="max-w-7xl mx-auto">
+        <RevealSection className="max-w-7xl mx-auto">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2
@@ -449,7 +458,7 @@ export default function PhotographyView({
 
           </div>
 
-        </div>
+        </RevealSection>
       </section>
 
     </div>

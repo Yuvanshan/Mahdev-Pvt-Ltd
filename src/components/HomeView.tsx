@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, useInView } from 'motion/react';
+import { motion } from 'motion/react';
 import { 
   ArrowRight, ArrowUpRight, CheckCircle2, ChevronLeft, ChevronRight, 
   Sparkles, Star, TrendingUp, ShieldCheck, Zap, Server, Globe, Cpu, Award,
@@ -8,6 +8,7 @@ import {
 import { ActivePage, ServiceCard, Leader, ThemeSettings, CompanyStatistic, CountdownSettings, TrustableClient, CompletedProject } from '../types';
 import { SERVICES_LIST, COMPANY_CONTACT } from '../data';
 import PremiumHero from './PremiumHero';
+import RevealSection from './RevealSection';
 
 // Generated 3D Image References
 import swsRobotImgAsset from '../assets/images/sws_robot_decor_1783346269673.jpg';
@@ -25,24 +26,6 @@ interface HomeViewProps {
   countdownSettings?: CountdownSettings;
   clients?: TrustableClient[];
   completedProjects?: CompletedProject[];
-}
-
-// Scroll-triggered Motion Container Component
-function RevealSection({ children, className = '', delay = 0, yOffset = 30 }: { children: React.ReactNode; className?: string; delay?: number; yOffset?: number }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.15 });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: yOffset }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: yOffset }}
-      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
 }
 
 export default function HomeView({ 

@@ -8,7 +8,6 @@ import {
   History as HistoryIcon,
   Cloud, Database, HardDrive, Folder, FolderPlus, File
 } from 'lucide-react';
-import EnterpriseHub from './admin/EnterpriseHub';
 import WebsiteContentModule, { WebsiteContentTab } from './admin/WebsiteContentModule';
 import {
   getCompanyContact, saveCompanyContact,
@@ -666,15 +665,6 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
     );
   };
 
-  // Enterprise Analytics Database states
-  const [customers, setCustomers] = useState(() => getCustomers());
-  const [erpProjects, setErpProjects] = useState(() => getErpProjects());
-  const [quotations, setQuotations] = useState(() => getQuotations());
-  const [invoices, setInvoices] = useState(() => getInvoices());
-  const [payments, setPayments] = useState(() => getPayments());
-  const [expenses, setExpenses] = useState(() => getExpenses());
-  const [incomes, setIncomes] = useState(() => getIncomes());
-  const [employees, setEmployees] = useState(() => getEmployees());
 
   // Logo uploading custom states and logic
   const [isDraggingLogo, setIsDraggingLogo] = useState(false);
@@ -814,14 +804,6 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
   React.useEffect(() => {
     if (activeTab === 'dashboard') {
       setBookingsState(getBookings());
-      setCustomers(getCustomers());
-      setErpProjects(getErpProjects());
-      setQuotations(getQuotations());
-      setInvoices(getInvoices());
-      setPayments(getPayments());
-      setExpenses(getExpenses());
-      setIncomes(getIncomes());
-      setEmployees(getEmployees());
     }
   }, [activeTab]);
 
@@ -829,14 +811,6 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
   React.useEffect(() => {
     const handler = () => {
       setBookingsState(getBookings());
-      setCustomers(getCustomers());
-      setErpProjects(getErpProjects());
-      setQuotations(getQuotations());
-      setInvoices(getInvoices());
-      setPayments(getPayments());
-      setExpenses(getExpenses());
-      setIncomes(getIncomes());
-      setEmployees(getEmployees());
     };
     window.addEventListener('mahdev-db-synced', handler as EventListener);
     return () => window.removeEventListener('mahdev-db-synced', handler as EventListener);
@@ -1463,16 +1437,14 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
   }
 
   const adminTabs = [
-    { id: 'dashboard' as const, label: 'Central CRM & Bookings', icon: TrendingUp, group: 'Operations' },
-    { id: 'crm' as const, label: 'Enterprise CRM', icon: Users, group: 'Operations' },
-    { id: 'projects_erp' as const, label: 'Projects ERP', icon: Briefcase, group: 'Operations' },
-    { id: 'finances' as const, label: 'Financial Suite', icon: DollarSign, group: 'Operations' },
-    { id: 'employees' as const, label: 'Staff & Payroll', icon: User, group: 'Operations' },
-    { id: 'systems' as const, label: 'Systems & Audits', icon: Activity, group: 'Operations' },
-    { id: 'ai_assistant' as const, label: 'Gemini AI Assistant', icon: Cpu, group: 'Operations', color: 'text-purple-400' },
+    { id: 'dashboard' as const, label: 'Overview Dashboard', icon: Activity, group: 'Overview & Mail' },
+    { id: 'enquiries' as const, label: 'Client Enquiries', icon: Mail, group: 'Overview & Mail', color: 'text-blue-400' },
+    
     { id: 'theme' as const, label: 'Website Design & Theme', icon: Settings, group: 'Design & Config' },
     { id: 'seo' as const, label: 'SEO Settings', icon: Search, group: 'Design & Config', color: 'text-purple-400' },
-    { id: 'email_settings' as const, label: 'Systems, Cloud & Email', icon: HardDrive, group: 'Design & Config', color: 'text-purple-400' },
+    { id: 'email_settings' as const, label: 'Cloud & Email Systems', icon: HardDrive, group: 'Design & Config', color: 'text-purple-400' },
+    { id: 'ai_assistant' as const, label: 'Gemini AI Assistant', icon: Cpu, group: 'Design & Config', color: 'text-purple-400' },
+
     { id: 'contact' as const, label: 'Contact & Maps', icon: Mail, group: 'General Content' },
     { id: 'services' as const, label: 'Main Divisions', icon: Layers, group: 'General Content' },
     { id: 'portfolio' as const, label: 'Photo Gallery', icon: ImageIcon, group: 'General Content' },
@@ -1480,18 +1452,20 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
     { id: 'projects' as const, label: 'IT Portals', icon: Globe, group: 'General Content' },
     { id: 'leaders' as const, label: 'Board Directors', icon: User, group: 'General Content' },
     { id: 'testimonials' as const, label: 'Testimonials', icon: Sparkles, group: 'General Content' },
-    { id: 'decor_posts' as const, label: 'SWS Decor Posts', icon: ImageIcon, group: 'SWS Division', color: 'text-emerald-400' },
-    { id: 'rentals' as const, label: 'SWS Rental Things', icon: Sparkles, group: 'SWS Division', color: 'text-emerald-400' },
-    { id: 'travels_fleet' as const, label: 'Travels Fleet', icon: Car, group: 'Travels Division', color: 'text-emerald-400' },
-    { id: 'travels_tours' as const, label: 'Travels Tours', icon: Compass, group: 'Travels Division', color: 'text-emerald-400' },
-    { id: 'enquiries' as const, label: 'Enquiries', icon: Mail, group: 'Website Content', color: 'text-blue-400' },
-    { id: 'statistics' as const, label: 'Statistics Counters', icon: TrendingUp, group: 'Website Content', color: 'text-purple-400' },
-    { id: 'countdown' as const, label: 'Countdown Timer', icon: Clock, group: 'Website Content', color: 'text-amber-400' },
-    { id: 'clients' as const, label: 'Trustable Clients', icon: Building, group: 'Website Content', color: 'text-emerald-400' },
-    { id: 'completed_projects' as const, label: 'Completed Projects', icon: Folder, group: 'Website Content', color: 'text-pink-400' },
+
+    { id: 'decor_posts' as const, label: 'SWS Decor Posts', icon: ImageIcon, group: 'SWS Events', color: 'text-emerald-400' },
+    { id: 'rentals' as const, label: 'SWS Rental Things', icon: Sparkles, group: 'SWS Events', color: 'text-emerald-400' },
+
+    { id: 'travels_fleet' as const, label: 'Travels Fleet', icon: Car, group: 'Travels Fleet', color: 'text-emerald-400' },
+    { id: 'travels_tours' as const, label: 'Travels Tours', icon: Compass, group: 'Travels Fleet', color: 'text-emerald-400' },
+
+    { id: 'statistics' as const, label: 'Statistics Counters', icon: TrendingUp, group: 'Home Elements', color: 'text-purple-400' },
+    { id: 'countdown' as const, label: 'Countdown Timer', icon: Clock, group: 'Home Elements', color: 'text-amber-400' },
+    { id: 'clients' as const, label: 'Trustable Clients', icon: Building, group: 'Home Elements', color: 'text-emerald-400' },
+    { id: 'completed_projects' as const, label: 'Completed Projects', icon: Folder, group: 'Home Elements', color: 'text-pink-400' },
   ];
 
-  const tabGroups = ['Operations', 'Design & Config', 'General Content', 'SWS Division', 'Travels Division', 'Website Content'] as const;
+  const tabGroups = ['Overview & Mail', 'Design & Config', 'General Content', 'SWS Events', 'Travels Fleet', 'Home Elements'] as const;
 
   const handleTabSelect = (tabId: typeof activeTab) => {
     setActiveTab(tabId);
@@ -1837,645 +1811,235 @@ export default function AdminView({ isDarkMode, onDataChange, themeSettings, enq
 
             {/* Central CRM & Bookings Dashboard Tab */}
             {activeTab === 'dashboard' && (
-              <div className="space-y-10">
-                {/* Board Role Switcher & Header */}
-                <div className={`p-5 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-6 ${isDarkMode ? 'bg-slate-950/80 border-slate-850' : 'bg-slate-50 border-slate-200'
-                  }`}>
-                  <div className="space-y-1">
-                    <span className={`text-[10px] font-semibold uppercase tracking-wider block ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>
-                      Interactive Board Role Simulator
-                    </span>
-                    <h4 className={`text-sm font-bold flex items-center gap-1.5 ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
-                      <ShieldCheck size={16} className="text-indigo-500" />
-                      Viewing Workspace as: <span className="text-purple-400">{adminRole === 'ceo' ? 'Yuvanshan Prabakaran (CEO)' : 'Divaincy Fernando (Managing Director)'}</span>
-                    </h4>
-                    <p className="text-xs text-slate-400">
-                      {adminRole === 'ceo'
-                        ? '⚡ CEO Mode: Authorized to view central financial charts, CRM balances, and database scale statuses.'
-                        : '🌸 MD Mode: Authorized to view active rentals inventory limits, photography schedules, and wedding logistics.'}
-                    </p>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setAdminRole('ceo')}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${adminRole === 'ceo'
-                          ? 'bg-purple-600 border-purple-500 text-white'
-                          : 'bg-neutral-900 border-slate-800 text-slate-400 hover:text-white'
-                        }`}
-                    >
-                      Yuvanshan (CEO)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAdminRole('md')}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${adminRole === 'md'
-                          ? 'bg-purple-600 border-purple-500 text-white'
-                          : 'bg-neutral-900 border-slate-800 text-slate-400 hover:text-white'
-                        }`}
-                    >
-                      Divaincy (MD)
-                    </button>
-                  </div>
-                </div>
-
-                {/* Simulated Notification Feeds */}
-                <div className={`p-4 rounded-xl border flex items-start gap-3 text-xs ${isDarkMode ? 'bg-purple-950/20 border-purple-500/10 text-purple-200' : 'bg-purple-50 border-purple-200 text-purple-800'
-                  }`}>
-                  <Sparkles size={16} className="shrink-0 text-purple-400 mt-0.5 animate-pulse" />
+              <div className="space-y-8 animate-fadeIn text-left">
+                {/* Header card with welcome */}
+                <div className={`p-6 rounded-2xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
+                  isDarkMode ? 'bg-slate-950/40 border-slate-800' : 'bg-white border-slate-200'
+                }`}>
                   <div>
-                    <p className="font-bold">Tailored Executive Notifications ({adminRole.toUpperCase()})</p>
-                    <p className="mt-1 leading-relaxed text-[11px] text-slate-400">
-                      {adminRole === 'ceo'
-                        ? 'Server status: 100% database health. Active Kubernetes pods: 12. Estimated S-Class fleet GPS tracking: Online. Real-time API status: Synced.'
-                        : 'Logistics alert: SWS Luxury Floral sets pre-booking required for upcoming wedding stage requests. KDH Van servicing scheduled for airport transfer runs.'}
+                    <h3 className={`text-xl font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                      <Activity className="text-purple-500" size={20} />
+                      Website Content Dashboard
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Real-time overview of the public website content, active theme settings, client requests and service divisions.
                     </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="px-3 py-1 text-xs font-mono rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                      Cloud DB Status: Synced
+                    </span>
                   </div>
                 </div>
 
-                {/* 24-Point Executive Dashboard KPIs & Visualizers */}
-                {(() => {
-                  // Compute real-time Financial KPIs from local database arrays
-                  const totalInvoicedAmount = invoices.reduce((sum, inv) => sum + ((inv.paidAmount || 0) + (inv.remainingAmount || 0)), 0);
-                  const totalPaymentsReceived = payments.reduce((sum, pay) => sum + (pay.amount || 0), 0);
-                  const otherIncomeTotal = incomes.reduce((sum, inc) => sum + (inc.amount || 0), 0);
-                  const totalRevenue = totalPaymentsReceived + otherIncomeTotal;
-                  const totalExpenses = expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
-                  const totalProfit = totalRevenue - totalExpenses;
-
-                  const pendingPayments = invoices
-                    .filter(inv => inv.status === 'Pending' || inv.status === 'Partially Paid' || inv.status === 'Overdue')
-                    .reduce((sum, inv) => sum + (inv.remainingAmount || 0), 0);
-
-                  const advancePaymentsReceived = payments
-                    .filter(pay => pay.type === 'Advance')
-                    .reduce((sum, pay) => sum + (pay.amount || 0), 0);
-
-                  const outstandingBalance = totalInvoicedAmount - totalPaymentsReceived;
-
-                  // Compute operational database statistics
-                  const totalCustomers = customers.length;
-                  const totalProjectsCount = erpProjects.length;
-                  const activeProjectsCount = erpProjects.filter(p => p.status === 'In Progress').length;
-                  const completedProjectsCount = erpProjects.filter(p => p.status === 'Completed').length;
-
-                  const totalQuotationsCount = quotations.length;
-                  const acceptedQuotationsCount = quotations.filter(q => q.status === 'Approved').length;
-                  const rejectedQuotationsCount = quotations.filter(q => q.status === 'Rejected').length;
-
-                  const totalInvoicesCount = invoices.length;
-                  const paidInvoicesCount = invoices.filter(inv => inv.status === 'Paid').length;
-                  const overdueInvoicesCount = invoices.filter(inv => inv.status === 'Overdue').length;
-
-                  // Monthly Trend Lists incorporating actual values
-                  const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
-                  const monthlyIncomes = [1800000, 2200000, 2900000, 2700000, 3100000, 3800000, totalRevenue || 3450000];
-                  const monthlyExpenses = [400000, 450000, 580000, 550000, 620000, 780000, totalExpenses || 620000];
-
-                  // Scheduled operational events
-                  const upcomingEventsList = bookings
-                    .filter(b => b.status === 'Confirmed' || b.status === 'Pending')
-                    .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
-
-                  // Calendar custom data map for July 2026
-                  const calendarEvents = [
-                    { day: 5, label: '💻 Mahdev IT Solutions', desc: 'Deploy Nations Trust Bank Portal Phase 1 container stack', time: '09:00 AM' },
-                    { day: 12, label: '🎉 SWS Luxury Event', desc: 'Pre-wedding flower canopy setup & stage install at Hilton', time: '06:00 AM' },
-                    { day: 20, label: '🎬 U1 Studio Session', desc: 'Cinematic sunset pre-wedding drone shoot at Taj Samudra', time: '04:30 PM' },
-                    { day: 26, label: '✈️ Mahdev Travels VIP', desc: 'UK Client luxury safari airport pick up & KDH elite tour transfer', time: '11:00 AM' }
-                  ];
-
-                  const selectedEvent = calendarEvents.find(ev => ev.day === selectedDay);
-
-                  // Extract unique recent bookings and latest contact form submissions
-                  const latestContactFormRequests = bookings.slice(0, 4);
-
-                  return (
-                    <div className="space-y-10">
-
-                      {/* CATEGORY 1: FINANCIAL SUITE BOARD METRICS (6 WIDGETS) */}
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
-                            <DollarSign size={16} />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-bold text-white uppercase tracking-wider font-mono">Executive Financial Suite (ERP)</h4>
-                            <p className="text-[11px] text-slate-400">Active real-time financial summaries computed from invoices, incomes, and payroll records.</p>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-                          {[
-                            {
-                              id: "widget-total-revenue",
-                              title: 'Total Revenue',
-                              val: `Rs. ${totalRevenue.toLocaleString()}`,
-                              desc: 'Invoices paid + other incomes',
-                              color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/10'
-                            },
-                            {
-                              id: "widget-total-expenses",
-                              title: 'Total Expenses',
-                              val: `Rs. ${totalExpenses.toLocaleString()}`,
-                              desc: 'Company bills & procurement',
-                              color: 'text-red-400 bg-red-500/10 border-red-500/10'
-                            },
-                            {
-                              id: "widget-total-profit",
-                              title: 'Total Profit',
-                              val: `Rs. ${totalProfit.toLocaleString()}`,
-                              desc: 'Net margin after expenses',
-                              color: totalProfit >= 0 ? 'text-purple-400 bg-purple-500/10 border-purple-500/10' : 'text-rose-400 bg-rose-500/10 border-rose-500/10'
-                            },
-                            {
-                              id: "widget-pending-payments",
-                              title: 'Pending Payments',
-                              val: `Rs. ${pendingPayments.toLocaleString()}`,
-                              desc: 'Unpaid invoice amounts',
-                              color: 'text-amber-400 bg-amber-500/10 border-amber-500/10'
-                            },
-                            {
-                              id: "widget-advance-payments",
-                              title: 'Advance Received',
-                              val: `Rs. ${advancePaymentsReceived.toLocaleString()}`,
-                              desc: 'Customer upfront retainers',
-                              color: 'text-blue-400 bg-blue-500/10 border-blue-500/10'
-                            },
-                            {
-                              id: "widget-outstanding-balance",
-                              title: 'Outstanding Balance',
-                              val: `Rs. ${outstandingBalance.toLocaleString()}`,
-                              desc: 'Total unpaid client book debt',
-                              color: 'text-pink-400 bg-pink-500/10 border-pink-500/10'
-                            },
-                          ].map((m) => (
-                            <div key={m.id} className={`p-4 rounded-xl border ${isDarkMode ? 'bg-neutral-950/70 border-slate-800' : 'bg-slate-50 border-slate-200'} flex flex-col justify-between`}>
-                              <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono font-bold truncate">{m.title}</p>
-                              <div className="my-2">
-                                <p className={`text-sm sm:text-base font-extrabold ${isDarkMode ? 'text-white' : 'text-slate-900'} truncate`}>{m.val}</p>
-                              </div>
-                              <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono inline-block font-semibold ${m.color} truncate`}>
-                                {m.desc}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* CATEGORY 2: ENTERPRISE OPERATIONS & PIPELINE (10 WIDGETS) */}
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">
-                            <Briefcase size={16} />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-bold text-white uppercase tracking-wider font-mono">Operations & CRM Pipeline Registry</h4>
-                            <p className="text-[11px] text-slate-400">Operational milestones, customer registries, quotations progress, and invoice status registers.</p>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-3">
-                          {[
-                            { id: "widget-tot-cust", title: 'Total Customers', val: totalCustomers, desc: 'Active records', icon: Users, color: 'text-purple-400' },
-                            { id: "widget-tot-proj", title: 'Total Projects', val: totalProjectsCount, desc: 'Software & Events', icon: Briefcase, color: 'text-blue-400' },
-                            { id: "widget-act-proj", title: 'Active Projects', val: activeProjectsCount, desc: 'In progress', icon: Clock, color: 'text-amber-400' },
-                            { id: "widget-comp-proj", title: 'Completed Proj', val: completedProjectsCount, desc: 'Fully delivered', icon: CheckCircle, color: 'text-emerald-400' },
-                            { id: "widget-tot-quot", title: 'Total Quotes', val: totalQuotationsCount, desc: 'Client tenders', icon: FileText, color: 'text-pink-400' },
-                            { id: "widget-acc-quot", title: 'Accepted Quotes', val: acceptedQuotationsCount, desc: 'Sales signed', icon: UserCheck, color: 'text-indigo-400' },
-                            { id: "widget-rej-quot", title: 'Rejected Quotes', val: rejectedQuotationsCount, desc: 'Lost/Expired', icon: X, color: 'text-rose-400' },
-                            { id: "widget-tot-inv", title: 'Total Invoices', val: totalInvoicesCount, desc: 'Ledger records', icon: FileSpreadsheet, color: 'text-slate-300' },
-                            { id: "widget-paid-inv", title: 'Paid Invoices', val: paidInvoicesCount, desc: 'Funds cleared', icon: Check, color: 'text-teal-400' },
-                            { id: "widget-over-inv", title: 'Overdue Inv', val: overdueInvoicesCount, desc: 'Awaiting collect', icon: AlertTriangle, color: 'text-red-400' },
-                          ].map((w) => (
-                            <div key={w.id} className={`p-3 rounded-xl border ${isDarkMode ? 'bg-neutral-950/70 border-slate-800' : 'bg-slate-50 border-slate-200'} flex flex-col justify-between items-center text-center`}>
-                              <div className={`p-1 rounded bg-neutral-900 ${w.color} mb-1.5`}>
-                                <w.icon size={13} />
-                              </div>
-                              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block leading-tight truncate w-full">{w.title}</p>
-                              <p className="text-base font-black text-white my-1">{w.val}</p>
-                              <span className="text-[8px] text-slate-500 font-mono leading-none truncate w-full">{w.desc}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* CATEGORY 3: VISUAL FINANCIAL TRENDS CHARTS (2 CHARTS) */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                        {/* Monthly Income Chart Widget */}
-                        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-neutral-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                          <div className="flex justify-between items-center mb-6">
-                            <div className="flex items-center gap-2">
-                              <TrendingUp size={16} className="text-emerald-400" />
-                              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">Monthly Income Analytics (LKR)</h4>
-                            </div>
-                            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-bold">Incomes Trend</span>
-                          </div>
-
-                          <div className="w-full flex items-end justify-between h-40 pt-4 px-2">
-                            {monthlyIncomes.map((inc, i) => {
-                              const maxVal = Math.max(...monthlyIncomes) || 1;
-                              const heightPct = Math.max(8, Math.round((inc / maxVal) * 100));
-                              return (
-                                <div key={i} className="flex flex-col items-center flex-grow group relative px-1">
-                                  {/* Hover Tooltip */}
-                                  <div className="absolute bottom-full mb-1 bg-slate-900 border border-slate-800 text-[10px] text-white px-2 py-1 rounded font-mono font-bold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-35 shadow-lg">
-                                    Rs. {inc.toLocaleString()}
-                                  </div>
-                                  <div className="w-full bg-neutral-900 rounded-md h-32 flex items-end overflow-hidden border border-slate-800/20">
-                                    <div
-                                      className="w-full bg-gradient-to-t from-emerald-600 to-teal-400 rounded-md transition-all duration-1000 group-hover:brightness-125 cursor-pointer"
-                                      style={{ height: `${heightPct}%` }}
-                                    />
-                                  </div>
-                                  <span className="text-[10px] text-slate-500 font-mono mt-2 font-bold">{monthsList[i]}</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Monthly Expense Chart Widget */}
-                        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-neutral-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                          <div className="flex justify-between items-center mb-6">
-                            <div className="flex items-center gap-2">
-                              <TrendingDown size={16} className="text-rose-400" />
-                              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">Monthly Expense Analytics (LKR)</h4>
-                            </div>
-                            <span className="text-[10px] font-mono text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded font-bold">Expenses Trend</span>
-                          </div>
-
-                          <div className="w-full flex items-end justify-between h-40 pt-4 px-2">
-                            {monthlyExpenses.map((exp, i) => {
-                              const maxVal = Math.max(...monthlyExpenses) || 1;
-                              const heightPct = Math.max(8, Math.round((exp / maxVal) * 100));
-                              return (
-                                <div key={i} className="flex flex-col items-center flex-grow group relative px-1">
-                                  {/* Hover Tooltip */}
-                                  <div className="absolute bottom-full mb-1 bg-slate-900 border border-slate-800 text-[10px] text-white px-2 py-1 rounded font-mono font-bold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-35 shadow-lg">
-                                    Rs. {exp.toLocaleString()}
-                                  </div>
-                                  <div className="w-full bg-neutral-900 rounded-md h-32 flex items-end overflow-hidden border border-slate-800/20">
-                                    <div
-                                      className="w-full bg-gradient-to-t from-red-600 to-rose-400 rounded-md transition-all duration-1000 group-hover:brightness-125 cursor-pointer"
-                                      style={{ height: `${heightPct}%` }}
-                                    />
-                                  </div>
-                                  <span className="text-[10px] text-slate-500 font-mono mt-2 font-bold">{monthsList[i]}</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                      </div>
-
-                      {/* CATEGORY 4: EXECUTIVE STATUS, TASKS & SCHEDULING (6 MODULES) */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                        {/* WIDGET 19 & 24: ENTERPRISE INTERACTIVE CALENDAR & EVENTS */}
-                        <div className={`p-5 rounded-2xl border ${isDarkMode ? 'bg-neutral-950 border-slate-800' : 'bg-slate-50 border-slate-200'} flex flex-col justify-between`}>
-                          <div>
-                            <div className="flex justify-between items-center mb-4">
-                              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                                <Calendar size={13} className="text-purple-400" />
-                                July 2026 Board Calendar
-                              </h4>
-                              <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 font-bold">Interactive</span>
-                            </div>
-
-                            {/* Mini Calendar Grid (31 Days of July 2026 - Starts on Wednesday) */}
-                            <div className="grid grid-cols-7 gap-1.5 text-center text-xs mb-4">
-                              {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-                                <span key={d} className="text-[9px] font-mono text-slate-600 font-black">{d}</span>
-                              ))}
-
-                              {/* Empty padding days for Wednesday start */}
-                              <span /> <span />
-
-                              {Array.from({ length: 31 }, (_, dayIdx) => {
-                                const day = dayIdx + 1;
-                                const hasEvent = calendarEvents.some(ev => ev.day === day);
-                                const isSelected = selectedDay === day;
-
-                                return (
-                                  <button
-                                    key={day}
-                                    type="button"
-                                    onClick={() => setSelectedDay(day)}
-                                    className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-mono font-bold transition-all relative ${isSelected
-                                        ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20 scale-110'
-                                        : hasEvent
-                                          ? 'bg-purple-500/15 text-purple-300 hover:bg-purple-500/25 ring-1 ring-purple-500/25'
-                                          : 'text-slate-400 hover:text-white hover:bg-neutral-900'
-                                      }`}
-                                  >
-                                    {day}
-                                    {hasEvent && !isSelected && (
-                                      <span className="absolute bottom-0.5 w-1 h-1 rounded-full bg-purple-400 animate-ping" />
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          {/* Event Details Viewer */}
-                          <div className="p-3 rounded-xl bg-neutral-900 border border-slate-800/40 text-xs mt-2 min-h-[70px] flex flex-col justify-center">
-                            {selectedEvent ? (
-                              <div className="space-y-1">
-                                <div className="flex justify-between font-mono text-[9px] uppercase font-bold">
-                                  <span className="text-purple-400">{selectedEvent.label}</span>
-                                  <span className="text-slate-500">Day {selectedDay} @ {selectedEvent.time}</span>
-                                </div>
-                                <p className="text-white font-bold leading-tight">{selectedEvent.desc}</p>
-                              </div>
-                            ) : (
-                              <p className="text-slate-500 text-center text-[11px] italic">Select highlighted dates (5th, 12th, 20th, 26th) to inspect scheduled operational tasks.</p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* WIDGET 23: TODAY'S INTERACTIVE EXECUTIVE TASKS */}
-                        <div className={`p-5 rounded-2xl border ${isDarkMode ? 'bg-neutral-950 border-slate-800' : 'bg-slate-50 border-slate-200'} flex flex-col justify-between`}>
-                          <div>
-                            <div className="flex justify-between items-center mb-4">
-                              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                                <CheckCircle size={13} className="text-emerald-400" />
-                                Today's Tasks Checklist
-                              </h4>
-                              <span className="text-[9px] font-mono text-slate-500 font-bold">
-                                {todoTasks.filter(t => t.completed).length}/{todoTasks.length} Done
-                              </span>
-                            </div>
-
-                            <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1">
-                              {todoTasks.map((t) => (
-                                <div
-                                  key={t.id}
-                                  onClick={() => setTodoTasks(prev => prev.map(task => task.id === t.id ? { ...task, completed: !task.completed } : task))}
-                                  className="flex items-start gap-2.5 p-2 rounded-xl bg-neutral-900/60 border border-slate-800/30 hover:border-slate-700/50 cursor-pointer transition-all select-none"
-                                >
-                                  <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 mt-0.5 ${t.completed ? 'bg-emerald-600 border-emerald-500 text-white' : 'border-slate-800 bg-neutral-950'
-                                    }`}>
-                                    {t.completed && <Check size={10} strokeWidth={3} />}
-                                  </div>
-                                  <div className="min-w-0">
-                                    <p className={`text-[11px] font-bold leading-tight ${t.completed ? 'text-slate-500 line-through' : 'text-slate-200'}`}>{t.text}</p>
-                                    <span className={`text-[8px] font-mono font-bold uppercase tracking-widest block mt-0.5 ${t.tag === 'SWS Events' ? 'text-amber-400' :
-                                        t.tag === 'U1 Studio' ? 'text-pink-400' :
-                                          t.tag === 'Mahdev IT' ? 'text-blue-400' :
-                                            t.tag === 'Travels' ? 'text-emerald-400' : 'text-slate-500'
-                                      }`}>{t.tag}</span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Progression bar */}
-                          <div className="mt-3 pt-3 border-t border-slate-800/20">
-                            <div className="w-full bg-neutral-900 h-1.5 rounded-full overflow-hidden">
-                              <div
-                                className="bg-emerald-500 h-full transition-all duration-500"
-                                style={{ width: `${Math.round((todoTasks.filter(t => t.completed).length / todoTasks.length) * 100)}%` }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* WIDGET 22: LIVE WEBSITE VISITORS TRAFFIC COUNTER */}
-                        <div className={`p-5 rounded-2xl border ${isDarkMode ? 'bg-neutral-950 border-slate-800' : 'bg-slate-50 border-slate-200'} flex flex-col justify-between`}>
-                          <div>
-                            <div className="flex justify-between items-center mb-4">
-                              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                                <Activity size={13} className="text-pink-400 animate-pulse" />
-                                Live Traffic Simulator
-                              </h4>
-                              <span className="flex items-center gap-1 text-[9px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded font-bold">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
-                                Live Pulse
-                              </span>
-                            </div>
-
-                            <div className="space-y-1">
-                              <p className="text-3xl font-black text-white">2,845</p>
-                              <p className="text-[10px] text-slate-400 font-mono">Unique Page Views Today</p>
-                            </div>
-
-                            {/* Traffic mini-sparkline SVG */}
-                            <div className="mt-4 pt-2">
-                              <svg className="w-full h-12 stroke-pink-500 fill-none" viewBox="0 0 100 30">
-                                <path
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  d="M0,25 Q15,5 30,22 T60,10 T80,26 T100,2"
-                                />
-                                {/* Gradient Area under curve */}
-                                <path
-                                  fill="url(#traffic-gradient)"
-                                  opacity="0.1"
-                                  stroke="none"
-                                  d="M0,25 Q15,5 30,22 T60,10 T80,26 T100,2 L100,30 L0,30 Z"
-                                />
-                                <defs>
-                                  <linearGradient id="traffic-gradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#f43f5e" />
-                                    <stop offset="100%" stopColor="#f43f5e" stopOpacity="0" />
-                                  </linearGradient>
-                                </defs>
-                              </svg>
-                            </div>
-                          </div>
-
-                          <div className="text-[9px] font-mono text-slate-500 flex justify-between items-center mt-3 pt-3 border-t border-slate-800/20">
-                            <span>Session avg: 4m 32s</span>
-                            <span>Bounce rate: 22.4%</span>
-                          </div>
-                        </div>
-
-                      </div>
-
-                      {/* WIDGET 19: DETAILED UPCOMING OPERATIONS AGENDA */}
-                      <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-neutral-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                        <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5">
-                          <Calendar size={14} className="text-purple-400" />
-                          Detailed Upcoming Operational Scheduled Events (Next 30 Days)
-                        </h4>
-                        <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
-                          {upcomingEventsList.length > 0 ? (
-                            upcomingEventsList.map((b) => (
-                              <div key={b.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-3.5 rounded-xl bg-neutral-900/60 border border-slate-800/40">
-                                <div className="flex items-center gap-3">
-                                  <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400 text-center shrink-0 min-w-[50px]">
-                                    <span className="block text-[8px] font-mono uppercase font-bold tracking-widest">Date</span>
-                                    <span className="block text-xs font-mono font-bold">{b.eventDate.split('-')[2] || b.eventDate}</span>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs font-bold text-white">{b.name} ({b.brand})</p>
-                                    <p className="text-[10px] text-slate-400 mt-0.5">{b.serviceType}</p>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                  <span className="text-[10px] font-mono text-slate-400">Est. Rs. {b.amount ? b.amount.toLocaleString() : '0'}</span>
-                                  <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase border ${b.status === 'Confirmed'
-                                      ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                      : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                                    }`}>
-                                    {b.status}
-                                  </span>
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-slate-500 text-xs italic text-center py-4">No confirmed events found in database. Head to active divisions to log event bookings.</p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* WIDGET 20 & 21: CENTRALIZED INTERACTIVE CRM LEAD REGISTRY & CONTACT INQUIRIES */}
-                      <div className="space-y-4">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                          <div>
-                            <h3 className="text-base font-bold text-white flex items-center gap-1.5">
-                              <Users size={16} className="text-purple-400" />
-                              Centralized CRM Lead & Contact Inquiries Registry
-                            </h3>
-                            <p className="text-xs text-slate-400">Review lead bookings, manage operational stages, and coordinate team task alignments.</p>
-                          </div>
-
-                          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-                            <select
-                              value={bookingFilterBrand}
-                              onChange={(e) => setBookingFilterBrand(e.target.value as any)}
-                              className="px-3 py-1.5 rounded-xl bg-neutral-950 border border-slate-850 text-xs text-slate-300 focus:outline-none focus:border-purple-500"
-                            >
-                              <option value="All">All Brands</option>
-                              <option value="SWS">SWS Event Management</option>
-                              <option value="IT">Mahdev IT</option>
-                              <option value="Studio">U1 Studio</option>
-                              <option value="Travels">Mahdev Travels</option>
-                            </select>
-
-                            <select
-                              value={bookingFilterStatus}
-                              onChange={(e) => setBookingFilterStatus(e.target.value as any)}
-                              className="px-3 py-1.5 rounded-xl bg-neutral-950 border border-slate-850 text-xs text-slate-300 focus:outline-none focus:border-purple-500"
-                            >
-                              <option value="All">All Statuses</option>
-                              <option value="Pending">Pending</option>
-                              <option value="Confirmed">Confirmed</option>
-                              <option value="Completed">Completed</option>
-                              <option value="Cancelled">Cancelled</option>
-                            </select>
-
-                            <div className="relative w-full sm:w-48">
-                              <Search size={12} className="absolute left-3 top-2.5 text-slate-500" />
-                              <input
-                                type="text"
-                                placeholder="Search Client..."
-                                value={bookingSearchQuery}
-                                onChange={(e) => setBookingSearchQuery(e.target.value)}
-                                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-neutral-950 border border-slate-850 text-slate-200 focus:outline-none focus:border-purple-500"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* CRM Table */}
-                        <div className="overflow-x-auto border border-slate-800 rounded-2xl bg-neutral-950">
-                          <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                            <thead>
-                              <tr className="border-b border-slate-800 text-slate-400 uppercase font-mono text-[9px] bg-neutral-900/60">
-                                <th className="py-3 px-4">Client</th>
-                                <th className="py-3 px-4">Division</th>
-                                <th className="py-3 px-4">Service Required</th>
-                                <th className="py-3 px-4">Budget / Est</th>
-                                <th className="py-3 px-4">Date</th>
-                                <th className="py-3 px-4">Status</th>
-                                <th className="py-3 px-4 text-right">Action</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {bookings
-                                .filter(b => {
-                                  const matchesBrand = bookingFilterBrand === 'All' || b.brand === bookingFilterBrand;
-                                  const matchesStatus = bookingFilterStatus === 'All' || b.status === bookingFilterStatus;
-                                  const matchesSearch = b.name.toLowerCase().includes(bookingSearchQuery.toLowerCase()) ||
-                                    b.email.toLowerCase().includes(bookingSearchQuery.toLowerCase()) ||
-                                    b.phone.includes(bookingSearchQuery);
-                                  return matchesBrand && matchesStatus && matchesSearch;
-                                })
-                                .map((b) => (
-                                  <tr key={b.id} className="border-b border-slate-800/50 hover:bg-neutral-900/40">
-                                    <td className="py-4 px-4">
-                                      <p className="font-bold text-white">{b.name}</p>
-                                      <p className="text-[10px] text-slate-500">{b.phone} {b.email && `| ${b.email}`}</p>
-                                    </td>
-                                    <td className="py-4 px-4">
-                                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${b.brand === 'SWS' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/25' :
-                                          b.brand === 'IT' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/25' :
-                                            b.brand === 'Studio' ? 'bg-pink-500/10 text-pink-400 border border-pink-500/25' :
-                                              'bg-emerald-500/10 text-emerald-400 border border-emerald-500/25'
-                                        }`}>
-                                        {b.brand === 'SWS' ? '🎉 SWS Event Management' :
-                                          b.brand === 'IT' ? '💻 Mahdev IT' :
-                                            b.brand === 'Studio' ? '🎬 U1 Studio' :
-                                              '✈️ Travels'}
-                                      </span>
-                                    </td>
-                                    <td className="py-4 px-4 text-slate-300 font-medium">
-                                      <span className="truncate max-w-xs block" title={b.notes}>{b.serviceType}</span>
-                                    </td>
-                                    <td className="py-4 px-4 font-mono font-bold text-white">
-                                      Rs. {b.amount ? b.amount.toLocaleString() : 'N/A'}
-                                    </td>
-                                    <td className="py-4 px-4 font-mono text-slate-400">{b.eventDate}</td>
-                                    <td className="py-4 px-4">
-                                      <select
-                                        value={b.status}
-                                        onChange={(e) => handleUpdateBookingStatus(b.id, e.target.value as any)}
-                                        className={`px-2 py-1 rounded text-[11px] font-bold focus:outline-none cursor-pointer ${b.status === 'Completed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                                            b.status === 'Confirmed' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                                              b.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
-                                                'bg-red-500/10 text-red-400 border border-red-500/20'
-                                          }`}
-                                      >
-                                        <option value="Pending">Pending</option>
-                                        <option value="Confirmed">Confirmed</option>
-                                        <option value="Completed">Completed</option>
-                                        <option value="Cancelled">Cancelled</option>
-                                      </select>
-                                    </td>
-                                    <td className="py-4 px-4 text-right">
-                                      <button
-                                        onClick={() => handleDeleteBooking(b.id)}
-                                        className="p-1 rounded hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors"
-                                        title="Delete Lead"
-                                      >
-                                        <Trash2 size={13} />
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
+                {/* Grid of website metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Card 1: Client Enquiries */}
+                  <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] ${
+                    isDarkMode ? 'bg-neutral-950/60 border-purple-500/10' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-mono font-bold text-slate-400 uppercase">Incoming Enquiries</span>
+                      <Mail className="text-blue-500" size={18} />
                     </div>
-                  );
-                })()}
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className={`text-3xl font-extrabold font-mono ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        {adminEnquiries.length}
+                      </span>
+                      <span className="text-[10px] text-emerald-400 font-semibold font-mono">Form Submissions</span>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('enquiries')}
+                      className="mt-6 text-[10px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      View All Enquiries <ArrowRight size={10} />
+                    </button>
+                  </div>
 
+                  {/* Card 2: SWS Event Decorations */}
+                  <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] ${
+                    isDarkMode ? 'bg-neutral-950/60 border-purple-500/10' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-mono font-bold text-slate-400 uppercase">SWS Event Gallery</span>
+                      <Sparkles className="text-emerald-500" size={18} />
+                    </div>
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className={`text-3xl font-extrabold font-mono ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        {decorGallery.length}
+                      </span>
+                      <span className="text-[10px] text-slate-400">Completed Projects</span>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('decor_posts')}
+                      className="mt-6 text-[10px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      Manage Decoration Items <ArrowRight size={10} />
+                    </button>
+                  </div>
+
+                  {/* Card 3: Travels Fleet */}
+                  <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] ${
+                    isDarkMode ? 'bg-neutral-950/60 border-purple-500/10' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-mono font-bold text-slate-400 uppercase">Travels Fleet</span>
+                      <Car className="text-amber-500" size={18} />
+                    </div>
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className={`text-3xl font-extrabold font-mono ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        {travelsVehicles.length}
+                      </span>
+                      <span className="text-[10px] text-slate-400">Luxury Fleet Cars</span>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('travels_fleet')}
+                      className="mt-6 text-[10px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      Manage Travels Fleet <ArrowRight size={10} />
+                    </button>
+                  </div>
+
+                  {/* Card 4: U1 Photography */}
+                  <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] ${
+                    isDarkMode ? 'bg-neutral-950/60 border-purple-500/10' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-mono font-bold text-slate-400 uppercase">U1 Studio Portfolio</span>
+                      <Camera className="text-pink-500" size={18} />
+                    </div>
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className={`text-3xl font-extrabold font-mono ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        {photoPortfolio.length}
+                      </span>
+                      <span className="text-[10px] text-slate-400">Cinematic Albums</span>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('portfolio')}
+                      className="mt-6 text-[10px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      Manage Portfolio Photos <ArrowRight size={10} />
+                    </button>
+                  </div>
+
+                  {/* Card 5: IT Solutions */}
+                  <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] ${
+                    isDarkMode ? 'bg-neutral-950/60 border-purple-500/10' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-mono font-bold text-slate-400 uppercase">IT Portals</span>
+                      <Globe className="text-indigo-500" size={18} />
+                    </div>
+                    <div className="mt-4 flex items-baseline gap-2">
+                      <span className={`text-3xl font-extrabold font-mono ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        {itProjects.length}
+                      </span>
+                      <span className="text-[10px] text-slate-400">Software Portals</span>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('projects')}
+                      className="mt-6 text-[10px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      Manage IT Projects <ArrowRight size={10} />
+                    </button>
+                  </div>
+
+                  {/* Card 6: Active Theme Branding */}
+                  <div className={`p-6 rounded-2xl border transition-all hover:scale-[1.01] ${
+                    isDarkMode ? 'bg-neutral-950/60 border-purple-500/10' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-mono font-bold text-slate-400 uppercase">Active Branding Theme</span>
+                      <Settings className="text-purple-500" size={18} />
+                    </div>
+                    <div className="mt-4 flex flex-col gap-1">
+                      <div className="flex justify-between text-[10px] text-slate-400">
+                        <span>Brand Name:</span>
+                        <span className="font-bold text-slate-300">{theme.brandName || "Mahdev"}</span>
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                        <span>Primary Color:</span>
+                        <span className="font-bold text-slate-300 flex items-center gap-1">
+                          <span className="inline-block w-2.5 h-2.5 rounded-full border border-white/10" style={{ backgroundColor: theme.primaryColor || '#a855f7' }} />
+                          {theme.primaryColor || '#a855f7'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                        <span>Typography:</span>
+                        <span className="font-bold text-slate-300">{theme.fontFamily || "Outfit"}</span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('theme')}
+                      className="mt-4 text-[10px] font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      Branding & Settings <ArrowRight size={10} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Recent Enquiries Section */}
+                <div className={`p-6 rounded-2xl border ${
+                  isDarkMode ? 'bg-slate-950/30 border-slate-800' : 'bg-white border-slate-200'
+                }`}>
+                  <div className="flex justify-between items-center pb-4 border-b border-purple-500/10">
+                    <div>
+                      <h4 className={`text-sm font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                        <Mail size={16} className="text-indigo-500" />
+                        Recent Contact Enquiries
+                      </h4>
+                      <p className="text-[10px] text-slate-450 mt-0.5">Quickly view dynamic enquiries sent by prospective clients from the website.</p>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('enquiries')}
+                      className="px-3 py-1.5 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    >
+                      View All Enquiries
+                    </button>
+                  </div>
+
+                  <div className="mt-4 overflow-x-auto">
+                    {adminEnquiries.length === 0 ? (
+                      <div className="py-8 text-center text-xs text-slate-500">
+                        No contact enquiries received yet.
+                      </div>
+                    ) : (
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-800 text-slate-400 font-semibold">
+                            <th className="py-2.5">Client Details</th>
+                            <th className="py-2.5">Subject & Service</th>
+                            <th className="py-2.5">Date</th>
+                            <th className="py-2.5 font-bold">Message Snippet</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-850">
+                          {adminEnquiries.slice(0, 5).map((enq) => (
+                            <tr key={enq.id} className="text-slate-300 hover:bg-neutral-900/10">
+                              <td className="py-3">
+                                <p className="font-bold text-slate-200">{enq.name}</p>
+                                <p className="text-[10px] text-slate-450">{enq.email} | {enq.phone}</p>
+                              </td>
+                              <td className="py-3">
+                                <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[9px] font-mono mr-1.5 uppercase font-bold">
+                                  {enq.division || 'General'}
+                                </span>
+                                <span className="text-slate-200 font-medium">{enq.subject}</span>
+                              </td>
+                              <td className="py-3 font-mono text-[10px] text-slate-450">
+                                {new Date(enq.createdAt).toLocaleString()}
+                              </td>
+                              <td className="py-3 text-[11px] text-slate-400 truncate max-w-[200px]" title={enq.message}>
+                                {enq.message}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
               </div>
-            )}
-
-            {/* Enterprise CMS Hub sections */}
-            {(activeTab === 'crm' || activeTab === 'projects_erp' || activeTab === 'finances' || activeTab === 'employees' || activeTab === 'systems') && (
-              <EnterpriseHub
-                isDarkMode={isDarkMode}
-                onDataChange={onDataChange}
-                activeTab={activeTab}
-              />
             )}
 
             {/* Theme Settings Tab */}

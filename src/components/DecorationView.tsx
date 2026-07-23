@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import RevealSection from './RevealSection';
 import { 
   Heart, Gift, Briefcase, Sparkles, Home, Sun, Star, 
   Phone, MessageSquare, Calendar, Users, Mail, User, CheckCircle2,
@@ -37,6 +38,13 @@ export default function DecorationView({
 }: DecorationViewProps) {
   const brandName = 'SWS Event Management';
   const brandShort = 'SWS';
+
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start']
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '35%']);
 
   // Before / After slider state
   const [sliderPos, setSliderPos] = useState(50);
@@ -219,10 +227,11 @@ export default function DecorationView({
     <div id="decoration-view-container" className="relative w-full z-10">
       
       {/* Page Hero Banner */}
-      <section className="relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-emerald-500/10 bg-black">
+      <section ref={heroRef} className="relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden border-b border-emerald-500/10 bg-black">
         {/* Blurred background photo */}
-        <div className="absolute inset-0 z-0">
-          <img 
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <motion.img 
+            style={{ y: bgY }}
             src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset} 
             alt="Flagship Decor Background" 
             className="w-full h-full object-cover opacity-25 filter blur-sm scale-105"
@@ -265,7 +274,7 @@ export default function DecorationView({
 
       {/* Before / After Slider Showcase */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
+        <RevealSection className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-3 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               The {brandShort} Transformation
@@ -325,14 +334,14 @@ src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset}
               </div>
             </div>
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* Decorative Categories Grid */}
       <section className={`py-24 px-4 sm:px-6 lg:px-8 border-t border-b ${
         isDarkMode ? 'bg-neutral-950/35 border-emerald-500/10' : 'bg-slate-50/60 border-slate-200'
       }`}>
-        <div className="max-w-7xl mx-auto">
+        <RevealSection className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-4 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               Bespoke Styling Portfolios
@@ -376,12 +385,12 @@ src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset}
               </div>
             ))}
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* Beautiful Filterable Gallery */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+        <RevealSection className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-4 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               Explore Masterpieces Catalog
@@ -461,14 +470,14 @@ src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset}
               ))}
             </AnimatePresence>
           </motion.div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* SWS Event Rentals & Props Section */}
       <section className={`py-24 px-4 sm:px-6 lg:px-8 border-t border-b ${
         isDarkMode ? 'bg-neutral-950/20 border-emerald-500/10' : 'bg-slate-50/40 border-slate-200'
       }`}>
-        <div className="max-w-7xl mx-auto">
+        <RevealSection className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-emerald-500 font-mono text-xs font-bold uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/25 inline-block mb-3">
@@ -749,14 +758,14 @@ src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset}
             </div>
 
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* Testimonials */}
       <section className={`py-20 px-4 sm:px-6 lg:px-8 border-t border-b ${
         isDarkMode ? 'bg-neutral-950/30 border-emerald-500/10' : 'bg-slate-50/60 border-slate-200'
       }`}>
-        <div className="max-w-6xl mx-auto">
+        <RevealSection className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               Loved By Families & Executives
@@ -801,12 +810,12 @@ src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset}
               </div>
             ))}
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* Booking Form Section */}
       <section id="booking-form-anchor" className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
+        <RevealSection className="max-w-3xl mx-auto">
           <div className={`p-8 rounded-3xl border ${
             isDarkMode 
               ? 'bg-gradient-to-br from-neutral-900 to-black border-emerald-500/10 shadow-2xl' 
@@ -1022,7 +1031,7 @@ src={themeSettings?.weddingDecorationBanner || weddingDecorationBannerAsset}
               )}
             </AnimatePresence>
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* ─── DECORATION DETAIL MODAL ─── */}

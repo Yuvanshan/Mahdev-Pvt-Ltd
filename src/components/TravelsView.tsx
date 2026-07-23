@@ -4,7 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import RevealSection from './RevealSection';
 import { 
   Car, Compass, MapPin, Calendar, Users, Briefcase, 
   Clock, Sparkles, ArrowRight, CheckCircle2, ShieldCheck, 
@@ -46,6 +47,13 @@ export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewPr
   const brandName = themeSettings?.brandName || 'Mahdev Pvt Ltd';
   const brandShort = themeSettings?.brandName ? themeSettings.brandName.split(' ')[0] : 'Mahdev';
   const heroImage = themeSettings?.travelsBanner || travelsHeroImage;
+
+  const heroRef = React.useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start']
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '35%']);
 
   // Active Category Filter for Fleet
   const [activeFleetTab, setActiveFleetTab] = useState<'all' | 'wedding' | 'premium' | 'vans'>('all');
@@ -150,9 +158,10 @@ export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewPr
     <div id="travels-view-container" className="relative w-full z-10">
       
       {/* Hero Banner */}
-      <section className="relative py-32 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
+      <section ref={heroRef} className="relative py-32 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black overflow-hidden">
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <motion.img 
+            style={{ y: bgY }}
             src={heroImage} 
             alt="Travels Background" 
             className="w-full h-full object-cover opacity-20 filter brightness-90 saturate-75 scale-105"
@@ -197,7 +206,7 @@ export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewPr
 
       {/* Trust Badges */}
       <section className={`py-8 px-4 sm:px-6 lg:px-8 border-b ${isDarkMode ? 'bg-neutral-900/30 border-emerald-500/5' : 'bg-slate-50 border-slate-100'}`}>
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+        <RevealSection className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="flex items-center gap-4 p-4">
             <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400">
               <ShieldCheck size={24} />
@@ -225,12 +234,12 @@ export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewPr
               <p className="text-xs text-slate-400 mt-0.5">Continuous GPS tracking and replacement car guarantees.</p>
             </div>
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* Fleet Catalog Section */}
       <section id="travels-vehicles-section" className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+        <RevealSection className="max-w-7xl mx-auto">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-500">
@@ -355,12 +364,12 @@ export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewPr
               ))}
             </AnimatePresence>
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* Tour Packages Section */}
       <section id="tours-showcase" className={`py-24 px-4 sm:px-6 lg:px-8 border-t border-b ${isDarkMode ? 'bg-neutral-900/20 border-emerald-500/10' : 'bg-slate-50/50 border-slate-100'}`}>
-        <div className="max-w-7xl mx-auto">
+        <RevealSection className="max-w-7xl mx-auto">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-500">
@@ -446,12 +455,12 @@ export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewPr
               </div>
             ))}
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* Booking Form Section */}
       <section id="travel-booking-section" className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
+        <RevealSection className="max-w-4xl mx-auto">
           
           <div className="text-center mb-12">
             <h2 className={`text-3xl font-extrabold tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
@@ -751,7 +760,7 @@ export default function TravelsView({ isDarkMode, themeSettings }: TravelsViewPr
               </form>
             )}
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* Tour Itinerary Details Modal */}

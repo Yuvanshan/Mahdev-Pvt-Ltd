@@ -72,6 +72,48 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, the
   const smoothRobotY = useSpring(robotY, { stiffness: 60, damping: 20 });
   const smoothLeftY = useSpring(leftColY, { stiffness: 80, damping: 25 });
 
+  // Mouse 3D tilt interaction
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useTransform(mouseY, [-0.5, 0.5], [12, -12]);
+  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-12, 12]);
+
+  const smoothRotateX = useSpring(rotateX, { stiffness: 100, damping: 22 });
+  const smoothRotateY = useSpring(rotateY, { stiffness: 100, damping: 22 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!heroRef.current) return;
+    const rect = heroRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
+  // Orbital badges flight animation as page scrolls down
+  const badge1X = useTransform(scrollYProgress, [0, 0.8], ['0px', '-55px']);
+  const badge1Y = useTransform(scrollYProgress, [0, 0.8], ['0px', '-35px']);
+  const badge2X = useTransform(scrollYProgress, [0, 0.8], ['0px', '55px']);
+  const badge2Y = useTransform(scrollYProgress, [0, 0.8], ['0px', '-35px']);
+  const badge3X = useTransform(scrollYProgress, [0, 0.8], ['0px', '-55px']);
+  const badge3Y = useTransform(scrollYProgress, [0, 0.8], ['0px', '35px']);
+  const badge4X = useTransform(scrollYProgress, [0, 0.8], ['0px', '55px']);
+  const badge4Y = useTransform(scrollYProgress, [0, 0.8], ['0px', '35px']);
+
+  const badgeTransforms: Record<string, { x: any; y: any }> = {
+    erp: { x: badge1X, y: badge1Y },
+    sws: { x: badge2X, y: badge2Y },
+    u1: { x: badge3X, y: badge3Y },
+    travels: { x: badge4X, y: badge4Y }
+  };
+
+
   const handleConsultation = () => {
     window.open(COMPANY_CONTACT.whatsapp, '_blank', 'noopener,noreferrer');
   };
@@ -308,68 +350,100 @@ export default function PremiumHero({ isDarkMode, onNavigate, cards: _cards, the
 
             {/* ── RIGHT: 3D MASCOT + ORBITAL CARDS (parallax slowest) ── */}
             <motion.div
-              style={{ y: smoothRobotY }}
-              className="lg:col-span-6 relative flex items-center justify-center min-h-[380px] sm:min-h-[460px]"
+              style={{ y: smoothRobotY, perspective: 1200 }}
+              className="lg:col-span-6 relative flex items-center justify-center min-h-[380px] sm:min-h-[460px] w-full"
             >
-              {/* Portal ring 1 */}
-              <div className="absolute w-[320px] sm:w-[430px] h-[320px] sm:h-[430px] rounded-full border border-purple-500/20 mhd-ring1 pointer-events-none" />
-              {/* Portal ring 2 */}
-              <div className="absolute w-[240px] sm:w-[330px] h-[240px] sm:h-[330px] rounded-full border border-pink-500/20 mhd-ring2 pointer-events-none" />
-              {/* Ground glow */}
-              <div className="absolute bottom-6 w-[280px] sm:w-[370px] h-[70px] rounded-[100%] bg-gradient-to-t from-purple-600/35 via-indigo-500/15 to-transparent blur-xl pointer-events-none" />
-
-              {/* 3D Mascot */}
               <motion.div
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.25, duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
-                className="relative z-20 mhd-float"
+                style={{
+                  rotateX: smoothRotateX,
+                  rotateY: smoothRotateY,
+                  transformStyle: 'preserve-3d',
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                className="relative"
               >
-                <div className="relative w-56 h-56 sm:w-72 sm:h-72 rounded-full overflow-hidden border-2 border-purple-500/30 shadow-[0_0_60px_rgba(124,58,237,0.35)] bg-gradient-to-b from-purple-500/20 via-indigo-500/10 to-transparent">
-                  <img
-                    src={itRobotImgAsset}
-                    alt="Mahdev AI Mascot"
-                    loading="eager"
-                    decoding="async"
-                    className="w-full h-full object-cover"
-                    width="288"
-                    height="288"
-                  />
-                  {/* Scan line effect */}
-                  <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-purple-400/60 to-transparent mhd-scan" />
-                </div>
-              </motion.div>
+                {/* Portal ring 1 */}
+                <div 
+                  style={{ transform: 'translateZ(-40px)' }}
+                  className="absolute w-[320px] sm:w-[430px] h-[320px] sm:h-[430px] rounded-full border border-purple-500/20 mhd-ring1 pointer-events-none" 
+                />
+                {/* Portal ring 2 */}
+                <div 
+                  style={{ transform: 'translateZ(-20px)' }}
+                  className="absolute w-[240px] sm:w-[330px] h-[240px] sm:h-[330px] rounded-full border border-pink-500/20 mhd-ring2 pointer-events-none" 
+                />
+                {/* Ground glow */}
+                <div 
+                  style={{ transform: 'translateZ(-50px)' }}
+                  className="absolute bottom-6 w-[280px] sm:w-[370px] h-[70px] rounded-[100%] bg-gradient-to-t from-purple-600/35 via-indigo-500/15 to-transparent blur-xl pointer-events-none" 
+                />
 
-              {/* Orbital Division Badges */}
-              {orbitalBadges.map((badge) => (
+                {/* 3D Mascot */}
                 <motion.div
-                  key={badge.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: badge.delay, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                  onClick={() => onNavigate(badge.page)}
-                  style={badge.position}
-                  className="absolute z-30 cursor-pointer"
+                  transition={{ delay: 0.25, duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                  style={{ transform: 'translateZ(40px)', transformStyle: 'preserve-3d' }}
+                  className="relative z-20 mhd-float"
                 >
-                  <motion.div
-                    whileHover={{ scale: 1.08, y: -3 }}
-                    whileTap={{ scale: 0.96 }}
-                    className={`flex items-center gap-2.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-2xl border backdrop-blur-xl bg-gradient-to-r ${badge.gradient} shadow-xl transition-shadow duration-300 hover:shadow-[0_0_24px_rgba(168,85,247,0.45)]`}
-                  >
-                    <div className={`w-7 h-7 rounded-xl ${badge.iconBg} flex items-center justify-center font-bold text-sm shrink-0`}>
-                      {badge.icon}
-                    </div>
-                    <div className="text-left">
-                      <h4 className={`text-xs font-bold text-white leading-tight ${badge.textColor}`}>
-                        {badge.title}
-                      </h4>
-                      <p className="text-[9px] sm:text-[10px] text-slate-300/80 font-mono font-medium leading-none mt-0.5">
-                        {badge.subtitle}
-                      </p>
-                    </div>
-                  </motion.div>
+                  <div className="relative w-56 h-56 sm:w-72 sm:h-72 rounded-full overflow-hidden border-2 border-purple-500/30 shadow-[0_0_60px_rgba(124,58,237,0.35)] bg-gradient-to-b from-purple-500/20 via-indigo-500/10 to-transparent">
+                    <img
+                      src={itRobotImgAsset}
+                      alt="Mahdev AI Mascot"
+                      loading="eager"
+                      decoding="async"
+                      className="w-full h-full object-cover"
+                      width="288"
+                      height="288"
+                    />
+                    {/* Scan line effect */}
+                    <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-purple-400/60 to-transparent mhd-scan" />
+                  </div>
                 </motion.div>
-              ))}
+
+                {/* Orbital Division Badges */}
+                {orbitalBadges.map((badge) => {
+                  const transform = badgeTransforms[badge.id];
+                  return (
+                    <motion.div
+                      key={badge.id}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: badge.delay, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                      onClick={() => onNavigate(badge.page)}
+                      style={{
+                        ...badge.position,
+                        x: transform.x,
+                        y: transform.y,
+                        transform: 'translateZ(90px)',
+                      }}
+                      className="absolute z-30 cursor-pointer"
+                    >
+                      <motion.div
+                        whileHover={{ scale: 1.08, y: -3 }}
+                        whileTap={{ scale: 0.96 }}
+                        className={`flex items-center gap-2.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-2xl border backdrop-blur-xl bg-gradient-to-r ${badge.gradient} shadow-xl transition-shadow duration-300 hover:shadow-[0_0_24px_rgba(168,85,247,0.45)]`}
+                      >
+                        <div className={`w-7 h-7 rounded-xl ${badge.iconBg} flex items-center justify-center font-bold text-sm shrink-0`}>
+                          {badge.icon}
+                        </div>
+                        <div className="text-left">
+                          <h4 className={`text-xs font-bold text-white leading-tight ${badge.textColor}`}>
+                            {badge.title}
+                          </h4>
+                          <p className="text-[9px] sm:text-[10px] text-slate-300/80 font-mono font-medium leading-none mt-0.5">
+                            {badge.subtitle}
+                          </p>
+                        </div>
+                      </motion.div>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
             </motion.div>
           </div>
         </div>

@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { AnimatePresence, motion, useScroll, useSpring } from 'motion/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import Lenis from 'lenis';
 
 import { ActivePage } from './types';
 
@@ -118,6 +119,43 @@ export default function App() {
   const [clients, setClients] = useState(() => getTrustableClients());
   const [completedProjects, setCompletedProjects] = useState(() => getCompletedProjects());
   const [enquiries, setEnquiries] = useState<any[]>([]);
+
+  // Global Lenis Smooth Scroll Setup
+  useEffect(() => {
+    if (activePage === ActivePage.Admin) {
+      return;
+    }
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.5,
+    });
+
+    (window as any).lenisInstance = lenis;
+
+    let rafId: number;
+    function raf(time: number) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+    rafId = requestAnimationFrame(raf);
+
+    // Immediate scroll reset when consumer views change
+    if (activePage !== ActivePage.Admin) {
+      lenis.scrollTo(0, { immediate: true });
+    }
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+      delete (window as any).lenisInstance;
+    };
+  }, [activePage]);
 
   const filteredServices = servicesList.filter(
     (service) =>

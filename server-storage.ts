@@ -2,6 +2,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client
 import fs from "fs";
 import path from "path";
 import { getCloudDb, saveCloudKey } from "./server-db";
+import { put, del } from "@vercel/blob";
 
 export interface StorageSettings {
   provider: "local" | "r2" | "supabase";
@@ -163,6 +164,24 @@ export async function uploadFile(
   const uniqueId = Date.now() + "_" + Math.round(Math.random() * 1e6);
   const cloudKey = `${folder}/${baseName}_${uniqueId}${fileExtension}`;
 
+  // Vercel Blob primary upload when token is present
+  const vercelToken = process.env.BLOB_READ_WRITE_TOKEN;
+  if (vercelToken) {
+    try {
+      console.log(`[Storage Cloud Vercel] Uploading "${cloudKey}" to Vercel Blob...`);
+      const blob = await put(cloudKey, fileBuffer, {
+        access: "public",
+        addRandomSuffix: false, // We generate unique names
+        contentType: mimeType,
+        token: vercelToken
+      });
+      console.log(`[Storage Cloud Vercel] Successfully uploaded: ${blob.url}`);
+      return { url: blob.url, key: blob.url }; // Return URL as the key for deletion
+    } catch (err) {
+      console.error("[Storage Cloud Vercel ERROR] Vercel Blob put failed, trying AWS/Supabase S3:", err);
+    }
+  }
+
   if (settings.provider === "r2" || settings.provider === "supabase") {
     const s3 = createS3Client(settings);
     if (s3) {
@@ -238,6 +257,19 @@ export async function deleteFile(fileKey: string): Promise<boolean> {
 
   if (fileKey.startsWith("data:")) {
     return true;
+  }
+
+  // Vercel Blob deletion if key looks like Vercel storage URL
+  const vercelToken = process.env.BLOB_READ_WRITE_TOKEN;
+  if (vercelToken && (fileKey.includes("public.blob.vercel-storage.com") || !fileKey.includes(":"))) {
+    try {
+      console.log(`[Storage Cloud Vercel] Deleting from Vercel Blob: ${fileKey}...`);
+      await del(fileKey, { token: vercelToken });
+      console.log("[Storage Cloud Vercel] Successfully deleted from Vercel Blob.");
+      return true;
+    } catch (err) {
+      console.error("[Storage Cloud Vercel ERROR] Vercel Blob deletion failed:", err);
+    }
   }
 
   const settings = await getStorageSettings();

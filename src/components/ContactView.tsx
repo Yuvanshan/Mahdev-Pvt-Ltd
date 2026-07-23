@@ -4,7 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import RevealSection from './RevealSection';
 import { 
   Phone, Mail, MapPin, Clock, MessageSquare, Send, CheckCircle, 
   HelpCircle, ChevronDown, Sparkles, ShieldAlert 
@@ -21,6 +22,13 @@ interface ContactViewProps {
 
 export default function ContactView({ isDarkMode, contactInfo = COMPANY_CONTACT, themeSettings }: ContactViewProps) {
   const brandName = themeSettings?.brandName || 'Mahdev Pvt Ltd';
+
+  const heroRef = React.useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start']
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '35%']);
 
   // Form State
   const [name, setName] = useState('');
@@ -50,8 +58,8 @@ export default function ContactView({ isDarkMode, contactInfo = COMPANY_CONTACT,
     <div id="contact-view-container" className="relative w-full z-10">
       
       {/* Hero Banner */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black">
-        <div className="max-w-7xl mx-auto relative z-10 text-center">
+      <section ref={heroRef} className="relative py-20 px-4 sm:px-6 lg:px-8 border-b border-emerald-500/10 bg-black">
+        <RevealSection className="max-w-7xl mx-auto relative z-10 text-center">
           <span className="text-xs font-bold uppercase tracking-widest text-emerald-400 font-mono">
             Connect with {brandName}
           </span>
@@ -61,12 +69,12 @@ export default function ContactView({ isDarkMode, contactInfo = COMPANY_CONTACT,
           <p className="text-slate-300 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
             Have an upcoming wedding, a photography shoot, or an enterprise software project? Reach out below and our specialised division directors will connect with you.
           </p>
-        </div>
+        </RevealSection>
       </section>
 
       {/* Main Form & Info Grid */}
       <section className="py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+        <RevealSection className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
             {/* Column 1: Info and Coordinates (5 Cols) */}
@@ -277,14 +285,14 @@ export default function ContactView({ isDarkMode, contactInfo = COMPANY_CONTACT,
             </div>
 
           </div>
-        </div>
+        </RevealSection>
       </section>
 
       {/* Frequently Asked Questions */}
       <section className={`py-24 px-4 sm:px-6 lg:px-8 border-t border-b ${
         isDarkMode ? 'bg-neutral-950/40 border-emerald-500/10' : 'bg-slate-50 border-slate-200'
       }`}>
-        <div className="max-w-4xl mx-auto">
+        <RevealSection className="max-w-4xl mx-auto">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-4 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
@@ -347,7 +355,7 @@ export default function ContactView({ isDarkMode, contactInfo = COMPANY_CONTACT,
             })}
           </div>
 
-        </div>
+        </RevealSection>
       </section>
 
     </div>

@@ -1,6 +1,7 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { getCloudDb, saveCloudKey } from "./server-db";
 import { put, del } from "@vercel/blob";
 
@@ -55,15 +56,17 @@ function ensureDirectory(dirPath: string): string {
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true });
     }
+    // Verify write access to prevent read-only directory success on serverless
+    fs.accessSync(dirPath, fs.constants.W_OK);
     return dirPath;
   } catch {
-    const tmpDir = path.join("/tmp", path.basename(dirPath));
+    const tmpDir = path.join(os.tmpdir(), path.basename(dirPath));
     try {
       if (!fs.existsSync(tmpDir)) {
         fs.mkdirSync(tmpDir, { recursive: true });
       }
     } catch {
-      // Ignored if /tmp is constrained
+      // Ignored if temp dir is constrained
     }
     return tmpDir;
   }

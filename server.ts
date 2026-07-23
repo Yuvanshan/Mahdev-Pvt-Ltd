@@ -9,6 +9,7 @@ import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import fs from "fs";
 import multer from "multer";
+import os from "os";
 import { getCloudDb, saveCloudKey } from "./server-db";
 import { GoogleGenAI } from "@google/genai";
 import { encrypt, decrypt } from "./server-crypto";
@@ -38,9 +39,19 @@ try {
 dotenv.config();
 
 // Configure multer storage with /tmp fallback for serverless
-const uploadDir = fs.existsSync(path.join(process.cwd(), "uploads"))
-  ? path.join(process.cwd(), "uploads")
-  : "/tmp";
+function isWritable(dirPath: string): boolean {
+  try {
+    fs.accessSync(dirPath, fs.constants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const uploadsPath = path.join(process.cwd(), "uploads");
+const uploadDir = (fs.existsSync(uploadsPath) && isWritable(uploadsPath))
+  ? uploadsPath
+  : os.tmpdir();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -767,20 +778,31 @@ ${divider}`;
 
     if (mailer) {
       const { transporter, fromEmail, fromName, replyToEmail } = mailer;
-      await transporter.sendMail({
-        from: `"${fromName}" <${fromEmail}>`,
-        to: recipient,
-        replyTo: email || replyToEmail,
-        subject: subject,
-        text: emailBody,
-      });
+      try {
+        await transporter.sendMail({
+          from: `"${fromName}" <${fromEmail}>`,
+          to: recipient,
+          replyTo: email || replyToEmail,
+          subject: subject,
+          text: emailBody,
+        });
 
-      return res.json({ 
-        success: true, 
-        delivered: true,
-        booking: newBooking,
-        message: `Order copy sent automatically to info.mahdev.lk@gmail.com using configured SMTP server!` 
-      });
+        return res.json({ 
+          success: true, 
+          delivered: true,
+          booking: newBooking,
+          message: `Order copy sent automatically to info.mahdev.lk@gmail.com using configured SMTP server!` 
+        });
+      } catch (smtpError: any) {
+        console.warn("[Email Dispatcher SMTP ERROR]", smtpError);
+        return res.json({
+          success: true,
+          delivered: false,
+          booking: newBooking,
+          message: `SMTP dispatch failed: ${smtpError.message || smtpError}. Booking saved successfully!`,
+          error: smtpError.message || String(smtpError)
+        });
+      }
     } else {
       return res.json({ 
         success: true, 

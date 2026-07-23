@@ -47,7 +47,7 @@ export default function Footer() {
             <Link href="/" className="flex items-center gap-3">
               <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-gold-accent/20">
                 <Image 
-                  src="/images/mahadev_logo_1782729909050.jpg" 
+                  src="/images/logo.png" 
                   alt="Mahdev Logo" 
                   fill 
                   className="object-cover"

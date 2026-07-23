@@ -38,7 +38,7 @@ const divisionsList = [
   {
     title: 'SWS Event Management',
     desc: 'Bespoke luxury wedding planning, stage set designs, church floral setups, and corporate galas with premium decoration schemes.',
-    image: '/images/wedding_decoration_1782729925686.jpg',
+    image: '/images/sws_robot_decor_1783346269673.jpg',
     href: '/divisions/sws-events',
     icon: Sparkles,
     tag: 'Luxury Decor',

@@ -1,14 +1,14 @@
 [
   {
     "route": "/",
-    "firstLoadUncompressedJsBytes": 1841086,
+    "firstLoadUncompressedJsBytes": 1841039,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0i_zxg2tbl9-a.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
       "dist\\static\\chunks\\1ptcn33unp2w3.js",
-      "dist\\static\\chunks\\2m9r198aa3gqc.js",
+      "dist\\static\\chunks\\1-kbiiqakvmu-.js",
       "dist\\static\\chunks\\1sezt0qfplrqr.js",
-      "dist\\static\\chunks\\29s2n1ao4rskm.js",
+      "dist\\static\\chunks\\2i68bzmkmmnj_.js",
       "dist\\static\\chunks\\3jvkbm-wxvaor.js",
       "dist\\static\\chunks\\011mwum6do4jh.js",
       "dist\\static\\chunks\\1ix_itl_ez38t.js",
@@ -17,13 +17,13 @@
   },
   {
     "route": "/divisions/travels",
-    "firstLoadUncompressedJsBytes": 1270614,
+    "firstLoadUncompressedJsBytes": 1270570,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0i_zxg2tbl9-a.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
       "dist\\static\\chunks\\0lk9g1gwmryvv.js",
       "dist\\static\\chunks\\1sezt0qfplrqr.js",
-      "dist\\static\\chunks\\32tcgmaeh0vbp.js",
+      "dist\\static\\chunks\\2u32i_-ml2ufp.js",
       "dist\\static\\chunks\\3jvkbm-wxvaor.js",
       "dist\\static\\chunks\\011mwum6do4jh.js",
       "dist\\static\\chunks\\1ix_itl_ez38t.js",
@@ -32,13 +32,13 @@
   },
   {
     "route": "/contact",
-    "firstLoadUncompressedJsBytes": 1266809,
+    "firstLoadUncompressedJsBytes": 1266765,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0i_zxg2tbl9-a.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
       "dist\\static\\chunks\\33eqhrnslda1y.js",
       "dist\\static\\chunks\\1sezt0qfplrqr.js",
-      "dist\\static\\chunks\\0p85v5yucu0iv.js",
+      "dist\\static\\chunks\\05wdtqr12bqdw.js",
       "dist\\static\\chunks\\3jvkbm-wxvaor.js",
       "dist\\static\\chunks\\011mwum6do4jh.js",
       "dist\\static\\chunks\\1ix_itl_ez38t.js",
@@ -47,12 +47,12 @@
   },
   {
     "route": "/divisions/erp",
-    "firstLoadUncompressedJsBytes": 729698,
+    "firstLoadUncompressedJsBytes": 729654,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0i_zxg2tbl9-a.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
       "dist\\static\\chunks\\35csu82fihdg6.js",
-      "dist\\static\\chunks\\23lgg-n1xhgt2.js",
+      "dist\\static\\chunks\\3t_mrhmxkatmj.js",
       "dist\\static\\chunks\\3jvkbm-wxvaor.js",
       "dist\\static\\chunks\\011mwum6do4jh.js",
       "dist\\static\\chunks\\1ix_itl_ez38t.js",
@@ -61,12 +61,12 @@
   },
   {
     "route": "/divisions/u1-studio",
-    "firstLoadUncompressedJsBytes": 728978,
+    "firstLoadUncompressedJsBytes": 728934,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0i_zxg2tbl9-a.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
       "dist\\static\\chunks\\013quf2bewh-g.js",
-      "dist\\static\\chunks\\1t_orep3d2g7t.js",
+      "dist\\static\\chunks\\0pivs00bbdpez.js",
       "dist\\static\\chunks\\3jvkbm-wxvaor.js",
       "dist\\static\\chunks\\011mwum6do4jh.js",
       "dist\\static\\chunks\\1ix_itl_ez38t.js",
@@ -75,12 +75,12 @@
   },
   {
     "route": "/divisions/sws-events",
-    "firstLoadUncompressedJsBytes": 728010,
+    "firstLoadUncompressedJsBytes": 727963,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0i_zxg2tbl9-a.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
-      "dist\\static\\chunks\\27-_au5prqi-j.js",
-      "dist\\static\\chunks\\05at03l6lbd3o.js",
+      "dist\\static\\chunks\\129e624kqvl-u.js",
+      "dist\\static\\chunks\\0b---e5t6mb60.js",
       "dist\\static\\chunks\\3jvkbm-wxvaor.js",
       "dist\\static\\chunks\\011mwum6do4jh.js",
       "dist\\static\\chunks\\1ix_itl_ez38t.js",
@@ -89,12 +89,12 @@
   },
   {
     "route": "/divisions/it-solutions",
-    "firstLoadUncompressedJsBytes": 725089,
+    "firstLoadUncompressedJsBytes": 725048,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0i_zxg2tbl9-a.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
-      "dist\\static\\chunks\\2jzwfejt2ftr-.js",
-      "dist\\static\\chunks\\1b0rndibz5xid.js",
+      "dist\\static\\chunks\\2ykg9p9lic_62.js",
+      "dist\\static\\chunks\\3jlqlig5gznfk.js",
       "dist\\static\\chunks\\3jvkbm-wxvaor.js",
       "dist\\static\\chunks\\011mwum6do4jh.js",
       "dist\\static\\chunks\\1ix_itl_ez38t.js",
@@ -103,12 +103,12 @@
   },
   {
     "route": "/portfolio",
-    "firstLoadUncompressedJsBytes": 722543,
+    "firstLoadUncompressedJsBytes": 722499,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0i_zxg2tbl9-a.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
       "dist\\static\\chunks\\1pqkvf0zx40-h.js",
-      "dist\\static\\chunks\\3z_cnwwc7rz6z.js",
+      "dist\\static\\chunks\\2nsq4t0d_knm5.js",
       "dist\\static\\chunks\\3jvkbm-wxvaor.js",
       "dist\\static\\chunks\\011mwum6do4jh.js",
       "dist\\static\\chunks\\1ix_itl_ez38t.js",

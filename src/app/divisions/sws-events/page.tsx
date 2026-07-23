@@ -37,7 +37,7 @@ export default function SwsEvents() {
         {/* Banner Section */}
         <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
           <Image 
-            src="/images/wedding_decoration_1782729925686.jpg" 
+            src="/images/sws_robot_decor_1783346269673.jpg" 
             alt="SWS Events Banner" 
             fill
             priority

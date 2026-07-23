@@ -38,7 +38,7 @@ export default function ItSolutions() {
         {/* Banner Section */}
         <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
           <Image 
-            src="/images/sws_robot_decor_1783346269673.jpg" 
+            src="/images/it_robot_developer_1783346302442.jpg" 
             alt="IT Solutions Banner" 
             fill
             priority

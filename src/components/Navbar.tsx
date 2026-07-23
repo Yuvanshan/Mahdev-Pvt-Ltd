@@ -62,7 +62,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-gold-accent/20 group-hover:border-gold-accent/50 transition-all duration-300">
               <Image 
-                src="/images/mahadev_logo_1782729909050.jpg" 
+                src="/images/logo.png" 
                 alt="Mahdev Logo" 
                 fill 
                 className="object-cover group-hover:scale-110 transition-transform duration-500"

@@ -159,7 +159,11 @@ app.get("/api/get-all-data", async (req, res) => {
     return res.json(db);
   } catch (error: any) {
     console.error("[Get All Data ERROR]", error);
-    return res.status(500).json({ error: "Failed to load database state." });
+    return res.status(500).json({ 
+      error: "Failed to load database state.",
+      message: error?.message || String(error),
+      stack: error?.stack
+    });
   }
 });
 
@@ -266,7 +270,8 @@ app.post("/api/upload", upload.single("image"), async (req, res) => {
       error: {
         code: "UPLOAD_FAILED",
         message: "Failed to process image upload on the server.",
-        details: error?.message || String(error)
+        details: error?.message || String(error),
+        stack: error?.stack
       }
     });
   } finally {

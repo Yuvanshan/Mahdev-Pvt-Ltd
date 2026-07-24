@@ -53,12 +53,12 @@ const pricingList = [
 ];
 
 const categories = [
-  { title: 'Eternal Golden Hour Union', category: 'Wedding Photography', img: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?fm=webp&fit=crop&q=65&w=600' },
-  { title: 'Cinematic Movie Teaser Reel', category: 'Cinematography', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?fm=webp&fit=crop&q=65&w=600' },
-  { title: 'Grand Palace Aerial Horizon', category: 'Drone Photography', img: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?fm=webp&fit=crop&q=65&w=600' },
-  { title: 'Enchanted Forest Session', category: 'Outdoor Shoots', img: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?fm=webp&fit=crop&q=65&w=600' },
-  { title: 'Prism Light Studio Portrait', category: 'Studio Photography', img: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?fm=webp&fit=crop&q=65&w=600' },
-  { title: 'Sleeping Cherub newborn Session', category: 'Baby Shoots', img: 'https://images.unsplash.com/photo-1519689680058-324335c77ebf?fm=webp&fit=crop&q=65&w=600' }
+  { title: 'Eternal Golden Hour Union', category: 'Wedding Photography', img: '/images/wedding_decoration_1782729925686.jpg' },
+  { title: 'Cinematic Movie Teaser Reel', category: 'Cinematography', img: '/images/u1_robot_camera_1783346286743.jpg' },
+  { title: 'Grand Palace Aerial Horizon', category: 'Drone Photography', img: '/images/drone_photography.jpg' },
+  { title: 'Enchanted Forest Session', category: 'Outdoor Shoots', img: '/images/van_tour.jpg' },
+  { title: 'Prism Light Studio Portrait', category: 'Studio Photography', img: '/images/portrait_shoot.jpg' },
+  { title: 'Sleeping Cherub newborn Session', category: 'Baby Shoots', img: '/images/newborn_shoot.jpg' }
 ];
 
 export default function U1Studio() {

@@ -29,9 +29,9 @@ const fleet = [
 ];
 
 const packages = [
-  { title: 'Ella Greenery Escape', days: '3 Days / 2 Nights', price: 'Rs. 45,000+', desc: 'Sightseeing in scenic train bridges, tea plantations, waterfalls, and Ella Rock climbs.', img: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?fm=webp&fit=crop&q=65&w=500' },
-  { title: 'Sigiriya Cultural Trail', days: '2 Days / 1 Night', price: 'Rs. 35,000+', desc: 'Explore historical rock fortress, Dambulla cave temple, and heritage ruins.', img: 'https://images.unsplash.com/photo-1588598126852-d7b4d994141d?fm=webp&fit=crop&q=65&w=500' },
-  { title: 'Galle Coastal Sunset', days: '1 Day Tour', price: 'Rs. 18,000+', desc: 'Visit Portuguese Galle Fort, sea turtle conservation hubs, and relax on sandy beaches.', img: 'https://images.unsplash.com/photo-1563784462041-5f97ac9523dd?fm=webp&fit=crop&q=65&w=500' }
+  { title: 'Ella Greenery Escape', days: '3 Days / 2 Nights', price: 'Rs. 45,000+', desc: 'Sightseeing in scenic train bridges, tea plantations, waterfalls, and Ella Rock climbs.', img: '/images/van_tour.jpg' },
+  { title: 'Sigiriya Cultural Trail', days: '2 Days / 1 Night', price: 'Rs. 35,000+', desc: 'Explore historical rock fortress, Dambulla cave temple, and heritage ruins.', img: '/images/travels_robot_car_1783346316762.jpg' },
+  { title: 'Galle Coastal Sunset', days: '1 Day Tour', price: 'Rs. 18,000+', desc: 'Visit Portuguese Galle Fort, sea turtle conservation hubs, and relax on sandy beaches.', img: '/images/van_tour.jpg' }
 ];
 
 export default function Travels() {

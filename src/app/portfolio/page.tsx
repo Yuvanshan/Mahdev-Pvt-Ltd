@@ -8,20 +8,20 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const portfolioItems = [
-  { id: 'p1', title: 'The Imperial Marigold Haven', category: 'SWS Events', img: 'https://images.unsplash.com/photo-1519225495810-7512c696505a?fm=webp&fit=crop&q=65&w=600' },
-  { id: 'p2', title: 'Vibrant Alice in Balloonland', category: 'SWS Events', img: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?fm=webp&fit=crop&q=65&w=600' },
-  { id: 'p3', title: 'Modern Keynote Tech Summit', category: 'SWS Events', img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?fm=webp&fit=crop&q=65&w=600' },
-  { id: 'p4', title: 'St. Peter\'s Holy Orchid Union', category: 'SWS Events', img: 'https://images.unsplash.com/photo-1478812954026-9c750f0e89fc?fm=webp&fit=crop&q=65&w=600' },
+  { id: 'p1', title: 'The Imperial Marigold Haven', category: 'SWS Events', img: '/images/sws_robot_decor_1783346269673.jpg' },
+  { id: 'p2', title: 'Vibrant Alice in Balloonland', category: 'SWS Events', img: '/images/birthday_decor.jpg' },
+  { id: 'p3', title: 'Modern Keynote Tech Summit', category: 'SWS Events', img: '/images/sws_robot_decor_1783346269673.jpg' },
+  { id: 'p4', title: 'St. Peter\'s Holy Orchid Union', category: 'SWS Events', img: '/images/church_decor.jpg' },
   
-  { id: 'p5', title: 'Eternal Golden Hour Union', category: 'Studio U1', img: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?fm=webp&fit=crop&q=65&w=600' },
-  { id: 'p6', title: 'Cinematic Cinematic Teaser Reel', category: 'Studio U1', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?fm=webp&fit=crop&q=65&w=600' },
-  { id: 'p7', title: 'Grand Palace Aerial Horizon', category: 'Studio U1', img: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?fm=webp&fit=crop&q=65&w=600' },
-  { id: 'p8', title: 'Prism Light Studio Portrait', category: 'Studio U1', img: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?fm=webp&fit=crop&q=65&w=600' },
+  { id: 'p5', title: 'Eternal Golden Hour Union', category: 'Studio U1', img: '/images/u1_robot_camera_1783346286743.jpg' },
+  { id: 'p6', title: 'Cinematic Cinematic Teaser Reel', category: 'Studio U1', img: '/images/portrait_shoot.jpg' },
+  { id: 'p7', title: 'Grand Palace Aerial Horizon', category: 'Studio U1', img: '/images/drone_photography.jpg' },
+  { id: 'p8', title: 'Prism Light Studio Portrait', category: 'Studio U1', img: '/images/portrait_shoot.jpg' },
 
-  { id: 'p9', title: 'Vastra Luxury Silk Store', category: 'IT Solutions', img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?fm=webp&fit=crop&q=65&w=600' },
-  { id: 'p10', title: 'Apex Global Logistics Portal', category: 'IT Solutions', img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?fm=webp&fit=crop&q=65&w=600' },
-  { id: 'p11', title: 'Oakwood International School Hub', category: 'IT Solutions', img: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?fm=webp&fit=crop&q=65&w=600' },
-  { id: 'p12', title: 'HealPath Clinics Hub App', category: 'IT Solutions', img: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?fm=webp&fit=crop&q=65&w=600' },
+  { id: 'p9', title: 'Vastra Luxury Silk Store', category: 'IT Solutions', img: '/images/saas_dashboard.jpg' },
+  { id: 'p10', title: 'Apex Global Logistics Portal', category: 'IT Solutions', img: '/images/saas_dashboard.jpg' },
+  { id: 'p11', title: 'Oakwood International School Hub', category: 'IT Solutions', img: '/images/saas_dashboard.jpg' },
+  { id: 'p12', title: 'HealPath Clinics Hub App', category: 'IT Solutions', img: '/images/it_robot_developer_1783346302442.jpg' },
 ];
 
 const categories = ['All', 'SWS Events', 'Studio U1', 'IT Solutions'];

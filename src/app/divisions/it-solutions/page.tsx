@@ -19,13 +19,13 @@ const caseStudies = [
     title: 'Vastra Luxury Silk Store',
     category: 'E-Commerce Platform',
     desc: 'Bespoke custom apparel shop featuring dynamic color-swatch customizers, high-contrast visual zoom, and integrated local gateway checkout networks.',
-    img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?fm=webp&fit=crop&q=65&w=600'
+    img: '/images/saas_dashboard.jpg'
   },
   {
     title: 'Apex Global Logistics',
     category: 'Enterprise SaaS Portal',
     desc: 'Real-time fleet tracker connecting over 500+ active trucks. Features reactive interactive maps, dynamic route optimization, and fuel log registers.',
-    img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?fm=webp&fit=crop&q=65&w=600'
+    img: '/images/saas_dashboard.jpg'
   }
 ];
 

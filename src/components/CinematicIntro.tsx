@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, SkipForward } from 'lucide-react';
 
 interface Particle {
   x: number;
@@ -20,196 +20,246 @@ interface Particle {
 
 export default function CinematicIntro({ onComplete }: { onComplete: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [phase, setPhase] = useState<number>(0); // 0: Starfield, 1: Trishul & Moon, 2: Silhouette & Waves, 3: Explode, 4: Logo, 5: Fadeout
+  const [phase, setPhase] = useState<number>(0); 
+  // 0: Awakening, 1: Trishul Forge, 2: Flight Space, 3: Flight Mountain, 4: Flight Ocean, 5: Flight Fire, 6: Divine Aura & Shiva Silhouette, 7: Palm Landing & Shockwave, 8: Logo Morph, 9: Complete Fadeout
+  
   const [skipVisible, setSkipVisible] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
+  
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const windNodeRef = useRef<GainNode | null>(null);
   const droneNodeRef = useRef<OscillatorNode | null>(null);
 
-  // Show skip button after 2 seconds
+  // Check if returning visitor to play shorter logo animation
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isReturning = localStorage.getItem('mahdev_returning_user');
+      if (isReturning === 'true') {
+        // Trigger shorter logo morph phase directly
+        setPhase(8);
+      }
+    }
     const timer = setTimeout(() => setSkipVisible(true), 2000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Ambient sound synthesizer using Web Audio API
+  // Web Audio Synthesizer
+  const initAudio = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const ctx = new AudioCtx();
+      audioCtxRef.current = ctx;
+
+      // Deep meditative space drone oscillator chord
+      const osc = ctx.createOscillator();
+      const oscHarmonic = ctx.createOscillator();
+      const droneGain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(65.41, ctx.currentTime); // C2 drone
+      oscHarmonic.type = 'sine';
+      oscHarmonic.frequency.setValueAtTime(98.00, ctx.currentTime); // G2 fifth chord
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(100, ctx.currentTime);
+
+      droneGain.gain.setValueAtTime(0.001, ctx.currentTime);
+      droneGain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 3.0);
+
+      osc.connect(filter);
+      oscHarmonic.connect(filter);
+      filter.connect(droneGain);
+      droneGain.connect(ctx.destination);
+
+      osc.start();
+      oscHarmonic.start();
+      droneNodeRef.current = osc;
+
+      // Space wind noise synthesis
+      const bufferSize = ctx.sampleRate * 2;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        // Simple lowpass pinkish noise approximation
+        data[i] = 0.95 * lastOut + white * 0.05;
+        data[i] *= 0.15;
+        lastOut = data[i];
+      }
+
+      const noiseSource = ctx.createBufferSource();
+      noiseSource.buffer = buffer;
+      noiseSource.loop = true;
+
+      const windFilter = ctx.createBiquadFilter();
+      windFilter.type = 'bandpass';
+      windFilter.frequency.setValueAtTime(300, ctx.currentTime);
+      windFilter.Q.setValueAtTime(2.0, ctx.currentTime);
+
+      const windGain = ctx.createGain();
+      windGain.gain.setValueAtTime(0.001, ctx.currentTime);
+      windGain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 2.0);
+
+      noiseSource.connect(windFilter);
+      windFilter.connect(windGain);
+      windGain.connect(ctx.destination);
+      noiseSource.start();
+      windNodeRef.current = windGain;
+
+    } catch (err) {
+      console.warn("Audio Context blocked or unsupported", err);
+    }
+  };
+
+  const triggerThunder = () => {
+    const ctx = audioCtxRef.current;
+    if (!ctx || ctx.state === 'suspended') return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(50, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(25, ctx.currentTime + 2.0);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(90, ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      setTimeout(() => osc.stop(), 2100);
+    } catch {}
+  };
+
+  const triggerSparkSound = () => {
+    const ctx = audioCtxRef.current;
+    if (!ctx || ctx.state === 'suspended') return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(2000, ctx.currentTime);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      setTimeout(() => osc.stop(), 150);
+    } catch {}
+  };
+
+  // Sound toggling control
   useEffect(() => {
     if (soundEnabled) {
-      try {
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-        const ctx = new AudioContextClass();
-        audioContextRef.current = ctx;
-
-        // Create a low ambient drone oscillator
-        const osc = ctx.createOscillator();
-        const filter = ctx.createBiquadFilter();
-        const gain = ctx.createGain();
-
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(65.41, ctx.currentTime); // C2 note - deep meditative drone
-        
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(150, ctx.currentTime);
-        filter.Q.setValueAtTime(5, ctx.currentTime);
-
-        gain.gain.setValueAtTime(0.001, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 2.0); // Fade in drone
-
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start();
-        droneNodeRef.current = osc;
-
-        // Add a secondary resonance peak for trishul creation
-        setTimeout(() => {
-          if (ctx.state === 'suspended') return;
-          const osc2 = ctx.createOscillator();
-          const gain2 = ctx.createGain();
-          osc2.type = 'sine';
-          osc2.frequency.setValueAtTime(196.00, ctx.currentTime); // G3 - cosmic harmony
-          gain2.gain.setValueAtTime(0, ctx.currentTime);
-          gain2.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 1.5);
-          osc2.connect(gain2);
-          gain2.connect(ctx.destination);
-          osc2.start();
-          setTimeout(() => {
-            gain2.gain.linearRampToValueAtTime(0, ctx.currentTime + 2);
-            setTimeout(() => osc2.stop(), 2000);
-          }, 3000);
-        }, 2000);
-
-      } catch (err) {
-        console.error("Web Audio API failed to initialize", err);
+      if (!audioCtxRef.current) {
+        initAudio();
+      } else if (audioCtxRef.current.state === 'suspended') {
+        audioCtxRef.current.resume();
       }
     } else {
-      if (audioContextRef.current) {
+      if (audioCtxRef.current) {
         try {
-          audioContextRef.current.close();
+          audioCtxRef.current.close();
         } catch {}
-        audioContextRef.current = null;
+        audioCtxRef.current = null;
       }
     }
-
     return () => {
-      if (audioContextRef.current) {
+      if (audioCtxRef.current) {
         try {
-          audioContextRef.current.close();
+          audioCtxRef.current.close();
         } catch {}
       }
     };
   }, [soundEnabled]);
 
-  // Main intro timing sequence
+  // Hollywood timing sequence for 8 scenes (0s - 17s)
   useEffect(() => {
-    // Phase transitions
+    // If returning user, skip long cinematic timeline
+    if (typeof window !== 'undefined' && localStorage.getItem('mahdev_returning_user') === 'true') {
+      const timer = setTimeout(() => setPhase(9), 3000);
+      return () => clearTimeout(timer);
+    }
+
     const timers = [
-      setTimeout(() => setPhase(1), 2200), // Form Trishul & Moon
-      setTimeout(() => setPhase(2), 5500), // Shiva Silhouette & energy waves
-      setTimeout(() => setPhase(3), 8500), // Blow away into cosmic nebula
-      setTimeout(() => setPhase(4), 10500), // Re-converge into Mahdev Logo
-      setTimeout(() => setPhase(5), 14500), // Complete transition
+      setTimeout(() => { setPhase(1); triggerThunder(); }, 2200),  // Scene 2: Trishul Forge
+      setTimeout(() => { setPhase(2); }, 4500),  // Scene 3A: Flight Space
+      setTimeout(() => { setPhase(3); }, 5800),  // Scene 3B: Flight Mountain
+      setTimeout(() => { setPhase(4); }, 7000),  // Scene 3C: Flight Ocean
+      setTimeout(() => { setPhase(5); }, 8200),  // Scene 3D: Flight Fire
+      setTimeout(() => { setPhase(6); }, 9500),  // Scene 4/5: Shiva Silhouette
+      setTimeout(() => { setPhase(7); triggerThunder(); }, 12000), // Scene 6: Palm Landing & Shockwave
+      setTimeout(() => { setPhase(8); }, 14500), // Scene 7: Logo Morph
+      setTimeout(() => { setPhase(9); }, 17500), // Scene 8: Seamless Fadeout
     ];
 
     return () => timers.forEach(clearTimeout);
-  }, []);
+  }, [soundEnabled]);
 
   useEffect(() => {
-    if (phase === 5) {
-      // Trigger homepage fade-in
-      setTimeout(() => {
-        onComplete();
-      }, 800);
+    if (phase === 9) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('mahdev_returning_user', 'true');
+      }
+      onComplete();
     }
   }, [phase, onComplete]);
 
-  // Particle Engine Canvas logic
+  // Canvas render engine
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationId: number;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Particle pool
-    const particles: Particle[] = [];
-    const maxParticles = 1600;
+    // Performance adaptation check (cap particles on mobile devices)
+    const isMobile = width < 768;
+    const maxParticles = isMobile ? 480 : 1600;
 
-    // Helper functions to generate target coordinates
+    const particles: Particle[] = [];
+
     const getTrishulPoints = (count: number) => {
       const points: { x: number; y: number; color: string }[] = [];
       const centerX = width / 2;
       const centerY = height / 2 - 20;
-      const scale = Math.min(width, height) * 0.35;
+      const scale = Math.min(width, height) * (isMobile ? 0.28 : 0.35);
 
-      // Handle (vertical shaft)
-      const handlePoints = Math.floor(count * 0.3);
-      for (let i = 0; i < handlePoints; i++) {
-        const py = centerY - scale * 0.5 + (scale * 1.2 * i) / handlePoints;
-        points.push({ x: centerX, y: py, color: '#00e5ff' });
+      // Shaft
+      const shaft = Math.floor(count * 0.35);
+      for (let i = 0; i < shaft; i++) {
+        points.push({ x: centerX, y: centerY - scale * 0.4 + (scale * 1.1 * i) / shaft, color: '#00e5ff' });
       }
-
-      // Middle Prong
-      const prongPoints = Math.floor(count * 0.15);
-      for (let i = 0; i < prongPoints; i++) {
-        const py = centerY - scale * 0.5 - (scale * 0.4 * i) / prongPoints;
-        points.push({ x: centerX, y: py, color: '#a855f7' });
+      // Middle prong
+      const middle = Math.floor(count * 0.15);
+      for (let i = 0; i < middle; i++) {
+        points.push({ x: centerX, y: centerY - scale * 0.4 - (scale * 0.35 * i) / middle, color: '#dfba73' });
       }
-
-      // Left Prong (curved outwards)
-      const leftProngPoints = Math.floor(count * 0.2);
-      for (let i = 0; i < leftProngPoints; i++) {
-        const t = i / leftProngPoints;
-        const px = centerX - Math.sin(t * Math.PI) * scale * 0.25 - (t * scale * 0.05);
-        const py = centerY - scale * 0.4 - Math.cos(t * Math.PI * 0.4) * scale * 0.25;
+      // Left curves
+      const left = Math.floor(count * 0.2);
+      for (let i = 0; i < left; i++) {
+        const t = i / left;
+        const px = centerX - Math.sin(t * Math.PI) * scale * 0.22 - t * scale * 0.04;
+        const py = centerY - scale * 0.32 - Math.cos(t * Math.PI * 0.4) * scale * 0.22;
         points.push({ x: px, y: py, color: '#00e5ff' });
       }
-
-      // Right Prong (curved outwards)
-      const rightProngPoints = Math.floor(count * 0.2);
-      for (let i = 0; i < rightProngPoints; i++) {
-        const t = i / rightProngPoints;
-        const px = centerX + Math.sin(t * Math.PI) * scale * 0.25 + (t * scale * 0.05);
-        const py = centerY - scale * 0.4 - Math.cos(t * Math.PI * 0.4) * scale * 0.25;
+      // Right curves
+      const right = Math.floor(count * 0.2);
+      for (let i = 0; i < right; i++) {
+        const t = i / right;
+        const px = centerX + Math.sin(t * Math.PI) * scale * 0.22 + t * scale * 0.04;
+        const py = centerY - scale * 0.32 - Math.cos(t * Math.PI * 0.4) * scale * 0.22;
         points.push({ x: px, y: py, color: '#00e5ff' });
-      }
-
-      // Crossbars & details
-      const crossbarPoints = Math.floor(count * 0.15);
-      for (let i = 0; i < crossbarPoints; i++) {
-        const offset = (i - crossbarPoints / 2) * (scale * 0.25 / crossbarPoints);
-        points.push({ x: centerX + offset, y: centerY - scale * 0.4, color: '#dfba73' });
-        points.push({ x: centerX + offset, y: centerY + scale * 0.1, color: '#dfba73' });
-      }
-
-      return points;
-    };
-
-    const getMoonPoints = (count: number) => {
-      const points: { x: number; y: number; color: string }[] = [];
-      const centerX = width / 2 + Math.min(width, height) * 0.18;
-      const centerY = height / 2 - Math.min(width, height) * 0.28;
-      const radius = Math.min(width, height) * 0.09;
-
-      // Draw crescent moon arc
-      for (let i = 0; i < count; i++) {
-        const t = -Math.PI * 0.5 + (Math.PI * 1.1 * i) / count;
-        // Outer arc
-        const ox = centerX + Math.cos(t) * radius;
-        const oy = centerY + Math.sin(t) * radius;
-        // Inner offset creating crescent shape
-        const ix = centerX + Math.cos(t) * radius * 0.65 + radius * 0.32;
-        const iy = centerY + Math.sin(t) * radius * 0.7;
-
-        if (i % 2 === 0) {
-          points.push({ x: ox, y: oy, color: '#dfba73' });
-        } else {
-          points.push({ x: ix, y: iy, color: '#ffffff' });
-        }
       }
       return points;
     };
@@ -217,205 +267,244 @@ export default function CinematicIntro({ onComplete }: { onComplete: () => void 
     const getLogoPoints = (count: number) => {
       const points: { x: number; y: number; color: string }[] = [];
       const centerX = width / 2;
-      const centerY = height / 2 - 30;
-      const size = Math.min(width, height) * 0.2;
+      const centerY = height / 2 - 20;
+      const size = Math.min(width, height) * (isMobile ? 0.15 : 0.2);
 
-      // Form huge 'M' shape
-      const letterPoints = Math.floor(count * 0.7);
-      for (let i = 0; i < letterPoints; i++) {
-        const segment = Math.floor((i / letterPoints) * 4);
-        const t = (i % (letterPoints / 4)) / (letterPoints / 4);
+      // Corporate 'M'
+      const letter = Math.floor(count * 0.7);
+      for (let i = 0; i < letter; i++) {
+        const segment = Math.floor((i / letter) * 4);
+        const t = (i % (letter / 4)) / (letter / 4);
         let px = centerX;
         let py = centerY;
 
         if (segment === 0) {
-          // Left vertical bar
           px = centerX - size;
           py = centerY + size - t * 2 * size;
         } else if (segment === 1) {
-          // Left diagonal going down
           px = centerX - size + t * size;
           py = centerY - size + t * size * 1.2;
         } else if (segment === 2) {
-          // Right diagonal going up
           px = centerX + t * size;
-          py = centerY + size * 0.2 - t * size * 1.2;
+          py = centerY - size * 0.2 - t * size * 1.2;
         } else {
-          // Right vertical bar
           px = centerX + size;
           py = centerY - size + t * 2 * size;
         }
         points.push({ x: px, y: py, color: '#dfba73' });
       }
 
-      // Add tag lines below
-      const textPoints = Math.floor(count * 0.3);
-      for (let i = 0; i < textPoints; i++) {
-        const t = i / textPoints;
+      // Tagline string arcs
+      const tag = count - letter;
+      for (let i = 0; i < tag; i++) {
+        const t = i / tag;
         const px = centerX - size * 1.2 + t * size * 2.4;
-        const py = centerY + size * 1.4 + Math.sin(t * Math.PI * 4) * 3;
+        const py = centerY + size * 1.45;
         points.push({ x: px, y: py, color: '#a855f7' });
       }
-
       return points;
     };
 
-    // Initialize particles floating randomly in space
+    // Initialize particles floating in space
     for (let i = 0; i < maxParticles; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
         targetX: Math.random() * width,
         targetY: Math.random() * height,
-        size: Math.random() * 2 + 1,
-        color: `rgba(255, 255, 255, ${Math.random() * 0.6 + 0.2})`,
-        alpha: Math.random() * 0.8 + 0.2,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: (Math.random() - 0.5) * 0.6,
+        size: Math.random() * 2 + 0.8,
+        color: `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.1})`,
+        alpha: Math.random() * 0.7 + 0.3,
+        vx: (Math.random() - 0.5) * 0.7,
+        vy: (Math.random() - 0.5) * 0.7,
         speed: Math.random() * 0.05 + 0.02,
         friction: 0.96
       });
     }
 
-    // Handles window resizing
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
     window.addEventListener('resize', handleResize);
 
-    let frameCount = 0;
+    let frame = 0;
     let wavePulse = 0;
+    let animId: number;
 
-    // Primary Canvas Render Loop
-    const draw = () => {
-      frameCount++;
-      ctx.fillStyle = 'rgba(5, 11, 22, 0.2)'; // trail effect for cosmic flow
+    const render = () => {
+      frame++;
+      // Black fade-out trails
+      ctx.fillStyle = 'rgba(5, 11, 22, 0.18)';
       ctx.fillRect(0, 0, width, height);
 
-      // Draw subtle nebula clouds in the background
-      const nebulaGlow = ctx.createRadialGradient(
-        width / 2 + Math.sin(frameCount * 0.005) * 100,
-        height / 2 + Math.cos(frameCount * 0.007) * 100,
-        10,
-        width / 2,
-        height / 2,
-        Math.min(width, height) * 0.7
-      );
-      nebulaGlow.addColorStop(0, 'rgba(24, 12, 48, 0.12)');
-      nebulaGlow.addColorStop(0.5, 'rgba(8, 28, 48, 0.06)');
-      nebulaGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = nebulaGlow;
-      ctx.fillRect(0, 0, width, height);
-
-      // Generate points mapping based on current phase
-      let targets: { x: number; y: number; color: string }[] = [];
-      if (phase === 1 || phase === 2) {
-        // Trishul & Moon form
-        const trishulCount = Math.floor(maxParticles * 0.8);
-        const moonCount = maxParticles - trishulCount;
-        targets = [...getTrishulPoints(trishulCount), ...getMoonPoints(moonCount)];
-      } else if (phase === 4) {
-        // Logo and brand name form
-        targets = getLogoPoints(maxParticles);
+      // 1. Cosmic Awakening Fog overlays
+      if (phase === 0 || phase === 1) {
+        const fog = ctx.createRadialGradient(width/2, height/2, 10, width/2, height/2, Math.max(width, height)*0.5);
+        fog.addColorStop(0, 'rgba(12, 28, 64, 0.15)');
+        fog.addColorStop(0.6, 'rgba(88, 28, 135, 0.05)');
+        fog.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = fog;
+        ctx.fillRect(0, 0, width, height);
       }
 
-      // Draw the silhouette of Lord Shiva in Phase 2
-      if (phase === 2) {
-        ctx.save();
-        const shivaGrad = ctx.createRadialGradient(
-          width / 2, height / 2 - 30, 20,
-          width / 2, height / 2 - 30, Math.min(width, height) * 0.32
-        );
-        shivaGrad.addColorStop(0, 'rgba(0, 229, 255, 0.22)');
-        shivaGrad.addColorStop(0.4, 'rgba(168, 85, 247, 0.07)');
-        shivaGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = shivaGrad;
+      // 2. Flight Mountain environment contour lines in Phase 3
+      if (phase === 3) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.arc(width / 2, height / 2 - 30, Math.min(width, height) * 0.32, 0, Math.PI * 2);
-        ctx.fill();
+        // Left peak
+        ctx.moveTo(0, height * 0.8);
+        ctx.lineTo(width * 0.3, height * 0.45);
+        ctx.lineTo(width * 0.6, height * 0.85);
+        // Right peak
+        ctx.moveTo(width * 0.4, height * 0.85);
+        ctx.lineTo(width * 0.75, height * 0.5);
+        ctx.lineTo(width, height * 0.8);
+        ctx.stroke();
+      }
 
-        // Draw soft silhouetted figure in center
-        ctx.fillStyle = 'rgba(5, 11, 22, 0.85)';
-        ctx.strokeStyle = 'rgba(0, 229, 255, 0.35)';
+      // 3. Flight Ocean waves curves in Phase 4
+      if (phase === 4) {
+        ctx.strokeStyle = 'rgba(0, 229, 255, 0.12)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        // Simple mathematical seated posture coordinate outline
+        for (let x = 0; x < width; x += 15) {
+          const y = height * 0.82 + Math.sin(x * 0.008 + frame * 0.08) * 18;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      // 4. Flight Fire sparks overlays in Phase 5
+      if (phase === 5 && Math.random() < 0.15) {
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.6)';
+        ctx.beginPath();
+        ctx.arc(Math.random() * width, Math.random() * height, Math.random() * 3 + 1, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 5. Shiva silhouette, Ganga light rays, crescent moon in Phase 6/7
+      if (phase === 6 || phase === 7) {
         const scX = width / 2;
-        const scY = height / 2 + 10;
-        const scale = Math.min(width, height) * 0.15;
-        // Head
-        ctx.arc(scX, scY - scale * 1.5, scale * 0.28, 0, Math.PI * 2);
-        // Hair / Jata
-        ctx.moveTo(scX - scale * 0.15, scY - scale * 1.78);
-        ctx.lineTo(scX, scY - scale * 2.1);
-        ctx.lineTo(scX + scale * 0.15, scY - scale * 1.78);
-        // Meditative shoulders & torso
-        ctx.moveTo(scX, scY - scale * 1.2);
-        ctx.bezierCurveTo(scX - scale * 0.8, scY - scale * 1.1, scX - scale * 1.2, scY - scale * 0.3, scX - scale * 1.3, scY + scale * 0.4);
-        ctx.lineTo(scX + scale * 1.3, scY + scale * 0.4);
-        ctx.bezierCurveTo(scX + scale * 1.2, scY - scale * 0.3, scX + scale * 0.8, scY - scale * 1.1, scX, scY - scale * 1.2);
+        const scY = height / 2 + 15;
+        const scale = Math.min(width, height) * (isMobile ? 0.13 : 0.16);
+
+        // Meditative breathe rhythm
+        const breathe = 1 + Math.sin(frame * 0.03) * 0.015;
+
+        // Radial glowing aura
+        const aura = ctx.createRadialGradient(scX, scY - scale * 1.4, 10, scX, scY - scale * 1.4, scale * 3.0 * breathe);
+        aura.addColorStop(0, 'rgba(0, 229, 255, 0.22)');
+        aura.addColorStop(0.6, 'rgba(168, 85, 247, 0.05)');
+        aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = aura;
+        ctx.beginPath();
+        ctx.arc(scX, scY - scale * 1.4, scale * 3.0 * breathe, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Outline seated silhouette
+        ctx.fillStyle = 'rgba(5, 11, 22, 0.88)';
+        ctx.strokeStyle = 'rgba(0, 229, 255, 0.25)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        
+        // Seated triangle pose
+        ctx.arc(scX, scY - scale * 1.5, scale * 0.26 * breathe, 0, Math.PI * 2); // head
+        ctx.moveTo(scX - scale * 0.15, scY - scale * 1.76);
+        ctx.lineTo(scX, scY - scale * 2.05 * breathe); // Jata top
+        ctx.lineTo(scX + scale * 0.15, scY - scale * 1.76);
+
+        // Flowing hair lines
+        ctx.moveTo(scX - scale * 0.1, scY - scale * 1.55);
+        ctx.bezierCurveTo(
+          scX - scale * 0.75 + Math.sin(frame * 0.04) * 12, scY - scale * 1.35,
+          scX - scale * 1.1 + Math.cos(frame * 0.03) * 15, scY - scale * 0.5,
+          scX - scale * 1.4, scY + scale * 0.5
+        );
+        ctx.moveTo(scX + scale * 0.1, scY - scale * 1.55);
+        ctx.bezierCurveTo(
+          scX + scale * 0.8 - Math.sin(frame * 0.04) * 12, scY - scale * 1.35,
+          scX + scale * 1.1 - Math.cos(frame * 0.03) * 15, scY - scale * 0.5,
+          scX + scale * 1.4, scY + scale * 0.5
+        );
+
+        // Torso shoulders
+        ctx.moveTo(scX, scY - scale * 1.1);
+        ctx.bezierCurveTo(scX - scale * 0.75 * breathe, scY - scale * 1.0, scX - scale * 1.25, scY + scale * 0.3, scX - scale * 1.35, scY + scale * 0.5);
+        ctx.lineTo(scX + scale * 1.35, scY + scale * 0.5);
+        ctx.bezierCurveTo(scX + scale * 1.25, scY + scale * 0.3, scX + scale * 0.75 * breathe, scY - scale * 1.0, scX, scY - scale * 1.1);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
-        ctx.restore();
 
-        // Pulsing energy waves
-        wavePulse += 0.015;
-        ctx.strokeStyle = `rgba(0, 229, 255, ${Math.max(0, 1 - (wavePulse % 1) * 1.2) * 0.4})`;
-        ctx.lineWidth = 2;
+        // Ganga light arc
+        ctx.strokeStyle = 'rgba(0, 229, 255, 0.4)';
         ctx.beginPath();
-        ctx.arc(scX, scY, (wavePulse % 1) * scale * 2.2, 0, Math.PI * 2);
+        ctx.moveTo(scX, scY - scale * 2.05);
+        ctx.bezierCurveTo(scX + Math.sin(frame * 0.07) * 8, scY - scale * 2.2, scX + 20, scY - scale * 2.4, scX + 35, scY - scale * 2.6);
         ctx.stroke();
       }
 
-      // Render, update and morph particles
+      // Palm landing shockwave expanding circle in Phase 7
+      if (phase === 7) {
+        wavePulse += 0.018;
+        ctx.strokeStyle = `rgba(0, 229, 255, ${Math.max(0, 1 - wavePulse) * 0.6})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(width / 2, height / 2, wavePulse * Math.max(width, height) * 0.8, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Retrieve targets mappings
+      let targets: { x: number; y: number; color: string }[] = [];
+      if (phase === 1 || phase === 6 || phase === 7) {
+        // Trishul forms
+        targets = getTrishulPoints(maxParticles);
+      } else if (phase === 8) {
+        // Logo forms
+        targets = getLogoPoints(maxParticles);
+      }
+
+      // Render, update, and morph particles
       for (let i = 0; i < maxParticles; i++) {
         const p = particles[i];
 
-        if (phase === 0) {
-          // Floating space stars
-          p.x += p.vx;
-          p.y += p.vy;
-          // Wrap screen bounds
+        if (phase === 0 || phase === 2 || phase === 3 || phase === 4 || phase === 5) {
+          // Floating stars/space flight motion
+          const multiplier = phase >= 2 && phase <= 5 ? 4.5 : 1.0;
+          p.x += p.vx * multiplier;
+          p.y += p.vy * multiplier;
+          
           if (p.x < 0) p.x = width;
           if (p.x > width) p.x = 0;
           if (p.y < 0) p.y = height;
           if (p.y > height) p.y = 0;
-        } else if ((phase === 1 || phase === 2) && targets[i]) {
-          // Morph to Trishul and Moon shapes
+        } else if ((phase === 1 || phase === 6 || phase === 7 || phase === 8) && targets[i]) {
+          // Morph coordinates
           const target = targets[i];
           p.x += (target.x - p.x) * p.speed;
           p.y += (target.y - p.y) * p.speed;
           p.color = target.color;
-        } else if (phase === 3) {
-          // Explosion energy surge
-          const dx = p.x - width / 2;
-          const dy = p.y - height / 2;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const force = (Math.min(width, height) * 0.2) / (dist + 10);
-          p.vx += (dx / (dist + 1)) * force * 1.2 + (Math.random() - 0.5) * 1.5;
-          p.vy += (dy / (dist + 1)) * force * 1.2 + (Math.random() - 0.5) * 1.5;
 
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vx *= p.friction;
-          p.vy *= p.friction;
-          p.color = `rgba(0, 229, 255, ${p.alpha})`;
-        } else if (phase === 4 && targets[i]) {
-          // Converge to form Corporate Logo
-          const target = targets[i];
-          p.x += (target.x - p.x) * (p.speed * 1.4);
-          p.y += (target.y - p.y) * (p.speed * 1.4);
-          p.color = target.color;
-        } else if (phase === 5) {
-          // Dissolve away as logo fades
-          p.x += p.vx * 2;
-          p.y += p.vy * 2;
-          p.alpha = Math.max(0, p.alpha - 0.02);
+          // Forge electric sparks
+          if (phase === 1 && Math.random() < 0.0001) {
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x + (Math.random() - 0.5) * 35, p.y + (Math.random() - 0.5) * 35);
+            ctx.stroke();
+            if (Math.random() < 0.15) triggerSparkSound();
+          }
+        } else if (phase === 9) {
+          // Complete seamless fadeout
+          p.x += p.vx * 3.5;
+          p.y += p.vy * 3.5;
+          p.alpha = Math.max(0, p.alpha - 0.03);
         }
 
-        // Draw particle
         ctx.fillStyle = p.color;
         ctx.globalAlpha = p.alpha;
         ctx.beginPath();
@@ -424,28 +513,27 @@ export default function CinematicIntro({ onComplete }: { onComplete: () => void 
         ctx.globalAlpha = 1.0;
       }
 
-      animationId = requestAnimationFrame(draw);
+      animId = requestAnimationFrame(render);
     };
 
-    draw();
+    render();
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationId);
+      cancelAnimationFrame(animId);
     };
   }, [phase]);
 
-  // Handle immediate Skip Button
   const handleSkip = () => {
-    setPhase(5);
+    setPhase(9);
     setTimeout(() => {
       onComplete();
-    }, 400);
+    }, 450);
   };
 
   return (
     <div className="fixed inset-0 z-[99999] bg-[#050b16] select-none flex flex-col justify-between items-center py-12 px-6">
-      {/* Sound & Skip Options */}
+      {/* sound controls */}
       <div className="w-full max-w-7xl flex justify-between items-center relative z-20">
         <button
           onClick={() => setSoundEnabled(!soundEnabled)}
@@ -453,11 +541,11 @@ export default function CinematicIntro({ onComplete }: { onComplete: () => void 
         >
           {soundEnabled ? (
             <>
-              <Volume2 className="w-4 h-4 text-gold-accent" /> Sound On
+              <Volume2 className="w-4 h-4 text-gold-accent" /> Synthesizer On
             </>
           ) : (
             <>
-              <VolumeX className="w-4 h-4 text-gray-500" /> Ambient Sound
+              <VolumeX className="w-4 h-4 text-gray-500" /> Cinematic Sound
             </>
           )}
         </button>
@@ -465,14 +553,13 @@ export default function CinematicIntro({ onComplete }: { onComplete: () => void 
         {skipVisible && (
           <button
             onClick={handleSkip}
-            className="px-6 py-2 rounded-full border border-gold-accent/30 text-gold-soft hover:bg-gold-accent/15 hover:border-gold-accent font-sans text-xs font-bold tracking-widest transition-all duration-300 bg-navy-dark/40 backdrop-blur-md"
+            className="px-6 py-2 rounded-full border border-gold-accent/30 text-gold-soft hover:bg-gold-accent/15 hover:border-gold-accent font-sans text-xs font-bold tracking-widest transition-all duration-300 bg-navy-dark/40 backdrop-blur-md flex items-center gap-2"
           >
-            SKIP INTRODUCTION
+            SKIP INTRO <SkipForward className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
 
-      {/* Main Canvas Canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 z-10 w-full h-full pointer-events-none" />
 
       {/* Synchronized Centered Title Reveals */}
@@ -480,44 +567,57 @@ export default function CinematicIntro({ onComplete }: { onComplete: () => void 
         <AnimatePresence mode="wait">
           {phase === 0 && (
             <motion.h2
-              key="intro-moments"
+              key="intro-awakening"
+              initial={{ opacity: 0, y: 30, letterSpacing: '0.1em' }}
+              animate={{ opacity: 1, y: 0, letterSpacing: '0.3em' }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 1.2 }}
+              className="font-display font-black text-2xl sm:text-4xl text-white/40 uppercase"
+            >
+              Cosmic Awakening
+            </motion.h2>
+          )}
+
+          {phase === 1 && (
+            <motion.h2
+              key="intro-forge"
+              initial={{ opacity: 0, y: 30, letterSpacing: '0.1em' }}
+              animate={{ opacity: 1, y: 0, letterSpacing: '0.3em' }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 1.2 }}
+              className="font-display font-black text-2xl sm:text-4xl text-gradient-cyan uppercase"
+            >
+              Trishul Forging
+            </motion.h2>
+          )}
+
+          {phase >= 2 && phase <= 5 && (
+            <motion.h2
+              key="intro-flight"
               initial={{ opacity: 0, y: 30, letterSpacing: '0.1em' }}
               animate={{ opacity: 1, y: 0, letterSpacing: '0.3em' }}
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 1.2 }}
               className="font-display font-black text-3xl sm:text-5xl text-white uppercase"
             >
-              Creating Moments
+              {phase === 2 ? 'GALAXY BOUNDS' : phase === 3 ? 'SNOWY MOUNTAINS' : phase === 4 ? 'BLUE WAVE OCEANS' : 'FIRE EXPLOSIONS'}
             </motion.h2>
           )}
 
-          {phase === 1 && (
+          {phase === 6 && (
             <motion.h2
-              key="intro-memories"
+              key="intro-shiva"
               initial={{ opacity: 0, y: 30, letterSpacing: '0.1em' }}
               animate={{ opacity: 1, y: 0, letterSpacing: '0.3em' }}
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 1.2 }}
-              className="font-display font-black text-3xl sm:text-5xl text-gradient-cyan uppercase"
+              className="font-display font-black text-2xl sm:text-4xl text-gradient-purple-blue uppercase"
             >
-              Capturing Memories
+              Divine Meditative Presence
             </motion.h2>
           )}
 
-          {phase === 2 && (
-            <motion.h2
-              key="intro-innovate"
-              initial={{ opacity: 0, y: 30, letterSpacing: '0.1em' }}
-              animate={{ opacity: 1, y: 0, letterSpacing: '0.3em' }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 1.2 }}
-              className="font-display font-black text-3xl sm:text-5xl text-gradient-purple-blue uppercase"
-            >
-              Delivering Innovation
-            </motion.h2>
-          )}
-
-          {phase === 4 && (
+          {phase === 8 && (
             <motion.div
               key="intro-logo"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -529,15 +629,14 @@ export default function CinematicIntro({ onComplete }: { onComplete: () => void 
               <h1 className="font-display font-black text-5xl sm:text-7xl text-gradient-gold tracking-[0.25em] uppercase">
                 MAHDEV
               </h1>
-              <p className="text-[10px] sm:text-xs font-sans font-bold tracking-[0.4em] text-white/50 uppercase">
-                Welcome to Mahdev Pvt Ltd
+              <p className="text-[10px] sm:text-xs font-sans font-bold tracking-[0.4em] text-white/50 uppercase mt-2">
+                Creating Moments • Capturing Memories • Delivering Innovation
               </p>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Footer Branding Bar */}
       <div className="w-full text-center relative z-20 text-[9px] font-sans font-bold text-gray-600 tracking-[0.25em] uppercase mt-auto">
         Mahdev Conglomerate © {new Date().getFullYear()}
       </div>

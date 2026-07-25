@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Film, Compass, User, Palette, Sparkles, X, ChevronRight, CheckCircle, MessageSquare, Play } from 'lucide-react';
+import { Camera, Film, Compass, User, Palette, Sparkles, X, CheckCircle, MessageSquare } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingSystem from '@/components/BookingSystem';
@@ -60,13 +60,16 @@ const portfolioItems = [
 
 export default function U1Studio() {
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
-  const [sliderPos, setSliderPos] = useState(50); // percentage (0-100)
+  const [sliderPos, setSliderPos] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
   const [activeTab, setActiveTab] = useState('All');
+  
+  // Camera shutter shutter animation state
+  const [shutterActive, setShutterActive] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Before / After Slider slider drag handler
+  // Before / After Slider drag handlers
   const handleMove = (clientX: number) => {
     if (!sliderRef.current) return;
     const rect = sliderRef.current.getBoundingClientRect();
@@ -102,6 +105,16 @@ export default function U1Studio() {
     };
   }, [isResizing]);
 
+  const triggerShutter = (tabName: string) => {
+    setShutterActive(true);
+    setTimeout(() => {
+      setActiveTab(tabName);
+    }, 350); // change tab midway during shutter close
+    setTimeout(() => {
+      setShutterActive(false);
+    }, 700);
+  };
+
   const filteredPortfolio = activeTab === 'All' 
     ? portfolioItems 
     : portfolioItems.filter(item => item.category === activeTab);
@@ -110,7 +123,37 @@ export default function U1Studio() {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-navy-dark pt-20">
+      <main className="min-h-screen bg-navy-dark pt-20 relative overflow-hidden">
+        
+        {/* Cinematic Camera Shutter Blades Overlay Overlay */}
+        <AnimatePresence>
+          {shutterActive && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[99999] pointer-events-none flex items-center justify-center"
+            >
+              {/* Shutter Blade Left */}
+              <motion.div 
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ duration: 0.35, ease: 'easeInOut' }}
+                className="absolute top-0 bottom-0 left-0 w-1/2 bg-[#050b16] border-r border-gold-accent/20"
+              />
+              {/* Shutter Blade Right */}
+              <motion.div 
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ duration: 0.35, ease: 'easeInOut' }}
+                className="absolute top-0 bottom-0 right-0 w-1/2 bg-[#050b16] border-l border-gold-accent/20"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Banner Section */}
         <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
           <Image 
@@ -118,7 +161,7 @@ export default function U1Studio() {
             alt="U1 Studio Banner" 
             fill
             priority
-            className="object-cover brightness-50"
+            className="object-cover brightness-50 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/30 to-transparent" />
           <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col items-center gap-4">
@@ -140,7 +183,7 @@ export default function U1Studio() {
           </div>
         </section>
 
-        {/* Division Services Grid */}
+        {/* Capabilities Grid */}
         <section className="py-24 max-w-7xl mx-auto px-6">
           <div className="text-center mb-16 flex flex-col gap-3">
             <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
@@ -179,7 +222,35 @@ export default function U1Studio() {
           </div>
         </section>
 
-        {/* Before / After Luxury Image Slider Slider */}
+        {/* Floating Photograph Cards with Parallax Parallax Hover Tilts */}
+        <section className="py-24 max-w-7xl mx-auto px-6 border-t border-white/5">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-5 text-left flex flex-col gap-4">
+              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">PORTFOLIO EXCLUSIVES</span>
+              <h2 className="font-display font-black text-2xl sm:text-3xl text-white">Dynamic Photo Cards</h2>
+              <p className="text-gray-400 text-xs sm:text-sm font-sans leading-relaxed">Hover over the floating photograph stacks on the right to examine 3D responsive rotational coordinates tilts.</p>
+            </div>
+            
+            <div className="lg:col-span-7 flex justify-center items-center gap-6 relative h-[250px]">
+              {[
+                { r: '-8deg', y: '-10px', img: '/images/wedding_decoration_1782729925686.jpg' },
+                { r: '4deg', y: '10px', img: '/images/u1_robot_camera_1783346286743.jpg' },
+                { r: '-2deg', y: '0px', img: '/images/wedding_decoration_1782729925686.jpg' }
+              ].map((card, cIdx) => (
+                <motion.div
+                  key={cIdx}
+                  whileHover={{ rotate: '0deg', scale: 1.06, y: -20, zIndex: 50 }}
+                  style={{ rotate: card.r, y: card.y }}
+                  className="w-36 sm:w-48 h-48 rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl relative cursor-pointer transition-all duration-300"
+                >
+                  <Image src={card.img} alt="Floating Shot" fill className="object-cover" />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Before / After Slider */}
         <section className="py-24 bg-navy-medium/30 relative">
           <div className="max-w-4xl mx-auto px-6 text-center flex flex-col gap-4">
             <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">IMAGERY POST-PROCESSING</span>
@@ -192,7 +263,6 @@ export default function U1Studio() {
               onMouseDown={() => setIsResizing(true)}
               onTouchStart={() => setIsResizing(true)}
             >
-              {/* After Image (Full Color) */}
               <div className="absolute inset-0 w-full h-full">
                 <Image
                   src="/images/wedding_decoration_1782729925686.jpg"
@@ -203,7 +273,6 @@ export default function U1Studio() {
                 <span className="absolute bottom-4 right-6 bg-black/60 px-3 py-1 rounded text-[10px] text-white font-bold uppercase tracking-wider">AFTER GRID COLORING</span>
               </div>
 
-              {/* Before Image (Grayscale/Faded) */}
               <div 
                 className="absolute inset-0 h-full overflow-hidden" 
                 style={{ width: `${sliderPos}%` }}
@@ -219,7 +288,6 @@ export default function U1Studio() {
                 <span className="absolute bottom-4 left-6 bg-black/60 px-3 py-1 rounded text-[10px] text-white font-bold uppercase tracking-wider">BEFORE HDR PIPELINE</span>
               </div>
 
-              {/* Draggable Divider Bar */}
               <div 
                 className="absolute top-0 bottom-0 w-1 bg-gold-accent cursor-ew-resize flex items-center justify-center"
                 style={{ left: `${sliderPos}%` }}
@@ -232,7 +300,7 @@ export default function U1Studio() {
           </div>
         </section>
 
-        {/* Cinematic Masonry Album Preview Showcase */}
+        {/* Shutter Triggered Album Preview Grid */}
         <section className="py-24 max-w-7xl mx-auto px-6">
           <div className="text-center mb-16 flex flex-col gap-3">
             <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">PORTFOLIO MATRIX</span>
@@ -243,7 +311,7 @@ export default function U1Studio() {
             {['All', 'Wedding', 'Cinematography', 'Drone'].map((cat) => (
               <button
                 key={cat}
-                onClick={() => setActiveTab(cat)}
+                onClick={() => triggerShutter(cat)}
                 className={`px-4 py-2 rounded-lg font-sans text-xs font-semibold tracking-wider transition-all ${
                   activeTab === cat 
                     ? 'bg-gold-accent text-navy-dark' 
@@ -278,7 +346,7 @@ export default function U1Studio() {
           </div>
         </section>
 
-        {/* Pricing Tables */}
+        {/* Pricing */}
         <section className="py-24 bg-navy-medium/30 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="text-center mb-16 flex flex-col gap-3">

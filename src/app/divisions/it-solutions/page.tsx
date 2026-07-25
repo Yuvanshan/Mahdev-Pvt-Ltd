@@ -3,83 +3,83 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, Terminal, Globe, Sparkles, Shield, ChevronRight, X, Layers, Network, Database, Check } from 'lucide-react';
+import { Terminal as TerminalIcon, Cpu, Globe, Server, Database, Code, BookOpen, Shield, Check, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingSystem from '@/components/BookingSystem';
 
-interface ConsoleLine {
-  text: string;
-  type: 'info' | 'success' | 'warn';
-}
+const terminalLogs = [
+  'Initializing Mahdev IT Cloud Server Deployment...',
+  'Syncing global edge CDNs via AWS Cloudfront...',
+  'Connecting PostgreSQL master clusters on RDS...',
+  'Booting POS double-entry stock modules...',
+  '✓ Edge API gateway online at node-lk-1.mahdev.net',
+  'Ready for enterprise transaction stream processing.'
+];
 
 export default function ItSolutions() {
+  const [terminalIndex, setTerminalIndex] = useState(0);
+  const [logs, setLogs] = useState<string[]>([]);
   const [showBooking, setShowBooking] = useState(false);
-  const [consoleLines, setConsoleLines] = useState<ConsoleLine[]>([
-    { text: 'SYSTEM BOOT: Loading Mahdev Cloud Modules...', type: 'info' }
-  ]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // 1. Simulation of active developer terminal logging
+  // Terminal logging simulator
   useEffect(() => {
-    const logs = [
-      { text: 'INIT: Connecting to Firestore database clusters...', type: 'info' },
-      { text: 'DB: Handshake successful. Status: ONLINE', type: 'success' },
-      { text: 'AWS: Syncing primary ECS Docker containers...', type: 'info' },
-      { text: 'POS: Thermal printing queues listening on port 9100', type: 'info' },
-      { text: 'SEC: Cloudflare firewall active. 0 threat activities.', type: 'success' },
-      { text: 'ERP: Multi-warehouse ledgers calculations completed.', type: 'success' },
-      { text: 'AI: Tensor core prediction layers warmed (0.12ms)', type: 'info' },
-      { text: 'SYS: CPU load at 4.2%. RAM at 32%. Memory heap clean.', type: 'info' },
-      { text: 'WARN: Local printer cache close to threshold. Auto-purged.', type: 'warn' }
-    ];
+    if (terminalIndex >= terminalLogs.length) return;
+    const interval = setTimeout(() => {
+      setLogs(prev => [...prev, terminalLogs[terminalIndex]]);
+      setTerminalIndex(prev => prev + 1);
+    }, 1200);
+    return () => clearTimeout(interval);
+  }, [terminalIndex]);
 
-    let currentLog = 0;
-    const interval = setInterval(() => {
-      setConsoleLines(prev => {
-        const next = [...prev, logs[currentLog] as ConsoleLine];
-        if (next.length > 8) next.shift(); // keep it compact
-        return next;
-      });
-      currentLog = (currentLog + 1) % logs.length;
-    }, 2800);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // 2. Animated node connection canvas grid
+  // Interactive mouse-reactive neural grid canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let width = (canvas.width = canvas.parentElement?.clientWidth || 600);
-    let height = (canvas.height = 300);
+    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight);
 
     const nodes: Array<{ x: number; y: number; vx: number; vy: number; radius: number }> = [];
-    const maxNodes = 45;
+    const maxNodes = 65;
 
     for (let i = 0; i < maxNodes; i++) {
       nodes.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
         radius: Math.random() * 2 + 1
       });
     }
 
-    let animId: number;
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = 'rgba(5, 11, 22, 0.1)';
-      ctx.fillRect(0, 0, width, height);
+    let mouse = { x: -1000, y: -1000 };
 
-      // Draw digital background grid
-      ctx.strokeStyle = 'rgba(59, 130, 246, 0.04)';
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    };
+
+    const handleMouseLeave = () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    };
+
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseleave', handleMouseLeave);
+
+    let animId: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Render grid coordinate lines (Cyber grid)
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.015)';
       ctx.lineWidth = 1;
-      const gridSize = 30;
+      const gridSize = 40;
       for (let x = 0; x < width; x += gridSize) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -93,8 +93,7 @@ export default function ItSolutions() {
         ctx.stroke();
       }
 
-      // Draw node nodes and coordinate lines
-      ctx.fillStyle = 'rgba(59, 130, 246, 0.6)';
+      // Draw interactive connections
       for (let i = 0; i < maxNodes; i++) {
         const n = nodes[i];
         n.x += n.vx;
@@ -103,41 +102,52 @@ export default function ItSolutions() {
         if (n.x < 0 || n.x > width) n.vx *= -1;
         if (n.y < 0 || n.y > height) n.vy *= -1;
 
+        ctx.fillStyle = 'rgba(0, 229, 255, 0.25)';
         ctx.beginPath();
         ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Connect nearby nodes
+        // Connect nodes close to each other
         for (let j = i + 1; j < maxNodes; j++) {
           const n2 = nodes[j];
-          const dx = n.x - n2.x;
-          const dy = n.y - n2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 75) {
-            ctx.strokeStyle = `rgba(59, 130, 246, ${Math.max(0, 1 - dist / 75) * 0.15})`;
-            ctx.lineWidth = 0.8;
+          const dist = Math.hypot(n.x - n2.x, n.y - n2.y);
+          if (dist < 100) {
+            ctx.strokeStyle = `rgba(0, 229, 255, ${0.15 - dist / 1000})`;
+            ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(n.x, n.y);
             ctx.lineTo(n2.x, n2.y);
             ctx.stroke();
           }
         }
+
+        // Connect nodes close to mouse cursor
+        const mDist = Math.hypot(n.x - mouse.x, n.y - mouse.y);
+        if (mDist < 150) {
+          ctx.strokeStyle = `rgba(223, 186, 115, ${0.35 - mDist / 150})`;
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(n.x, n.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.stroke();
+        }
       }
 
-      animId = requestAnimationFrame(render);
+      animId = requestAnimationFrame(draw);
     };
 
-    render();
+    draw();
 
     const handleResize = () => {
-      width = canvas.width = canvas.parentElement?.clientWidth || 600;
-      height = canvas.height = 300;
+      width = canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
+      height = canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
     };
     window.addEventListener('resize', handleResize);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(animId);
     };
   }, []);
@@ -146,15 +156,18 @@ export default function ItSolutions() {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-navy-dark pt-20">
-        {/* Banner Section */}
-        <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+      <main className="min-h-screen bg-navy-dark pt-20 relative overflow-hidden">
+        {/* Mouse reactive cyber canvas grid background */}
+        <canvas ref={canvasRef} className="absolute inset-0 z-0 w-full h-full pointer-events-none opacity-40" />
+
+        {/* Hero banner */}
+        <section className="relative h-[65vh] flex items-center justify-center overflow-hidden z-10">
           <Image 
             src="/images/it_robot_developer_1783346302442.jpg" 
-            alt="IT Banner" 
+            alt="IT Solutions Banner" 
             fill
             priority
-            className="object-cover brightness-50"
+            className="object-cover brightness-50 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/30 to-transparent" />
           <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col items-center gap-4">
@@ -162,100 +175,107 @@ export default function ItSolutions() {
               MAHDEV IT SOLUTIONS
             </span>
             <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-7xl text-white tracking-tight leading-tight">
-              Engineering <span className="text-gradient-purple-blue">Dynamic Abstractions</span>
+              Delivering <span className="text-gradient-purple-blue">Cloud-Scale Tech</span>
             </h1>
-            <p className="font-sans text-gray-300 text-base sm:text-lg max-w-xl leading-relaxed">
-              We design and coordinate high-availability cloud frameworks, double-entry inventory ERP systems, and custom client mobile applications.
+            <p className="font-sans text-gray-300 text-sm sm:text-base max-w-xl leading-relaxed">
+              We design double-entry inventory ERP systems, real-time POS checkouts, high-load cloud integrations, and bespoke corporate web platforms.
             </p>
-            <button
+            <button 
               onClick={() => setShowBooking(true)}
-              className="mt-2 px-8 py-4 rounded-full bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest shadow-lg shadow-gold-accent/15"
+              className="mt-4 px-8 py-4 rounded-full bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest"
             >
-              BOOK TECHNICAL CONSULTATION
+              BOOK IT CONSULTATION
             </button>
           </div>
         </section>
 
-        {/* Console & Tech Grid Display */}
-        <section className="py-24 max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Console Panel */}
-            <div className="lg:col-span-6 flex flex-col gap-6 text-left">
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">REALTIME SYSTEM GRID</span>
-              <h2 className="font-display font-black text-3xl text-white">Active Server Infrastructure</h2>
-              <p className="font-sans text-xs sm:text-sm text-gray-400 leading-relaxed">We orchestrate our software suites using decoupled Docker containers, serverless endpoints, and Google Cloud security layers. Check out our simulated runtime server node connections below:</p>
-
-              {/* Dynamic canvas grid node node drawer */}
-              <div className="w-full h-[300px] rounded-3xl overflow-hidden glass border border-blue-500/20 relative shadow-2xl bg-navy-dark">
-                <canvas ref={canvasRef} className="w-full h-full" />
-              </div>
-            </div>
-
-            {/* Right Shell Output */}
-            <div className="lg:col-span-6 flex flex-col gap-6 text-left">
-              <div className="w-full rounded-2xl bg-[#030712] border border-white/10 p-5 font-mono text-[10px] sm:text-xs text-gray-400 flex flex-col gap-2.5 shadow-2xl h-[380px] overflow-hidden justify-end">
-                <div className="flex items-center gap-2 text-gray-600 border-b border-white/5 pb-3 mb-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                  <span className="text-[10px] text-gray-500 ml-4 font-sans">mahdev-root@colombo-node-1:~</span>
-                </div>
-                {consoleLines.map((line, lIdx) => (
-                  <div key={lIdx} className="flex gap-2">
-                    <span className="text-blue-400 select-none">➜</span>
-                    <span className={
-                      line.type === 'success' ? 'text-green-400 font-semibold' :
-                      line.type === 'warn' ? 'text-amber-400 font-semibold' : 'text-gray-300'
-                    }>
-                      {line.text}
-                    </span>
-                  </div>
-                ))}
-                <div className="flex gap-2 mt-2 items-center">
-                  <span className="text-blue-400 animate-pulse">➜</span>
-                  <span className="text-white animate-pulse font-bold">|</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Comprehensive IT Capabilities Grid */}
-        <section className="py-24 max-w-7xl mx-auto px-6 border-t border-white/5">
+        {/* IT Services Grid */}
+        <section className="py-24 max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center mb-16 flex flex-col gap-3">
-            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
-              DEVELOPER CAPABILITIES
-            </span>
-            <h2 className="font-display font-bold text-3xl text-white">
-              Enterprise Software Engineering
-            </h2>
+            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">TECHNICAL CAPABILITIES</span>
+            <h2 className="font-display font-black text-3xl text-white">Full-Stack Enterprise Offerings</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { icon: Cpu, title: 'ERP Systems', desc: 'Double-entry bookkeeping, multi-warehouse inventory, and dynamic cash flow summaries.' },
-              { icon: Terminal, title: 'POS Terminals', desc: 'SaaS cloud syncing registries with local thermal printing and transaction logs.' },
-              { icon: Globe, title: 'Web Development', desc: 'High-fidelity SEO React layouts, Next.js setups, and Vercel CDN routing.' },
-              { icon: Sparkles, title: 'AI Solutions', desc: 'Keyword natural-language engines, recomendation systems, and predictive algorithms.' },
-              { icon: Shield, title: 'CCTV & Firewalls', desc: 'IP security camera network matrices and custom hardware firewalls configurations.' },
-              { icon: Layers, title: 'Mobile Applications', desc: 'Cross-platform Flutter / React Native packages designed for premium client touchpoints.' }
+              { icon: Cpu, title: 'Custom ERPs', desc: 'Accounting ledgers, stock registers, hotel bookings, and student database management tools.' },
+              { icon: Globe, title: 'React / Next.js Web', desc: 'Vibrant web portals with high-fidelity glassmorphism, SEO setup, and fast server load times.' },
+              { icon: Server, title: 'Server Deployments', desc: 'AWS node clusters, docker containers, load balancers, and PostgreSQL redundancy configurations.' },
+              { icon: Shield, title: 'System Security Audit', desc: 'Penetration tests, firewalls configuration, database encryption, and cloud vulnerability scans.' }
             ].map((serv, idx) => {
               const Icon = serv.icon;
               return (
-                <div 
-                  key={idx}
-                  className="glass p-8 rounded-3xl border border-white/5 hover:border-gold-accent/20 transition-all duration-300 group flex flex-col gap-4 text-left"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 text-blue-400">
+                <div key={idx} className="glass p-6 rounded-3xl border border-white/5 flex flex-col gap-4 text-left">
+                  <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 text-gold-accent">
                     <Icon className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-display font-bold text-white text-lg group-hover:text-gold-soft transition-colors">{serv.title}</h3>
-                    <p className="font-sans text-sm text-gray-400 mt-2 leading-relaxed">{serv.desc}</p>
+                    <h4 className="font-display font-bold text-white text-base">{serv.title}</h4>
+                    <p className="font-sans text-xs text-gray-400 mt-2 leading-relaxed">{serv.desc}</p>
                   </div>
                 </div>
               );
             })}
+          </div>
+        </section>
+
+        {/* Interactive Code Console Terminal & POS Dashboard */}
+        <section className="py-24 max-w-7xl mx-auto px-6 border-t border-white/5 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left side: Terminal */}
+            <div className="lg:col-span-6 flex flex-col gap-4 text-left">
+              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">SYSTEM CONSOLE LOG</span>
+              <h2 className="font-display font-black text-2xl sm:text-3xl text-white">Cloud Deployment Server Console</h2>
+              <p className="text-gray-400 text-xs sm:text-sm font-sans leading-relaxed">Observe real-time operations of our server deployment engine through the simulated web terminal stream on the right.</p>
+              
+              <div className="p-4 rounded-xl bg-navy-medium/30 border border-white/5 flex flex-col gap-2.5 font-sans text-xs mt-4">
+                <div className="flex justify-between text-gray-400">
+                  <span>API Response Speed</span>
+                  <span className="text-green-400 font-bold">14ms average</span>
+                </div>
+                <div className="flex justify-between text-gray-400">
+                  <span>SSL Handshake status</span>
+                  <span className="text-green-400 font-bold">SHA-256 Verified</span>
+                </div>
+                <div className="flex justify-between text-gray-400">
+                  <span>Cloud Uptime</span>
+                  <span className="text-green-400 font-bold">99.99% Guaranteed</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side: Interactive Shell */}
+            <div className="lg:col-span-6">
+              <div className="rounded-3xl bg-black border border-white/10 shadow-2xl overflow-hidden font-mono text-[11px] sm:text-xs text-left">
+                <div className="bg-white/5 p-3 flex items-center justify-between border-b border-white/10">
+                  <div className="flex gap-2">
+                    <span className="w-3 h-3 rounded-full bg-red-500" />
+                    <span className="w-3 h-3 rounded-full bg-yellow-500" />
+                    <span className="w-3 h-3 rounded-full bg-green-500" />
+                  </div>
+                  <span className="text-gray-400 text-[10px] uppercase font-bold tracking-wider flex items-center gap-1.5">
+                    <TerminalIcon className="w-3.5 h-3.5 text-gold-accent" /> bash shell console
+                  </span>
+                </div>
+
+                <div className="p-6 flex flex-col gap-3 min-h-[190px] text-green-400">
+                  {logs.map((log, idx) => (
+                    <div key={idx} className="flex gap-2 leading-relaxed">
+                      <span className="text-gray-500 shrink-0">$</span>
+                      <span>{log}</span>
+                    </div>
+                  ))}
+                  {terminalIndex < terminalLogs.length && (
+                    <div className="flex gap-1 items-center">
+                      <span className="text-gray-500">$</span>
+                      <span className="w-2 h-4 bg-green-400 animate-pulse" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
 

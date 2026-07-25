@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Heart, Gift, Church, Briefcase, Flower, Sun, X, Calendar, Check, MessageSquare, Info } from 'lucide-react';
+import { Sparkles, Heart, Gift, Church, Briefcase, Flower, Sun, X, Calendar, Check, MessageSquare } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingSystem from '@/components/BookingSystem';
@@ -84,14 +84,101 @@ export default function SwsEvents() {
   const [selectedCat, setSelectedCat] = useState('wedding');
   const [selectedItem, setSelectedItem] = useState<typeof decorationsList[0] | null>(null);
   const [showBooking, setShowBooking] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const filteredDecors = decorationsList.filter(item => item.category === selectedCat);
 
+  // Floating gold petals and candle glow particles canvas background
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight);
+
+    const petals: Array<{ x: number; y: number; size: number; vy: number; vx: number; angle: number; rotSpeed: number }> = [];
+    const maxPetals = 35;
+
+    for (let i = 0; i < maxPetals; i++) {
+      petals.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: Math.random() * 6 + 3,
+        vy: Math.random() * 0.8 + 0.4,
+        vx: (Math.random() - 0.5) * 0.4,
+        angle: Math.random() * Math.PI,
+        rotSpeed: (Math.random() - 0.5) * 0.02
+      });
+    }
+
+    let animId: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw soft candlelight ambient glows
+      ctx.fillStyle = 'rgba(223, 186, 115, 0.01)';
+      ctx.beginPath();
+      ctx.arc(width * 0.15, height * 0.25, 200, 0, Math.PI * 2);
+      ctx.arc(width * 0.85, height * 0.75, 250, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Render drifting gold petals
+      for (let i = 0; i < maxPetals; i++) {
+        const p = petals[i];
+        p.y += p.vy;
+        p.x += p.vx + Math.sin(p.y * 0.01) * 0.2;
+        p.angle += p.rotSpeed;
+
+        if (p.y > height) {
+          p.y = -10;
+          p.x = Math.random() * width;
+        }
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        
+        // Draw curved rose/wisteria petal shape
+        ctx.fillStyle = 'rgba(197, 168, 128, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.size, p.size * 0.6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Highlight gold edge
+        ctx.strokeStyle = 'rgba(223, 186, 115, 0.25)';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    const handleResize = () => {
+      width = canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
+      height = canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
   return (
-    <>
+    <div className="relative min-h-screen bg-navy-dark">
+      {/* Background canvas backdrop */}
+      <canvas ref={canvasRef} className="absolute inset-0 z-0 w-full h-full pointer-events-none opacity-40" />
+
       <Navbar />
 
-      <main className="min-h-screen bg-navy-dark pt-20">
+      <main className="min-h-screen pt-20 relative z-10">
         {/* Immersive Header Banner */}
         <section className="relative h-[65vh] flex items-center justify-center overflow-hidden">
           <Image 
@@ -114,7 +201,7 @@ export default function SwsEvents() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="font-display font-black text-4xl sm:text-5xl lg:text-7xl text-white tracking-tight leading-[1.05]"
+              className="font-display font-black text-4xl sm:text-5xl lg:text-7xl text-white tracking-tight leading-tight"
             >
               Designing <span className="text-gradient-purple-blue">Luxury Environments</span>
             </motion.h1>
@@ -170,7 +257,7 @@ export default function SwsEvents() {
 
           {/* Catalog Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredDecors.map((item, idx) => (
+            {filteredDecors.map((item) => (
               <motion.div 
                 layout
                 key={item.id}
@@ -189,7 +276,7 @@ export default function SwsEvents() {
                     {item.price}
                   </div>
                 </div>
-                <div className="p-6 flex flex-col flex-1 gap-4">
+                <div className="p-6 flex flex-col flex-1 gap-4 text-left">
                   <div>
                     <h3 className="font-display font-bold text-lg text-white group-hover:text-gold-soft transition-colors">{item.title}</h3>
                     <p className="font-sans text-xs text-gray-400 mt-2 leading-relaxed line-clamp-2">{item.desc}</p>
@@ -224,7 +311,6 @@ export default function SwsEvents() {
                 onClick={(e) => e.stopPropagation()} 
                 className="glass-premium rounded-3xl max-w-4xl w-full border border-gold-accent/25 overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] md:max-h-none"
               >
-                {/* Image Section */}
                 <div className="relative w-full md:w-1/2 h-64 md:h-auto min-h-[300px]">
                   <Image 
                     src={selectedItem.img} 
@@ -241,7 +327,6 @@ export default function SwsEvents() {
                   </button>
                 </div>
 
-                {/* Details Section */}
                 <div className="w-full md:w-1/2 p-6 sm:p-10 flex flex-col gap-6 overflow-y-auto max-h-[60vh] md:max-h-none text-left">
                   <div className="flex justify-between items-start border-b border-white/5 pb-4">
                     <div>
@@ -329,6 +414,6 @@ export default function SwsEvents() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

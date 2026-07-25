@@ -250,7 +250,7 @@ export default function Navbar() {
       {/* Floating Bottom Menu for Mobile Version */}
       <div className="md:hidden fixed bottom-6 left-0 w-full z-50 px-4 pointer-events-none">
         <div className="max-w-md mx-auto rounded-full glass-premium p-2 border border-gold-accent/15 shadow-2xl flex items-center justify-around pointer-events-auto">
-          <Link href="/" className="flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all">
+          <Link href="/" className="flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-full transition-all">
             <Home className={`w-5 h-5 ${isActive('/') ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
             <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/') ? 'text-gold-soft' : 'text-gray-400'}`}>Home</span>
           </Link>
@@ -258,23 +258,23 @@ export default function Navbar() {
           {/* Divisions trigger sheet */}
           <button 
             onClick={() => setMobileMenuOpen(true)}
-            className="flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all"
+            className="flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-full transition-all cursor-pointer"
           >
             <Briefcase className={`w-5 h-5 ${isDivisionActive() ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
             <span className={`text-[9px] font-medium mt-1 tracking-wide ${isDivisionActive() ? 'text-gold-soft' : 'text-gray-400'}`}>Divisions</span>
           </button>
 
-          <Link href="/portfolio" className="flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all">
+          <Link href="/portfolio" className="flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-full transition-all">
             <ImageIcon className={`w-5 h-5 ${isActive('/portfolio') ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
             <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/portfolio') ? 'text-gold-soft' : 'text-gray-400'}`}>Gallery</span>
           </Link>
 
-          <Link href="/blog" className="flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all">
+          <Link href="/blog" className="flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-full transition-all">
             <BookOpen className={`w-5 h-5 ${isActive('/blog') ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
             <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/blog') ? 'text-gold-soft' : 'text-gray-400'}`}>Blog</span>
           </Link>
 
-          <Link href="/contact" className="flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all">
+          <Link href="/contact" className="flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-full transition-all">
             <Mail className={`w-5 h-5 ${isActive('/contact') ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
             <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/contact') ? 'text-gold-soft' : 'text-gray-400'}`}>Contact</span>
           </Link>

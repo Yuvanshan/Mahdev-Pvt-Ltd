@@ -4,14 +4,15 @@ import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { seedDatabase } from '@/lib/seeder';
-import { Database, FolderPlus, FileText, Calendar, Users, HelpCircle, Check, Trash2, ArrowUpRight, Cpu } from 'lucide-react';
+import { Database, FolderPlus, Calendar, Users, Check, Trash2, ArrowUpRight, Cpu } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import confetti from 'canvas-confetti';
 
 export default function AdminPortal() {
-  const [activeTab, setActiveTab] = useState<'seeder' | 'bookings' | 'divisions' | 'careers'>('seeder');
+  const [activeTab, setActiveTab] = useState<'seeder' | 'bookings' | 'divisions' | 'leads'>('seeder');
   const [bookings, setBookings] = useState<any[]>([]);
+  const [leads, setLeads] = useState<any[]>([]);
   const [seeding, setSeeding] = useState(false);
   const [seedSuccess, setSeedSuccess] = useState(false);
 
@@ -37,6 +38,16 @@ export default function AdminPortal() {
       setBookings(list);
     });
     return () => unsub();
+  }, []);
+
+  // Listen to AI Concierge Leads in real-time
+  useEffect(() => {
+    const unsubLeads = onSnapshot(collection(db, 'leads'), (snap) => {
+      const list = snap.docs.map(docDoc => ({ id: docDoc.id, ...docDoc.data() }));
+      list.sort((a: any, b: any) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+      setLeads(list);
+    });
+    return () => unsubLeads();
   }, []);
 
   const handleSeed = async (force = false) => {
@@ -72,6 +83,15 @@ export default function AdminPortal() {
     if (!confirm("Are you sure you want to delete this booking?")) return;
     try {
       await deleteDoc(doc(db, 'bookings', id));
+    } catch (err) {
+      alert("Delete failed");
+    }
+  };
+
+  const handleDeleteLead = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this lead?")) return;
+    try {
+      await deleteDoc(doc(db, 'leads', id));
     } catch (err) {
       alert("Delete failed");
     }
@@ -137,7 +157,8 @@ export default function AdminPortal() {
               {[
                 { id: 'seeder', label: 'Cloud Seeder', icon: Database },
                 { id: 'bookings', label: 'Bookings List', icon: Calendar },
-                { id: 'divisions', label: 'Create Division', icon: FolderPlus }
+                { id: 'divisions', label: 'Create Division', icon: FolderPlus },
+                { id: 'leads', label: 'AI Leads', icon: Users }
               ].map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -228,8 +249,8 @@ export default function AdminPortal() {
                           <td className="py-4 px-4 font-bold text-white">Rs. {bk.calculatedPrice?.toLocaleString() || '0'}</td>
                           <td className="py-4 px-4">
                             <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                              bk.status === 'Approved' ? 'bg-green-500/20 text-green-400' :
-                              bk.status === 'Cancelled' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
+                                bk.status === 'Approved' ? 'bg-green-500/20 text-green-400' :
+                                bk.status === 'Cancelled' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
                             }`}>
                               {bk.status}
                             </span>
@@ -364,6 +385,49 @@ export default function AdminPortal() {
                     <ArrowUpRight className="w-4 h-4" />
                   </button>
                 </form>
+              </div>
+            )}
+
+            {/* Tab: Leads */}
+            {activeTab === 'leads' && (
+              <div className="glass rounded-3xl p-6 sm:p-8 border border-white/5 overflow-x-auto text-left">
+                <h3 className="font-display font-black text-2xl text-white mb-6">Captured Concierge Leads</h3>
+
+                {leads.length === 0 ? (
+                  <div className="py-12 text-center text-gray-500 text-sm font-sans">
+                    No lead records logged by the AI Assistant yet.
+                  </div>
+                ) : (
+                  <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm">
+                    <thead>
+                      <tr className="border-b border-white/5 text-gray-500 uppercase tracking-widest text-[9px]">
+                        <th className="py-3 px-4">Client Name</th>
+                        <th className="py-3 px-4">Contact Details</th>
+                        <th className="py-3 px-4">Query Topic</th>
+                        <th className="py-3 px-4">Page Context</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leads.map((ld) => (
+                        <tr key={ld.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                          <td className="py-4 px-4 font-semibold text-white">{ld.name}</td>
+                          <td className="py-4 px-4 text-gray-300 font-mono">{ld.contactDetail}</td>
+                          <td className="py-4 px-4 text-gray-400">{ld.topic}</td>
+                          <td className="py-4 px-4 text-gold-soft font-semibold">{ld.pageContext}</td>
+                          <td className="py-4 px-4 text-right">
+                            <button
+                              onClick={() => handleDeleteLead(ld.id)}
+                              className="p-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             )}
           </div>

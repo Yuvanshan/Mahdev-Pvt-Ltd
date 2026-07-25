@@ -201,3 +201,25 @@ body {
 .marquee-content:hover {
   animation-play-state: paused;
 }
+
+/* Fluid Typography for responsive layouts */
+h1.hero-fluid-title {
+  font-size: clamp(2.0rem, 5.5vw, 4.5rem);
+  line-height: 1.15;
+}
+
+/* Accessibility Focus Outline and keyboard navigation states */
+a:focus-visible, button:focus-visible {
+  outline: 2.5px solid #dfba73;
+  outline-offset: 4px;
+}
+
+/* Reduced motion preference override */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

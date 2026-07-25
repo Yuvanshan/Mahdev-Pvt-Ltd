@@ -2,14 +2,11 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Compass, Car, Navigation, Shield, Heart, Users, CheckCircle, MessageSquare, Send } from 'lucide-react';
-import confetti from 'canvas-confetti';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Compass, Car, Navigation, Shield, Users, CheckCircle, MessageSquare, MapPin, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import BookingSystem from '@/components/BookingSystem';
 
 const fleet = [
   {
@@ -29,41 +26,43 @@ const fleet = [
 ];
 
 const packages = [
-  { title: 'Ella Greenery Escape', days: '3 Days / 2 Nights', price: 'Rs. 45,000+', desc: 'Sightseeing in scenic train bridges, tea plantations, waterfalls, and Ella Rock climbs.', img: '/images/van_tour.jpg' },
-  { title: 'Sigiriya Cultural Trail', days: '2 Days / 1 Night', price: 'Rs. 35,000+', desc: 'Explore historical rock fortress, Dambulla cave temple, and heritage ruins.', img: '/images/travels_robot_car_1783346316762.jpg' },
-  { title: 'Galle Coastal Sunset', days: '1 Day Tour', price: 'Rs. 18,000+', desc: 'Visit Portuguese Galle Fort, sea turtle conservation hubs, and relax on sandy beaches.', img: '/images/van_tour.jpg' }
+  { 
+    id: 'ella',
+    title: 'Ella Greenery Escape', 
+    days: '3 Days / 2 Nights', 
+    price: 'Rs. 45,000+', 
+    desc: 'Sightseeing in scenic train bridges, tea plantations, waterfalls, and Ella Rock climbs.', 
+    img: '/images/van_tour.jpg',
+    points: [{ x: 120, y: 110, label: 'Colombo' }, { x: 210, y: 190, label: 'Ella' }]
+  },
+  { 
+    id: 'sigiriya',
+    title: 'Sigiriya Cultural Trail', 
+    days: '2 Days / 1 Night', 
+    price: 'Rs. 35,000+', 
+    desc: 'Explore historical rock fortress, Dambulla cave temple, and heritage ruins.', 
+    img: '/images/travels_robot_car_1783346316762.jpg',
+    points: [{ x: 120, y: 110, label: 'Colombo' }, { x: 160, y: 80, label: 'Sigiriya' }]
+  },
+  { 
+    id: 'galle',
+    title: 'Galle Coastal Sunset', 
+    days: '1 Day Tour', 
+    price: 'Rs. 18,000+', 
+    desc: 'Visit Portuguese Galle Fort, sea turtle conservation hubs, and relax on sandy beaches.', 
+    img: '/images/van_tour.jpg',
+    points: [{ x: 120, y: 110, label: 'Colombo' }, { x: 135, y: 230, label: 'Galle' }]
+  }
+];
+
+const drivers = [
+  { name: 'Kanishka Silva', experience: '12 Years', language: 'English, Sinhala', rating: '5.0 (400+ reviews)', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop' },
+  { name: 'Mohamed Fazil', experience: '8 Years', language: 'English, Tamil, Sinhala', rating: '4.9 (280+ reviews)', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150&auto=format&fit=crop' }
 ];
 
 export default function Travels() {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', vehicle: 'Toyota KDH Van', date: '', message: '' });
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await addDoc(collection(db, 'travels'), {
-        ...formData,
-        timestamp: serverTimestamp()
-      });
-      
-      setSuccess(true);
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.8 },
-        colors: ['#c5a880', '#dfba73', '#1e40af']
-      });
-      setFormData({ name: '', email: '', phone: '', vehicle: 'Toyota KDH Van', date: '', message: '' });
-      setTimeout(() => setSuccess(false), 5000);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to submit inquiry. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [selectedPkg, setSelectedPkg] = useState(packages[0]);
+  const [showBooking, setShowBooking] = useState(false);
 
   return (
     <>
@@ -84,12 +83,18 @@ export default function Travels() {
             <span className="px-3 py-1 rounded-full glass border border-green-500/35 text-green-300 text-xs font-bold uppercase tracking-wider">
               MAHDEV TRAVELS
             </span>
-            <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-tight">
+            <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-7xl text-white tracking-tight leading-tight">
               Elite Tourism & <span className="text-gradient-cyan">Wedding Transports</span>
             </h1>
             <p className="font-sans text-gray-300 text-base sm:text-lg max-w-xl leading-relaxed">
               Bespoke travel experiences across Sri Lanka. High-roof passenger vans and premium VIP cars with professional English-speaking chauffeurs.
             </p>
+            <button
+              onClick={() => setShowBooking(true)}
+              className="mt-2 px-8 py-4 rounded-full bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest shadow-lg shadow-gold-accent/15"
+            >
+              BOOK YOUR VEHICLE NOW
+            </button>
           </div>
         </section>
 
@@ -108,7 +113,7 @@ export default function Travels() {
             {fleet.map((veh, idx) => (
               <div 
                 key={idx}
-                className="glass p-8 rounded-3xl border border-white/5 flex flex-col justify-between group hover:border-gold-accent/20 transition-all duration-300"
+                className="glass p-8 rounded-3xl border border-white/5 flex flex-col justify-between group hover:border-gold-accent/20 transition-all duration-300 text-left"
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between border-b border-white/5 pb-4">
@@ -139,198 +144,146 @@ export default function Travels() {
           </div>
         </section>
 
-        {/* Tour Packages Section */}
+        {/* Interactive Sri Lankan Map and Packages */}
         <section className="py-24 bg-navy-medium/30 relative overflow-hidden">
-          <div className="glow-ball glow-ball-gold w-96 h-96 top-20 -right-20 opacity-10" />
-
           <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <div className="text-center mb-16 flex flex-col gap-3">
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
-                DISCOVER SRI LANKA
-              </span>
-              <h2 className="font-display font-bold text-3xl text-white">
-                Curated Luxury Tour Packages
-              </h2>
-            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              
+              {/* Left Column: Interactive Map */}
+              <div className="lg:col-span-5 flex flex-col gap-6 text-left items-center lg:items-start">
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">ROUTE SIMULATION</span>
+                <h2 className="font-display font-black text-2xl sm:text-3xl text-white">Visual Route Planner</h2>
+                <p className="font-sans text-xs sm:text-sm text-gray-400 leading-relaxed max-w-sm mb-4">Select any package on the right to simulate the driving pathway and destination coordinates across our Sri Lankan grid.</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {packages.map((pkg, idx) => (
-                <div 
-                  key={idx}
-                  className="glass rounded-3xl overflow-hidden border border-white/5 group hover:border-gold-accent/25 transition-all duration-300 flex flex-col h-full hover:translate-y-[-4px]"
-                >
-                  <div className="relative h-52 w-full overflow-hidden">
-                    <Image 
-                      src={pkg.img} 
-                      alt={pkg.title} 
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                {/* SVG Route map map */}
+                <div className="w-[300px] h-[340px] rounded-3xl bg-navy-dark border border-white/10 shadow-2xl relative p-4 flex items-center justify-center">
+                  <svg className="w-full h-full" viewBox="0 0 300 300">
+                    {/* Sri Lanka shape mockup silhouette */}
+                    <path
+                      d="M120 40 C140 30, 160 50, 170 80 C180 110, 190 140, 200 170 C210 200, 190 230, 160 250 C130 260, 110 240, 100 220 C90 190, 80 160, 90 120 C95 90, 105 60, 120 40 Z"
+                      fill="rgba(255, 255, 255, 0.02)"
+                      stroke="rgba(16, 185, 129, 0.12)"
+                      strokeWidth="2"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/95 to-transparent" />
-                    <div className="absolute top-4 right-4 px-3 py-1 rounded-full glass border border-white/10 text-[10px] font-bold text-gold-soft uppercase tracking-wider">
-                      {pkg.days}
-                    </div>
-                  </div>
-                  <div className="p-6 flex flex-col flex-1 gap-4">
-                    <div>
-                      <h3 className="font-display font-bold text-lg text-white group-hover:text-gold-soft transition-colors">{pkg.title}</h3>
-                      <p className="font-sans text-xs sm:text-sm text-gray-400 mt-2 leading-relaxed">{pkg.desc}</p>
-                    </div>
-                    <div className="flex justify-between items-center border-t border-white/5 pt-4 mt-auto">
-                      <span className="text-xs text-gray-500 font-sans">Starting from</span>
-                      <span className="font-display font-bold text-sm text-white">{pkg.price}</span>
-                    </div>
-                  </div>
+
+                    {/* Animated path line */}
+                    {selectedPkg.points.length > 1 && (
+                      <>
+                        <motion.line
+                          x1={selectedPkg.points[0].x}
+                          y1={selectedPkg.points[0].y}
+                          x2={selectedPkg.points[1].x}
+                          y2={selectedPkg.points[1].y}
+                          stroke="#10b981"
+                          strokeWidth="2"
+                          strokeDasharray="4,4"
+                          initial={{ strokeDashoffset: 0 }}
+                          animate={{ strokeDashoffset: -20 }}
+                          transition={{ repeat: Infinity, ease: "linear", duration: 2 }}
+                        />
+                      </>
+                    )}
+
+                    {/* Pulse nodes */}
+                    {selectedPkg.points.map((pt, pIdx) => (
+                      <g key={pIdx}>
+                        <circle cx={pt.x} cy={pt.y} r="8" fill="rgba(16, 185, 129, 0.3)" className="animate-ping" />
+                        <circle cx={pt.x} cy={pt.y} r="4" fill="#10b981" />
+                        <text x={pt.x + 8} y={pt.y + 4} fill="#ffffff" fontSize="9" fontWeight="bold" fontFamily="sans-serif">
+                          {pt.label}
+                        </text>
+                      </g>
+                    ))}
+                  </svg>
                 </div>
-              ))}
+              </div>
+
+              {/* Right Column: Destination Cards */}
+              <div className="lg:col-span-7 flex flex-col gap-6 text-left">
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">SELECT TOUR PACKAGE</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {packages.map((pkg) => (
+                    <div
+                      key={pkg.id}
+                      onClick={() => setSelectedPkg(pkg)}
+                      className={`glass p-6 rounded-3xl border transition-all duration-300 cursor-pointer flex flex-col justify-between ${
+                        selectedPkg.id === pkg.id ? 'border-green-500/50 bg-green-500/5' : 'border-white/5'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex justify-between items-start mb-4">
+                          <span className="text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-gray-300 font-bold uppercase">{pkg.days}</span>
+                          <span className="text-xs text-green-400 font-bold">{pkg.price}</span>
+                        </div>
+                        <h3 className="font-display font-bold text-base text-white">{pkg.title}</h3>
+                        <p className="text-xs text-gray-400 mt-2 font-sans leading-relaxed">{pkg.desc}</p>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowBooking(true);
+                        }}
+                        className="mt-6 w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-bold text-white uppercase hover:bg-green-500 hover:text-white transition-all tracking-wider"
+                      >
+                        BOOK PACKAGE
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </div>
           </div>
         </section>
 
-        {/* Booking Form and Direct Inquiry */}
-        <section className="py-24 max-w-7xl mx-auto px-6 relative">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            
-            <div className="lg:col-span-5 flex flex-col gap-6 justify-center">
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
-                RESERVE COMFORT
-              </span>
-              <h2 className="font-display font-black text-3xl text-white">
-                Book Your Chauffeur Ride Today
-              </h2>
-              <p className="font-sans text-gray-400 text-sm leading-relaxed max-w-sm">
-                Reserve our Toyota KDH high-roof passenger vans or Mercedes VIP wedding cars. Let our dispatch team lock your dates.
-              </p>
+        {/* Chauffeur Profiles */}
+        <section className="py-24 max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16 flex flex-col gap-3">
+            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">PREMIUM CHAUFFEURS</span>
+            <h2 className="font-display font-black text-3xl text-white">Elite English-Speaking Drivers</h2>
+          </div>
 
-              <div className="flex items-center gap-4 mt-4 group">
-                <div className="w-12 h-12 rounded-2xl glass border border-white/5 text-gold-soft flex items-center justify-center group-hover:border-gold-accent/40 transition-colors">
-                  <MessageSquare className="w-5 h-5" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {drivers.map((drv, idx) => (
+              <div key={idx} className="glass p-6 rounded-3xl border border-white/5 flex gap-4 items-center text-left">
+                <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-white/10">
+                  <Image src={drv.img} alt={drv.name} fill className="object-cover" />
                 </div>
                 <div>
-                  <span className="block text-[10px] uppercase tracking-wider text-gray-500 font-bold font-sans">Direct Dispatch WhatsApp</span>
-                  <a 
-                    href="https://wa.me/94768988970?text=Hi%20Mahdev%20Travels" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-green-400 font-semibold hover:underline font-sans text-sm"
-                  >
-                    Discuss dates in real-time
-                  </a>
+                  <h4 className="font-display font-bold text-white text-base">{drv.name}</h4>
+                  <p className="text-[10px] text-gray-400 mt-1 font-sans">Experience: {drv.experience} | Rating: {drv.rating}</p>
+                  <p className="text-[10px] text-green-400 mt-0.5 font-sans font-semibold">Languages: {drv.language}</p>
                 </div>
               </div>
-            </div>
-
-            <div className="lg:col-span-7">
-              <div className="glass-premium rounded-3xl p-8 sm:p-10 border border-gold-accent/15 shadow-2xl relative">
-                <h3 className="font-display font-bold text-xl text-white mb-6">Reservation Inquiry</h3>
-
-                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider font-sans">Full Name</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-sm focus:outline-none text-white font-sans transition-all"
-                        placeholder="John Doe"
-                      />
-                    </div>
-                    
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider font-sans">Email Address</label>
-                      <input 
-                        type="email" 
-                        required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-sm focus:outline-none text-white font-sans transition-all"
-                        placeholder="john@example.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider font-sans">Phone Number</label>
-                      <input 
-                        type="tel" 
-                        required
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-sm focus:outline-none text-white font-sans transition-all"
-                        placeholder="+94 7X XXX XXXX"
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold text-gray-400 uppercase tracking-wider font-sans">Select Vehicle / Tour</label>
-                      <select 
-                        value={formData.vehicle}
-                        onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-sm focus:outline-none text-white font-sans transition-all [&>option]:bg-navy-dark"
-                      >
-                        <option>Toyota KDH Van</option>
-                        <option>Mercedes VIP Wedding Car</option>
-                        <option>Ella Greenery Escape Tour</option>
-                        <option>Sigiriya Cultural Trail Tour</option>
-                        <option>Galle Coastal Sunset Tour</option>
-                        <option>Custom Itinerary (Detail below)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider font-sans">Target Date</label>
-                    <input 
-                      type="date" 
-                      required
-                      value={formData.date}
-                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-sm focus:outline-none text-white font-sans transition-all"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider font-sans">Special Requirements</label>
-                    <textarea 
-                      rows={4}
-                      required
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-sm focus:outline-none text-white font-sans transition-all resize-none"
-                      placeholder="Detail pickup location, timing, tour edits, or wedding schedule..."
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-4 bg-gradient-to-r from-gold-accent to-gold-soft disabled:opacity-50 text-navy-dark font-sans font-bold text-sm tracking-wider rounded-xl transition-all hover:brightness-110 flex items-center justify-center gap-2 mt-2 shadow-lg shadow-gold-accent/15"
-                  >
-                    {loading ? 'SENDING BOOKING...' : 'SEND BOOKING REQUEST'}
-                    <Send className="w-4 h-4" />
-                  </button>
-
-                  {success && (
-                    <motion.div 
-                      initial={{ opacity: 0, scale: 0.95 }} 
-                      animate={{ opacity: 1, scale: 1 }} 
-                      className="flex items-center gap-3 p-4 bg-gold-accent/10 border border-gold-accent/30 rounded-2xl mt-4"
-                    >
-                      <CheckCircle className="w-5 h-5 text-gold-soft shrink-0" />
-                      <span className="text-sm text-gold-soft font-sans font-semibold">
-                        Your booking query has been synced with our travels dispatch desk. We will call you back to confirm availability.
-                      </span>
-                    </motion.div>
-                  )}
-                </form>
-              </div>
-            </div>
-
+            ))}
           </div>
         </section>
+
+        {/* Global Booking System Modal Overlay */}
+        <AnimatePresence>
+          {showBooking && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowBooking(false)}
+              className="fixed inset-0 bg-black/95 z-[99999] flex items-center justify-center p-4 backdrop-blur-md overflow-y-auto"
+            >
+              <div 
+                onClick={(e) => e.stopPropagation()} 
+                className="w-full max-w-3xl relative"
+              >
+                <button
+                  onClick={() => setShowBooking(false)}
+                  className="absolute -top-12 right-0 p-2 text-gray-400 hover:text-white"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+                <BookingSystem initialDivision="travels" onSuccess={() => setTimeout(() => setShowBooking(false), 2000)} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       <Footer />

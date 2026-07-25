@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, 
   ArrowUpRight, 
@@ -20,11 +20,15 @@ import {
   Phone,
   Send,
   CheckCircle,
-  HelpCircle
+  HelpCircle,
+  Briefcase,
+  Search,
+  MessageCircle,
+  X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, onSnapshot, serverTimestamp } from 'firebase/firestore';
 
 // Core Components
 import Navbar from '@/components/Navbar';
@@ -33,8 +37,12 @@ import TechCloud from '@/components/TechCloud';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
+import CinematicIntro from '@/components/CinematicIntro';
+import AIAssistant from '@/components/AIAssistant';
+import GlobalSearch from '@/components/GlobalSearch';
+import BookingSystem from '@/components/BookingSystem';
 
-const divisionsList = [
+const staticDivisions = [
   {
     title: 'SWS Event Management',
     desc: 'Bespoke luxury wedding planning, stage set designs, church floral setups, and corporate galas with premium decoration schemes.',
@@ -83,21 +91,90 @@ const divisionsList = [
 ];
 
 export default function Home() {
+  const [showIntro, setShowIntro] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [stats, setStats] = useState({ happyClients: 1500, projects: 1200, software: 120, vehicles: 18, experience: 10 });
+  const [divisions, setDivisions] = useState<any[]>(staticDivisions);
+
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', division: 'General Inquiry', message: '' });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  // Check if intro has played in this session
+  useEffect(() => {
+    const introPlayed = sessionStorage.getItem('mahdev_intro_played');
+    if (introPlayed === 'true') {
+      setShowIntro(false);
+    }
+  }, []);
+
+  // Fetch dynamic statistics & divisions from Firestore in real-time
+  useEffect(() => {
+    const unsubStats = onSnapshot(collection(db, 'stats'), (snap) => {
+      if (!snap.empty) {
+        const data = snap.docs[0].data();
+        setStats({
+          happyClients: data.happyClients || 1500,
+          projects: data.eventsCompleted || 1200,
+          software: data.softwareProjects || 120,
+          vehicles: data.vehiclesInFleet || 18,
+          experience: data.yearsExperience || 10
+        });
+      }
+    });
+
+    const unsubDivs = onSnapshot(collection(db, 'divisions'), (snap) => {
+      if (!snap.empty) {
+        const list = snap.docs.map((docDoc) => {
+          const d = docDoc.data();
+          const href = d.slug === 'erp' ? '/divisions/erp' : `/divisions/${d.slug}`;
+          return {
+            title: d.name,
+            desc: d.description,
+            image: d.bgImage || '/images/sws_robot_decor_1783346269673.jpg',
+            href,
+            icon: d.type === 'events' ? Sparkles : d.type === 'photography' ? Camera : d.type === 'it' ? Cpu : Compass,
+            tag: d.type === 'events' ? 'Event Management' : d.type === 'photography' ? 'Cinematography' : d.type === 'it' ? 'Enterprise SaaS' : 'Tourism',
+            color: d.gradient || 'from-blue-500/20 to-indigo-500/20'
+          };
+        });
+        setDivisions(list);
+      }
+    });
+
+    return () => {
+      unsubStats();
+      unsubDivs();
+    };
+  }, []);
+
+  // Keyboard shortcut listener for global search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleIntroComplete = () => {
+    sessionStorage.setItem('mahdev_intro_played', 'true');
+    setShowIntro(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Write form to Firestore contact collection
       await addDoc(collection(db, 'contact'), {
         ...formData,
         timestamp: serverTimestamp()
       });
       
-      // Success celebration
       setSuccess(true);
       confetti({
         particleCount: 100,
@@ -110,18 +187,32 @@ export default function Home() {
       setTimeout(() => setSuccess(false), 5000);
     } catch (error) {
       console.error("Error submitting message: ", error);
-      alert("Failed to submit message. Please try again or WhatsApp us.");
+      alert("Failed to submit message. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
+    <div className="relative min-h-screen bg-navy-dark overflow-x-hidden">
+      <AnimatePresence>
+        {showIntro && <CinematicIntro onComplete={handleIntroComplete} />}
+      </AnimatePresence>
+
       <Navbar />
-      
-      <main className="flex-1 w-full">
-        {/* Cinematic Hero */}
+
+      {/* Floating search button shortcut */}
+      <div className="fixed top-24 right-6 z-[40] hidden md:block">
+        <button
+          onClick={() => setSearchOpen(true)}
+          className="p-3 rounded-full glass border border-gold-accent/20 hover:border-gold-accent text-gold-accent flex items-center justify-center shadow-lg"
+          title="Search Directory (Press '/')"
+        >
+          <Search className="w-5 h-5" />
+        </button>
+      </div>
+
+      <main className="flex-1 w-full text-left">
         <InteractiveHero />
 
         {/* About Mahdev */}
@@ -201,7 +292,7 @@ export default function Home() {
                     className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-75"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/40 to-transparent flex items-end p-8">
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-1.5 text-left">
                       <span className="text-[9px] uppercase tracking-widest text-gold-accent font-bold">Featured Project</span>
                       <h4 className="font-display font-bold text-xl text-white">SWS Weddings Gala, Colombo</h4>
                       <p className="text-xs text-gray-300 font-sans max-w-sm">
@@ -235,7 +326,7 @@ export default function Home() {
 
             {/* Grid of Divisions */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {divisionsList.map((div, idx) => {
+              {divisions.map((div, idx) => {
                 const Icon = div.icon;
                 const displayImage = div.image;
                 return (
@@ -260,12 +351,12 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="p-6 flex flex-col flex-1 gap-4">
+                    <div className="p-6 flex flex-col flex-1 gap-4 text-left">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 text-gold-accent">
                           <Icon className="w-5 h-5" />
                         </div>
-                        <h3 className="font-display font-bold text-lg text-white group-hover:text-gold-soft transition-colors">
+                        <h3 className="font-display font-bold text-lg text-white group-hover:text-gold-soft transition-colors truncate">
                           {div.title}
                         </h3>
                       </div>
@@ -289,13 +380,34 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Tech Cloud Slider */}
+        {/* Global Statistics Counters Section */}
+        <section className="py-24 bg-navy-dark relative border-t border-white/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-center">
+              {[
+                { label: 'Happy Clients', count: stats.happyClients, suffix: '+' },
+                { label: 'Events Handled', count: stats.projects, suffix: '+' },
+                { label: 'Software Bundles', count: stats.software, suffix: '+' },
+                { label: 'Active Fleet', count: stats.vehicles, suffix: '' },
+                { label: 'Years Active', count: stats.experience, suffix: '+' }
+              ].map((stat, sIdx) => (
+                <div key={sIdx} className="flex flex-col gap-2 p-5 rounded-2xl glass border border-white/5">
+                  <span className="font-display font-black text-3xl sm:text-4xl text-white">
+                    {stat.count}{stat.suffix}
+                  </span>
+                  <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold font-sans">
+                    {stat.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <TechCloud />
 
-        {/* Why Choose Us */}
         <WhyChooseUs />
 
-        {/* Testimonials */}
         <Testimonials />
 
         {/* Global CTA and Direct Contact Section */}
@@ -464,6 +576,29 @@ export default function Home() {
       </main>
 
       <Footer />
-    </>
+
+      {/* Global Interactive Search */}
+      <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
+      {/* Floating AI Assistant Chat Support */}
+      <AIAssistant onOpenBooking={() => setBookingOpen(true)} />
+
+      {/* Global Booking System Modal Overlay */}
+      <AnimatePresence>
+        {bookingOpen && (
+          <div className="fixed inset-0 bg-black/95 z-[99999] flex items-center justify-center p-4 backdrop-blur-md overflow-y-auto">
+            <div className="w-full max-w-3xl relative">
+              <button
+                onClick={() => setBookingOpen(false)}
+                className="absolute -top-12 right-0 p-2 text-gray-400 hover:text-white"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <BookingSystem initialDivision="sws-events" onSuccess={() => setTimeout(() => setBookingOpen(false), 2000)} />
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

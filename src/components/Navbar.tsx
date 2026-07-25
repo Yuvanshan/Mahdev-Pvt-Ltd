@@ -11,17 +11,21 @@ import {
   Image as ImageIcon, 
   Mail, 
   MessageSquare, 
-  Menu, 
   X, 
   ChevronDown,
   Sparkles,
   Camera,
   Cpu,
   Globe,
-  Compass
+  Compass,
+  Search,
+  BookOpen
 } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
+import GlobalSearch from './GlobalSearch';
 
-const divisions = [
+const defaultDivisions = [
   { name: 'SWS Events', href: '/divisions/sws-events', icon: Sparkles, color: 'text-purple-400' },
   { name: 'Studio U1', href: '/divisions/u1-studio', icon: Camera, color: 'text-cyan-400' },
   { name: 'Mahdev ERP', href: '/divisions/erp', icon: Cpu, color: 'text-yellow-400' },
@@ -29,11 +33,17 @@ const divisions = [
   { name: 'Mahdev Travels', href: '/divisions/travels', icon: Compass, color: 'text-green-400' },
 ];
 
+const iconMap: Record<string, any> = {
+  Sparkles, Camera, Cpu, Globe, Compass
+};
+
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [divisions, setDivisions] = useState<any[]>(defaultDivisions);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,6 +51,38 @@ export default function Navbar() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Listen to dynamic divisions in Firestore
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'divisions'), (snap) => {
+      if (!snap.empty) {
+        const list = snap.docs.map(docDoc => {
+          const d = docDoc.data();
+          const href = d.slug === 'erp' ? '/divisions/erp' : `/divisions/${d.slug}`;
+          return {
+            name: d.name,
+            href,
+            icon: d.type === 'events' ? Sparkles : d.type === 'photography' ? Camera : d.type === 'it' ? Cpu : Compass,
+            color: d.type === 'events' ? 'text-purple-400' : d.type === 'photography' ? 'text-cyan-400' : d.type === 'it' ? 'text-blue-400' : 'text-green-400'
+          };
+        });
+        setDivisions(list);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Keyboard shortcut listener for '/'
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Close menus on page change
@@ -141,6 +183,24 @@ export default function Navbar() {
             </Link>
 
             <Link 
+              href="/blog" 
+              className={`font-sans text-sm font-medium tracking-wide transition-colors ${
+                isActive('/blog') ? 'text-gold-soft' : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              Blog
+            </Link>
+
+            <Link 
+              href="/careers" 
+              className={`font-sans text-sm font-medium tracking-wide transition-colors ${
+                isActive('/careers') ? 'text-gold-soft' : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              Careers
+            </Link>
+
+            <Link 
               href="/contact" 
               className={`font-sans text-sm font-medium tracking-wide transition-colors ${
                 isActive('/contact') ? 'text-gold-soft' : 'text-gray-300 hover:text-white'
@@ -150,18 +210,31 @@ export default function Navbar() {
             </Link>
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:block">
-            <Link 
-              href="/contact" 
-              className="px-6 py-2.5 rounded-full border border-gold-accent/30 text-gold-soft hover:bg-gold-accent/10 transition-all font-sans text-xs font-semibold tracking-wider hover:border-gold-accent/70"
+          {/* Desktop Search & Admin triggers */}
+          <div className="hidden md:flex items-center gap-4">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-accent/40 text-gray-400 hover:text-gold-soft transition-all"
+              title="Search Directory (Press '/')"
             >
-              INQUIRE NOW
+              <Search className="w-4 h-4" />
+            </button>
+            <Link 
+              href="/admin" 
+              className="px-5 py-2 rounded-full border border-gold-accent/30 text-gold-soft hover:bg-gold-accent/10 transition-all font-sans text-xs font-semibold tracking-wider hover:border-gold-accent/70"
+            >
+              CMS PORTAL
             </Link>
           </div>
 
-          {/* Mobile Menu Button - Just triggers bottom nav spotlight or full page contact */}
+          {/* Mobile WhatsApp Button */}
           <div className="md:hidden flex items-center gap-4">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="p-2 rounded-full glass border border-white/10 text-white"
+            >
+              <Search className="w-5 h-5" />
+            </button>
             <Link
               href="https://wa.me/94768988970?text=Hi%20Mahdev%20Pvt%20Ltd"
               target="_blank"
@@ -196,6 +269,11 @@ export default function Navbar() {
             <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/portfolio') ? 'text-gold-soft' : 'text-gray-400'}`}>Gallery</span>
           </Link>
 
+          <Link href="/blog" className="flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all">
+            <BookOpen className={`w-5 h-5 ${isActive('/blog') ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
+            <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/blog') ? 'text-gold-soft' : 'text-gray-400'}`}>Blog</span>
+          </Link>
+
           <Link href="/contact" className="flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all">
             <Mail className={`w-5 h-5 ${isActive('/contact') ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
             <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/contact') ? 'text-gold-soft' : 'text-gray-400'}`}>Contact</span>
@@ -223,7 +301,7 @@ export default function Navbar() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed bottom-0 left-0 w-full rounded-t-3xl glass-premium border-t border-gold-accent/20 z-50 p-6 md:hidden max-h-[85vh] overflow-y-auto"
             >
-              <div className="flex items-center justify-between mb-6 pb-2 border-b border-white/5">
+              <div className="flex items-center justify-between mb-6 pb-2 border-b border-white/5 text-left">
                 <div>
                   <h3 className="font-display font-bold text-lg text-white">Mahdev Divisions</h3>
                   <p className="text-xs text-gray-400">Select an elite business suite</p>
@@ -249,7 +327,7 @@ export default function Navbar() {
                           : 'bg-white/5 border border-white/5 text-gray-300 hover:text-white'
                       }`}
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 text-left">
                         <div className="p-2 rounded-xl bg-white/5">
                           <Icon className={`w-6 h-6 ${div.color}`} />
                         </div>
@@ -280,6 +358,9 @@ export default function Navbar() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Global Interactive Search Modal overlay */}
+      <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

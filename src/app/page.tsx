@@ -21,7 +21,6 @@ import {
   Send,
   CheckCircle,
   Briefcase,
-  Search,
   MessageCircle,
   X,
   Play,
@@ -116,17 +115,6 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-navy-dark overflow-x-hidden text-left">
       <Navbar />
-
-      {/* Floating search shortcut */}
-      <div className="fixed top-24 right-6 z-[40] hidden md:block">
-        <button
-          onClick={() => setSearchOpen(true)}
-          className="p-3 rounded-full glass border border-gold-accent/20 hover:border-gold-accent text-gold-accent flex items-center justify-center shadow-lg hover:scale-105 transition-all"
-          title="Search Directory (Press '/')"
-        >
-          <Search className="w-5 h-5" />
-        </button>
-      </div>
 
       <main className="flex-1 w-full">
         {/* 1. Hero Section (Loads Instantly with staggered fades) */}

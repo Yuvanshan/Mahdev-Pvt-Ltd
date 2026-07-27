@@ -219,12 +219,6 @@ export default function Navbar() {
             >
               <Search className="w-4 h-4" />
             </button>
-            <Link 
-              href="/admin" 
-              className="px-5 py-2 rounded-full border border-gold-accent/30 text-gold-soft hover:bg-gold-accent/10 transition-all font-sans text-xs font-semibold tracking-wider hover:border-gold-accent/70"
-            >
-              CMS PORTAL
-            </Link>
           </div>
 
           {/* Mobile WhatsApp Button */}

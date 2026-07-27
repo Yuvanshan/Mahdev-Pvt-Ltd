@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Calendar, Sparkles, Shield, Compass, Camera } from 'lucide-react';
+import * as THREE from 'three';
 
 const heroSlides = [
   {
@@ -50,7 +51,7 @@ const heroSlides = [
 ];
 
 export default function InteractiveHero() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [scrollY, setScrollY] = useState(0);
 
@@ -71,113 +72,140 @@ export default function InteractiveHero() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Canvas particle engine (glowing sparks, blue energy waves)
+  // Three.js Background Particle Wave
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!containerRef.current) return;
+
+    const width = containerRef.current.clientWidth;
+    const height = containerRef.current.clientHeight;
+
+    // Scene
+    const scene = new THREE.Scene();
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.z = 30;
+    camera.position.y = 8;
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    containerRef.current.appendChild(renderer.domElement);
+
+    // Particles Geometry
+    const particlesCount = 1800;
+    const positionArray = new Float32Array(particlesCount * 3);
+
+    // Create a wave grid structure
+    const cols = 60;
+    const rows = 30;
+    const spacing = 1.2;
+
+    for (let i = 0; i < particlesCount; i++) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+
+      // Center the grid
+      const x = (col - cols / 2) * spacing;
+      const z = (row - rows / 2) * spacing;
+      const y = Math.sin(col * 0.2) * 1.5 + Math.cos(row * 0.2) * 1.5;
+
+      positionArray[i * 3] = x;
+      positionArray[i * 3 + 1] = y;
+      positionArray[i * 3 + 2] = z;
+    }
+
+    const particlesGeometry = new THREE.BufferGeometry();
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positionArray, 3));
+
+    // Custom Canvas Texture for Rounded Particles
+    const canvas = document.createElement('canvas');
+    canvas.width = 16;
+    canvas.height = 16;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight);
-
-    interface Spark {
-      x: number;
-      y: number;
-      size: number;
-      vx: number;
-      vy: number;
-      alpha: number;
-      color: string;
-      life: number;
-      maxLife: number;
+    if (ctx) {
+      const gradient = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+      gradient.addColorStop(0.5, 'rgba(223, 186, 115, 0.5)');
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 16, 16);
     }
+    const particleTexture = new THREE.CanvasTexture(canvas);
 
-    const sparks: Spark[] = [];
-    const maxSparks = 80;
+    // Materials
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.65,
+      map: particleTexture,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      color: 0xdfba73,
+    });
 
-    const createSpark = (x: number, y: number, isElectric = false) => {
-      const colors = isElectric 
-        ? ['rgba(6, 182, 212, 0.8)', 'rgba(0, 229, 255, 0.8)', 'rgba(30, 64, 175, 0.8)']
-        : ['rgba(223, 186, 115, 0.7)', 'rgba(197, 168, 128, 0.7)', 'rgba(255, 255, 255, 0.7)'];
-      
-      const angle = Math.random() * Math.PI * 2;
-      const speed = Math.random() * 1.5 + 0.5;
+    // Points mesh
+    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particles);
 
-      sparks.push({
-        x,
-        y,
-        size: Math.random() * 2 + 1,
-        vx: Math.cos(angle) * speed,
-        vy: -Math.random() * 1.8 - 0.5, // Float upwards
-        alpha: Math.random() * 0.7 + 0.3,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        life: 0,
-        maxLife: Math.random() * 100 + 50
-      });
-    };
+    // Light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
 
-    // Prepopulate some sparks
-    for (let i = 0; i < maxSparks * 0.6; i++) {
-      createSpark(Math.random() * width, Math.random() * height);
-    }
+    const pointLight = new THREE.PointLight(0xa855f7, 2, 50);
+    pointLight.position.set(0, 10, 0);
+    scene.add(pointLight);
 
-    let animId: number;
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      // Draw subtle glowing light rays from top right
-      const rayGrad = ctx.createLinearGradient(width, 0, 0, height);
-      rayGrad.addColorStop(0, 'rgba(6, 182, 212, 0.03)');
-      rayGrad.addColorStop(0.5, 'rgba(168, 85, 247, 0.015)');
-      rayGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = rayGrad;
-      ctx.fillRect(0, 0, width, height);
-
-      // Create new sparks slowly
-      if (sparks.length < maxSparks && Math.random() < 0.15) {
-        // Create near the bottom or around the center (Trident region)
-        createSpark(Math.random() * width, height - 20);
-      }
-
-      // Update and draw sparks
-      for (let i = sparks.length - 1; i >= 0; i--) {
-        const s = sparks[i];
-        s.x += s.vx;
-        s.y += s.vy;
-        s.life++;
-        s.alpha = Math.max(0, 1 - s.life / s.maxLife);
-
-        if (s.life >= s.maxLife || s.x < 0 || s.x > width || s.y < 0) {
-          sparks.splice(i, 1);
-          continue;
-        }
-
-        ctx.save();
-        ctx.shadowBlur = s.size * 3;
-        ctx.shadowColor = s.color;
-        ctx.fillStyle = s.color;
-        ctx.globalAlpha = s.alpha;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-
-      animId = requestAnimationFrame(render);
-    };
-
-    render();
-
+    // Resize Handler
     const handleResize = () => {
-      width = canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
-      height = canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
+      if (!containerRef.current) return;
+      const w = containerRef.current.clientWidth;
+      const h = containerRef.current.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
     };
     window.addEventListener('resize', handleResize);
 
+    // Animation Loop
+    let clock = new THREE.Clock();
+    let reqId: number;
+
+    const animate = () => {
+      const elapsedTime = clock.getElapsedTime();
+
+      // Make wave motion
+      const positions = particlesGeometry.attributes.position.array as Float32Array;
+      for (let i = 0; i < particlesCount; i++) {
+        const x = positions[i * 3];
+        const z = positions[i * 3 + 2];
+        
+        // Calculate y coordinate based on time and wave equation
+        positions[i * 3 + 1] = 
+          Math.sin(x * 0.15 + elapsedTime * 1.2) * 1.8 + 
+          Math.cos(z * 0.15 + elapsedTime * 1.2) * 1.8;
+      }
+      particlesGeometry.attributes.position.needsUpdate = true;
+
+      // Rotate slowly
+      particles.rotation.y = elapsedTime * 0.04;
+
+      renderer.render(scene, camera);
+      reqId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animId);
+      cancelAnimationFrame(reqId);
+      if (containerRef.current && renderer.domElement) {
+        containerRef.current.removeChild(renderer.domElement);
+      }
+      particlesGeometry.dispose();
+      particlesMaterial.dispose();
+      renderer.dispose();
     };
   }, []);
 
@@ -211,8 +239,8 @@ export default function InteractiveHero() {
       {/* 2. Layered Animated Mesh Gradient Overlay (Slow moving) */}
       <div className="absolute inset-0 z-[1] opacity-40 mix-blend-screen animate-mesh pointer-events-none" />
 
-      {/* 3. Canvas Sparks and Light Ray overlay */}
-      <canvas ref={canvasRef} className="absolute inset-0 z-[2] w-full h-full pointer-events-none opacity-80" />
+      {/* 3. Three.js Particle Wave background container */}
+      <div ref={containerRef} className="absolute inset-0 z-[2] opacity-55 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center mt-6">
         
@@ -242,7 +270,7 @@ export default function InteractiveHero() {
             transition={{ duration: 0.8, delay: 0.15 }}
             className="font-display font-black text-4xl sm:text-5xl lg:text-7xl tracking-tight leading-[1.05] text-white"
           >
-            Mahdev <span className="text-gradient-purple-blue">V3.5</span>: Crafting <span className="text-gradient-gold">Luxury Events</span> & Systems
+            Mahdev: Crafting <span className="text-gradient-gold">Luxury Events</span> & Systems
           </motion.h1>
 
           <motion.p

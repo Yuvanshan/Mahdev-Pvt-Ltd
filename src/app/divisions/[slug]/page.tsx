@@ -26,6 +26,13 @@ export default function DynamicDivision() {
   useEffect(() => {
     if (!slug) return;
 
+    // Direct redirection fallback if dynamic page matches a static division page
+    const staticSlugs = ['sws-events', 'u1-studio', 'travels', 'it-solutions', 'erp'];
+    if (staticSlugs.includes(slug)) {
+      window.location.replace(`/divisions/${slug}`);
+      return;
+    }
+
     const fetchDivision = async () => {
       try {
         const q = query(collection(db, 'divisions'), where('slug', '==', slug));

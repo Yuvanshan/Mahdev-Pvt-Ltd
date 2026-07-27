@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, onSnapshot, serverTimestamp, doc } from 'firebase/firestore';
 
 // Core Components
 import Navbar from '@/components/Navbar';
@@ -56,7 +56,14 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Fetch stats from Firestore in real-time
+  const [posters, setPosters] = useState({ 
+    sws: '/images/wedding_decoration_1782729925686.jpg', 
+    u1: '/images/u1_robot_camera_1783346286743.jpg', 
+    travels: '/images/travels_robot_car_1783346316762.jpg', 
+    it: '/images/saas_dashboard.jpg' 
+  });
+
+  // Fetch stats and posters from Firestore in real-time
   useEffect(() => {
     const unsubStats = onSnapshot(collection(db, 'stats'), (snap) => {
       if (!snap.empty) {
@@ -70,7 +77,23 @@ export default function Home() {
         });
       }
     });
-    return () => unsubStats();
+
+    const unsubPosters = onSnapshot(doc(db, 'settings', 'division_posters'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        setPosters({
+          sws: d.sws || '/images/wedding_decoration_1782729925686.jpg',
+          u1: d.u1 || '/images/u1_robot_camera_1783346286743.jpg',
+          travels: d.travels || '/images/travels_robot_car_1783346316762.jpg',
+          it: d.it || '/images/saas_dashboard.jpg'
+        });
+      }
+    });
+
+    return () => {
+      unsubStats();
+      unsubPosters();
+    };
   }, []);
 
   // Keyboard shortcut listener for global search
@@ -93,6 +116,25 @@ export default function Home() {
         ...formData,
         timestamp: serverTimestamp()
       });
+
+      // Dispatch email notification to info.mahdev.lk@gmail.com via backend
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            division: formData.division,
+            message: formData.message
+          })
+        });
+      } catch (mailErr) {
+        console.error("Failed to forward contact request email:", mailErr);
+      }
       
       setSuccess(true);
       confetti({
@@ -249,7 +291,7 @@ export default function Home() {
               {/* Left banner: Main Showcase */}
               <div className="lg:col-span-7 h-[420px] rounded-3xl overflow-hidden relative group border border-white/5 shadow-2xl">
                 <Image 
-                  src="/images/wedding_decoration_1782729925686.jpg" 
+                  src={posters.sws} 
                   alt="Mughal Imperial Stage" 
                   fill 
                   className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.7]"
@@ -394,7 +436,7 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
               {[
-                { title: 'Wedding Photography', img: '/images/wedding_decoration_1782729925686.jpg', desc: 'Pre-wedding candid portraits' },
+                { title: 'Wedding Photography', img: posters.u1, desc: 'Pre-wedding candid portraits' },
                 { title: 'Drone Aerial Reels', img: '/images/drone_photography.jpg', desc: 'High definition landscape runs' },
                 { title: 'Newborn Milestones', img: '/images/newborn_shoot.jpg', desc: 'Comfortable climate-controlled studio' }
               ].map((item, idx) => (
@@ -434,7 +476,7 @@ export default function Home() {
               {/* Card 1: Cloud ERP */}
               <div className="glass p-8 rounded-3xl border border-white/5 hover:border-blue-400/25 transition-all flex flex-col sm:flex-row gap-6 items-center text-left">
                 <div className="relative w-full sm:w-1/3 h-36 rounded-2xl overflow-hidden border border-white/10 shrink-0">
-                  <Image src="/images/saas_dashboard.jpg" alt="ERP Cloud" fill className="object-cover" />
+                  <Image src={posters.it} alt="ERP Cloud" fill className="object-cover" />
                 </div>
                 <div className="flex-1 flex flex-col gap-2">
                   <span className="text-[9px] uppercase font-bold text-blue-400">Software Suite</span>
@@ -477,7 +519,7 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { title: 'Airport BIA Transfers', img: '/images/travels_robot_car_1783346316762.jpg', desc: 'On-time pickup in luxury vans' },
+                { title: 'Airport BIA Transfers', img: posters.travels, desc: 'On-time pickup in luxury vans' },
                 { title: 'Wedding VIP Mercedes', img: '/images/wedding_decoration_1782729925686.jpg', desc: 'Polished white luxury cars' },
                 { title: 'Ella Greenery Escape', img: '/images/van_tour.jpg', desc: 'Curated 3-day island package' }
               ].map((item, idx) => (

@@ -7,6 +7,8 @@ import { Terminal as TerminalIcon, Cpu, Globe, Server, Database, Code, BookOpen,
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingSystem from '@/components/BookingSystem';
+import { db } from '@/lib/firebase';
+import { onSnapshot, doc } from 'firebase/firestore';
 
 const terminalLogs = [
   'Initializing Mahdev IT Cloud Server Deployment...',
@@ -87,7 +89,18 @@ export default function ItSolutions() {
   const [terminalIndex, setTerminalIndex] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
   const [showBooking, setShowBooking] = useState(false);
+  const [coverImg, setCoverImg] = useState('/images/it_robot_developer_1783346302442.jpg');
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'division_posters'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.it) setCoverImg(d.it);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   // Terminal logging simulator
   useEffect(() => {
@@ -229,7 +242,7 @@ export default function ItSolutions() {
         {/* Hero banner */}
         <section className="relative h-[55vh] flex items-center justify-center overflow-hidden z-10">
           <Image 
-            src="/images/it_robot_developer_1783346302442.jpg" 
+            src={coverImg} 
             alt="IT Solutions Banner" 
             fill
             priority

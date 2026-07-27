@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import { db } from '@/lib/firebase';
+import { onSnapshot, doc } from 'firebase/firestore';
 import { 
   Sparkles, 
   Heart, 
@@ -170,9 +172,20 @@ export default function SwsEvents() {
   const [sliderPos, setSliderPos] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [coverImg, setCoverImg] = useState('/images/wedding_decoration_1782729925686.jpg');
 
   const sliderRef = useRef<HTMLDivElement>(null);
   const activeCat = swsCategories.find(c => c.id === activeTab) || swsCategories[0];
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'division_posters'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.sws) setCoverImg(d.sws);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const handleMove = (clientX: number) => {
     if (!sliderRef.current) return;
@@ -218,7 +231,7 @@ export default function SwsEvents() {
         {/* Immersive Header Banner */}
         <section className="relative h-[55vh] flex items-center justify-center overflow-hidden">
           <Image 
-            src={activeCat.coverImg} 
+            src={activeTab === 'wedding' ? coverImg : activeCat.coverImg} 
             alt="SWS Events Banner" 
             fill
             priority

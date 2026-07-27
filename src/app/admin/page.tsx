@@ -12,8 +12,22 @@ import confetti from 'canvas-confetti';
 
 export default function AdminPortal() {
   const [activeTab, setActiveTab] = useState<'seeder' | 'bookings' | 'divisions' | 'leads' | 'cms'>('bookings');
-  const [cmsSubTab, setCmsSubTab] = useState<'stats' | 'seo' | 'announcements' | 'fleet' | 'it'>('stats');
+  const [cmsSubTab, setCmsSubTab] = useState<'stats' | 'seo' | 'announcements' | 'fleet' | 'it' | 'posters'>('stats');
   
+  // Authentication states
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  // Division posters state
+  const [posters, setPosters] = useState({
+    sws: '/images/wedding_decoration_1782729925686.jpg',
+    u1: '/images/u1_robot_camera_1783346286743.jpg',
+    travels: '/images/travels_robot_car_1783346316762.jpg',
+    it: '/images/saas_dashboard.jpg'
+  });
+
   const [bookings, setBookings] = useState<any[]>([]);
   const [leads, setLeads] = useState<any[]>([]);
   const [seeding, setSeeding] = useState(false);
@@ -43,6 +57,71 @@ export default function AdminPortal() {
     primaryColor: '#050b16',
     secondaryColor: '#0c152b'
   });
+
+  // Check login state on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const logged = sessionStorage.getItem('mahdev_admin_logged');
+      if (logged === 'true') {
+        setIsLoggedIn(true);
+      }
+    }
+  }, []);
+
+  // Listen to division posters settings in Firestore
+  useEffect(() => {
+    const unsubPosters = onSnapshot(doc(db, 'settings', 'division_posters'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        setPosters({
+          sws: d.sws || '/images/wedding_decoration_1782729925686.jpg',
+          u1: d.u1 || '/images/u1_robot_camera_1783346286743.jpg',
+          travels: d.travels || '/images/travels_robot_car_1783346316762.jpg',
+          it: d.it || '/images/saas_dashboard.jpg'
+        });
+      }
+    });
+    return () => unsubPosters();
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username === 'admin' && password === 'admin') {
+      setIsLoggedIn(true);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('mahdev_admin_logged', 'true');
+      }
+      confetti({
+        particleCount: 100,
+        spread: 60,
+        colors: ['#c5a880', '#dfba73']
+      });
+      setLoginError('');
+    } else {
+      setLoginError('Invalid administrator credentials.');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('mahdev_admin_logged');
+    }
+  };
+
+  const handleSavePosters = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await setDoc(doc(db, 'settings', 'division_posters'), {
+        ...posters,
+        updatedAt: serverTimestamp()
+      });
+      confetti({ particleCount: 50 });
+      alert("Division Cover Posters successfully updated on Firestore!");
+    } catch (err) {
+      alert("Error saving posters settings: " + (err as Error).message);
+    }
+  };
 
   // New division configuration form state
   const [divForm, setDivForm] = useState({
@@ -251,6 +330,78 @@ export default function AdminPortal() {
     }
   };
 
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-[#050b16] flex items-center justify-center p-4 text-white text-left relative overflow-hidden">
+        {/* Abstract glowing backgrounds */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full filter blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gold-accent/10 rounded-full filter blur-[120px] pointer-events-none" />
+
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="w-full max-w-md glass-premium rounded-[32px] border border-white/10 p-8 sm:p-10 shadow-2xl relative z-10"
+        >
+          <div className="flex flex-col items-center text-center gap-4 mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-gold-accent/10 border border-gold-accent/30 flex items-center justify-center text-gold-accent shadow-lg shadow-gold-accent/5">
+              <Shield className="w-7 h-7" />
+            </div>
+            <div>
+              <h1 className="font-display font-black text-2xl tracking-tight text-white">Administrator Access</h1>
+              <p className="text-gray-400 text-xs mt-1">Please enter credentials to manage the Mahdev Pvt Ltd system registries.</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleLogin} className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Administrator Username</label>
+              <input 
+                type="text" required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="e.g. admin"
+                className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-2xl px-4 py-3.5 text-sm focus:outline-none text-white transition-all placeholder:text-gray-600"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Access Password</label>
+              <input 
+                type="password" required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-2xl px-4 py-3.5 text-sm focus:outline-none text-white transition-all placeholder:text-gray-600"
+              />
+            </div>
+
+            {loginError && (
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }}
+                className="text-red-400 text-xs font-sans pl-1 font-semibold"
+              >
+                {loginError}
+              </motion.div>
+            )}
+
+            <button 
+              type="submit"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest hover:brightness-110 transition-all shadow-lg shadow-gold-accent/15 cursor-pointer mt-2"
+            >
+              AUTHENTICATE SESSION
+            </button>
+          </form>
+
+          <p className="text-[10px] text-gray-600 text-center font-sans mt-8 uppercase tracking-widest">
+            Mahdev Pvt Ltd • Security Core
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Navbar />
@@ -260,15 +411,24 @@ export default function AdminPortal() {
           
           {/* Dashboard Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-8 mb-12">
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent flex items-center gap-1">
-                <Sliders className="w-3.5 h-3.5 text-gold-accent" /> MAHDEV CONTROL CENTRE
-              </span>
-              <h1 className="font-display font-black text-4xl text-white mt-1">Management Portal</h1>
+            <div className="flex justify-between items-center w-full md:w-auto gap-4">
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent flex items-center gap-1">
+                  <Sliders className="w-3.5 h-3.5 text-gold-accent" /> MAHDEV CONTROL CENTRE
+                </span>
+                <h1 className="font-display font-black text-4xl text-white mt-1">Management Portal</h1>
+              </div>
+
+              <button 
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-xl border border-white/10 hover:border-red-500 hover:text-red-400 text-xs font-bold tracking-wider transition-all md:hidden"
+              >
+                SIGN OUT
+              </button>
             </div>
 
             {/* Main Tabs selector */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 items-center">
               {[
                 { id: 'bookings', label: 'Bookings List', icon: Calendar },
                 { id: 'cms', label: 'CMS Settings', icon: Settings },
@@ -292,6 +452,13 @@ export default function AdminPortal() {
                   </button>
                 );
               })}
+
+              <button 
+                onClick={handleLogout}
+                className="px-5 py-2.5 rounded-xl border border-white/10 hover:border-red-500 hover:text-red-400 text-xs font-bold tracking-wider transition-all hidden md:block"
+              >
+                SIGN OUT
+              </button>
             </div>
           </div>
 
@@ -383,7 +550,8 @@ export default function AdminPortal() {
                     { id: 'seo', label: 'SEO Metadata Manager', icon: Globe },
                     { id: 'announcements', label: 'Promotions & Themes', icon: Tag },
                     { id: 'fleet', label: 'Travel Fleet Speeds', icon: Car },
-                    { id: 'it', label: 'IT Case Studies', icon: Cpu }
+                    { id: 'it', label: 'IT Case Studies', icon: Cpu },
+                    { id: 'posters', label: 'Division Posters', icon: ImageIcon }
                   ].map((sub) => {
                     const SubIcon = sub.icon;
                     return (
@@ -667,6 +835,69 @@ export default function AdminPortal() {
                             </div>
                           ))}
                         </div>
+                      </motion.div>
+                    )}
+
+                    {/* Division Posters CMS Tab */}
+                    {cmsSubTab === 'posters' && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5"
+                      >
+                        <div className="border-b border-white/5 pb-4 mb-6">
+                          <h3 className="font-display font-black text-xl text-white">Division Posters & Covers</h3>
+                          <p className="text-gray-400 text-xs mt-1">Configure cover and background image paths for each corporate division sector.</p>
+                        </div>
+
+                        <form onSubmit={handleSavePosters} className="flex flex-col gap-5">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">SWS Events Poster Cover URL</label>
+                            <input 
+                              type="text" required
+                              value={posters.sws}
+                              onChange={(e) => setPosters({ ...posters, sws: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Studio U1 Photography Cover URL</label>
+                            <input 
+                              type="text" required
+                              value={posters.u1}
+                              onChange={(e) => setPosters({ ...posters, u1: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Mahdev Travels Cover URL</label>
+                            <input 
+                              type="text" required
+                              value={posters.travels}
+                              onChange={(e) => setPosters({ ...posters, travels: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">IT Solutions Cover URL</label>
+                            <input 
+                              type="text" required
+                              value={posters.it}
+                              onChange={(e) => setPosters({ ...posters, it: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                            />
+                          </div>
+
+                          <button 
+                            type="submit"
+                            className="py-3 px-6 rounded-xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest hover:brightness-110 self-start mt-2 transition-all cursor-pointer"
+                          >
+                            SAVE POSTERS
+                          </button>
+                        </form>
                       </motion.div>
                     )}
 

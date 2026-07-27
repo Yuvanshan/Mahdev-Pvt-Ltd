@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Compass, Calendar, Check, X, MapPin, Navigation, Award, Users, Info, MessageSquare } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingSystem from '@/components/BookingSystem';
+import { db } from '@/lib/firebase';
+import { onSnapshot, doc } from 'firebase/firestore';
 
 const destinations = [
   { id: 'colombo', name: 'Colombo Central Hub', desc: 'Starting base. VIP sedan airport transfers and business tours.', x: 100, y: 220 },
@@ -93,6 +95,17 @@ const expandedFleetList = [
 export default function Travels() {
   const [activeDest, setActiveDest] = useState(destinations[0]);
   const [showBooking, setShowBooking] = useState(false);
+  const [coverImg, setCoverImg] = useState('/images/travels_robot_car_1783346316762.jpg');
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'division_posters'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.travels) setCoverImg(d.travels);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-navy-dark text-left">
@@ -106,7 +119,7 @@ export default function Travels() {
         {/* Hero Section */}
         <section className="relative h-[55vh] flex items-center justify-center overflow-hidden">
           <Image 
-            src="/images/travels_robot_car_1783346316762.jpg" 
+            src={coverImg} 
             alt="Travels Banner" 
             fill
             priority

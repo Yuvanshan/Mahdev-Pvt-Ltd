@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Film, Compass, User, Palette, Sparkles, X, CheckCircle, MessageSquare, Star, Eye } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { onSnapshot, doc } from 'firebase/firestore';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingSystem from '@/components/BookingSystem';
@@ -81,6 +83,17 @@ export default function U1Studio() {
   const [isResizing, setIsResizing] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [coverImg, setCoverImg] = useState('/images/u1_robot_camera_1783346286743.jpg');
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'division_posters'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.u1) setCoverImg(d.u1);
+      }
+    });
+    return () => unsub();
+  }, []);
   
   // Camera shutter transition states
   const [shutterActive, setShutterActive] = useState(false);
@@ -174,7 +187,7 @@ export default function U1Studio() {
         {/* Banner Section */}
         <section className="relative h-[55vh] flex items-center justify-center overflow-hidden">
           <Image 
-            src="/images/u1_robot_camera_1783346286743.jpg" 
+            src={coverImg} 
             alt="U1 Studio Banner" 
             fill
             priority

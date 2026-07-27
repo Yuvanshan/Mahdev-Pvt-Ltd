@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal as TerminalIcon, Cpu, Globe, Server, Database, Code, BookOpen, Shield, Check, X } from 'lucide-react';
+import { Terminal as TerminalIcon, Cpu, Globe, Server, Database, Code, BookOpen, Shield, Check, X, ArrowUpRight, MessageSquare, Play, Layers, Laptop } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingSystem from '@/components/BookingSystem';
@@ -15,6 +15,72 @@ const terminalLogs = [
   'Booting POS double-entry stock modules...',
   '✓ Edge API gateway online at node-lk-1.mahdev.net',
   'Ready for enterprise transaction stream processing.'
+];
+
+const itProjects = [
+  {
+    id: 'erp',
+    title: 'Mahdev Enterprise ERP',
+    img: '/images/saas_dashboard.jpg',
+    desc: 'Bespoke double-entry ledger bookkeeping and multi-warehouse inventory tracker suited for large retail & hotels.',
+    features: ['Double-Entry Ledger accounting', 'Multi-Warehouse real-time stock registers', 'Dynamic tax reports generation (VAT/GST)'],
+    tech: ['Next.js', 'PostgreSQL', 'Docker', 'AWS RDS'],
+    demo: 'https://demo-erp.mahdev.lk'
+  },
+  {
+    id: 'pos',
+    title: 'Cloud POS Registers',
+    img: '/images/it_robot_developer_1783346302442.jpg',
+    desc: 'Offline-first cash register system with thermal slip receipt printing and automatic main branch inventory synchronization.',
+    features: ['Offline-first checkout billing', 'Bluetooth thermal printers integration', 'Automatic background register syncs'],
+    tech: ['React Native', 'SQLite', 'Node.js', 'Socket.io'],
+    demo: 'https://demo-pos.mahdev.lk'
+  },
+  {
+    id: 'webdev',
+    title: 'High-Fidelity Next.js Platforms',
+    img: '/images/wedding_decoration_1782729925686.jpg',
+    desc: 'Vibrant custom web portals featuring high-fidelity glassmorphism, fluid animations, and optimal Core Web Vitals scores.',
+    features: ['Fluid responsive layout templates', '100% Core Web Vitals audit targets', 'Structured SEO schema graph injections'],
+    tech: ['Next.js', 'Framer Motion', 'Tailwind v4', 'Vercel Edge'],
+    demo: 'https://mahdev.lk'
+  },
+  {
+    id: 'mobile',
+    title: 'Native iOS & Android Apps',
+    img: '/images/u1_robot_camera_1783346286743.jpg',
+    desc: 'Secure cross-platform corporate apps with real-time syncs, offline caching, and native biometric face/touch authentication.',
+    features: ['Biometric secure login flow', 'Push notification alerts dispatcher', 'Interactive map tracking features'],
+    tech: ['Flutter', 'Dart', 'Firebase Auth', 'Firestore'],
+    demo: 'https://apps.apple.com/mahdev'
+  },
+  {
+    id: 'cloud',
+    title: 'AWS & Azure Cloud Orchestration',
+    img: '/images/saas_dashboard.jpg',
+    desc: 'Elastic load balanced server clusters, secure VPC networks, and continuous integration deployments.',
+    features: ['Kubernetes cluster management (EKS)', 'Github Actions CD/CI automation pipelines', 'Automated security patching rules'],
+    tech: ['Terraform', 'Kubernetes', 'Docker', 'AWS IAM'],
+    demo: 'https://infrastructure.mahdev.lk'
+  },
+  {
+    id: 'hosting',
+    title: 'Managed Secure Cloud Hosting',
+    img: '/images/it_robot_developer_1783346302442.jpg',
+    desc: '99.99% guaranteed uptime hosting with DDoS protection, auto-renewing SSL certificates, and daily encrypted database backups.',
+    features: ['Free automated Let\'s Encrypt SSL', 'Daily encrypted database snapshots backup', 'Cloudflare Proxy DDoS protection shield'],
+    tech: ['Ubuntu Server', 'Nginx Reverse Proxy', 'Cloudflare CDN'],
+    demo: 'https://hosting.mahdev.lk'
+  },
+  {
+    id: 'automation',
+    title: 'Business Workflow Automation',
+    img: '/images/saas_dashboard.jpg',
+    desc: 'System triggers to dispatch automated invoices to emails, customer alerts to WhatsApp, and trigger transactional newsletters.',
+    features: ['WhatsApp Twilio API integrations', 'Automated PDF Invoice generating engine', 'Real-time transactional email funnels'],
+    tech: ['Python', 'Celery Queue', 'Redis Cache', 'SendGrid API'],
+    demo: 'https://automation.mahdev.lk'
+  }
 ];
 
 export default function ItSolutions() {
@@ -153,15 +219,15 @@ export default function ItSolutions() {
   }, []);
 
   return (
-    <>
+    <div className="relative min-h-screen bg-navy-dark text-left">
       <Navbar />
 
-      <main className="min-h-screen bg-navy-dark pt-20 relative overflow-hidden">
-        {/* Mouse reactive cyber canvas grid background */}
+      <main className="min-h-screen pt-20 relative overflow-hidden">
+        {/* Cyber canvas background */}
         <canvas ref={canvasRef} className="absolute inset-0 z-0 w-full h-full pointer-events-none opacity-40" />
 
         {/* Hero banner */}
-        <section className="relative h-[65vh] flex items-center justify-center overflow-hidden z-10">
+        <section className="relative h-[55vh] flex items-center justify-center overflow-hidden z-10">
           <Image 
             src="/images/it_robot_developer_1783346302442.jpg" 
             alt="IT Solutions Banner" 
@@ -180,50 +246,92 @@ export default function ItSolutions() {
             <p className="font-sans text-gray-300 text-sm sm:text-base max-w-xl leading-relaxed">
               We design double-entry inventory ERP systems, real-time POS checkouts, high-load cloud integrations, and bespoke corporate web platforms.
             </p>
-            <button 
-              onClick={() => setShowBooking(true)}
-              className="mt-4 px-8 py-4 rounded-full bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest"
-            >
-              BOOK IT CONSULTATION
-            </button>
           </div>
         </section>
 
-        {/* IT Services Grid */}
+        {/* Software Showcase Grid */}
         <section className="py-24 max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center mb-16 flex flex-col gap-3">
-            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">TECHNICAL CAPABILITIES</span>
-            <h2 className="font-display font-black text-3xl text-white">Full-Stack Enterprise Offerings</h2>
+            <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gold-accent">SOFTWARE STACK</span>
+            <h2 className="font-display font-black text-3xl text-white">Bespoke Software Showcase</h2>
+            <p className="text-gray-400 text-xs sm:text-sm font-sans max-w-md mx-auto">Explore pre-engineered products ready for deployment or request a customized software scope.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { icon: Cpu, title: 'Custom ERPs', desc: 'Accounting ledgers, stock registers, hotel bookings, and student database management tools.' },
-              { icon: Globe, title: 'React / Next.js Web', desc: 'Vibrant web portals with high-fidelity glassmorphism, SEO setup, and fast server load times.' },
-              { icon: Server, title: 'Server Deployments', desc: 'AWS node clusters, docker containers, load balancers, and PostgreSQL redundancy configurations.' },
-              { icon: Shield, title: 'System Security Audit', desc: 'Penetration tests, firewalls configuration, database encryption, and cloud vulnerability scans.' }
-            ].map((serv, idx) => {
-              const Icon = serv.icon;
-              return (
-                <div key={idx} className="glass p-6 rounded-3xl border border-white/5 flex flex-col gap-4 text-left">
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 text-gold-accent">
-                    <Icon className="w-6 h-6" />
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {itProjects.map((proj) => (
+              <div 
+                key={proj.id}
+                className="glass rounded-3xl overflow-hidden border border-white/5 hover:border-blue-500/30 transition-all duration-300 flex flex-col hover:translate-y-[-4px] shadow-xl text-left"
+              >
+                {/* Visual Screenshot container */}
+                <div className="relative h-56 w-full overflow-hidden group">
+                  <Image 
+                    src={proj.img} 
+                    alt={proj.title} 
+                    fill 
+                    className="object-cover group-hover:scale-102 transition-transform duration-500" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/10 to-transparent" />
+                  <a 
+                    href={proj.demo} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="absolute top-4 right-4 px-3 py-1 rounded bg-black/60 hover:bg-gold-accent hover:text-navy-dark text-[10px] font-bold text-gold-soft uppercase tracking-wider border border-white/10 flex items-center gap-1 transition-all"
+                  >
+                    LIVE DEMO <ArrowUpRight className="w-3 h-3" />
+                  </a>
+                </div>
+
+                <div className="p-6 sm:p-8 flex flex-col flex-1 gap-5">
                   <div>
-                    <h4 className="font-display font-bold text-white text-base">{serv.title}</h4>
-                    <p className="font-sans text-xs text-gray-400 mt-2 leading-relaxed">{serv.desc}</p>
+                    <span className="text-[9px] uppercase font-bold text-blue-400 font-mono">Division Package</span>
+                    <h3 className="font-display font-bold text-xl text-white mt-1">{proj.title}</h3>
+                    <p className="font-sans text-xs text-gray-400 mt-2 leading-relaxed">{proj.desc}</p>
+                  </div>
+
+                  {/* Bullet features */}
+                  <div className="flex flex-col gap-2">
+                    <h4 className="text-[9px] uppercase font-bold text-gray-500 tracking-wider">Key Features:</h4>
+                    <ul className="flex flex-col gap-2 font-sans text-xs text-gray-300">
+                      {proj.features.map((feat, fIdx) => (
+                        <li key={fIdx} className="flex items-center gap-2">
+                          <Check className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Technology stack */}
+                  <div className="flex flex-col gap-2 border-t border-white/5 pt-4">
+                    <h4 className="text-[9px] uppercase font-bold text-gray-500 tracking-wider">Technology Stack:</h4>
+                    <div className="flex flex-wrap gap-1.5 mt-0.5">
+                      {proj.tech.map((t, tIdx) => (
+                        <span key={tIdx} className="px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-[9px] text-white font-mono">{t}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Booking actions */}
+                  <div className="flex gap-3 mt-2">
+                    <button 
+                      onClick={() => setShowBooking(true)}
+                      className="flex-1 py-3 bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest rounded-xl hover:brightness-110 cursor-pointer"
+                    >
+                      REQUEST QUOTE
+                    </button>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Interactive Code Console Terminal & POS Dashboard */}
+        {/* Interactive bash terminal */}
         <section className="py-24 max-w-7xl mx-auto px-6 border-t border-white/5 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            {/* Left side: Terminal */}
+            {/* Left side: Terminal explanation */}
             <div className="lg:col-span-6 flex flex-col gap-4 text-left">
               <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">SYSTEM CONSOLE LOG</span>
               <h2 className="font-display font-black text-2xl sm:text-3xl text-white">Cloud Deployment Server Console</h2>
@@ -307,6 +415,6 @@ export default function ItSolutions() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

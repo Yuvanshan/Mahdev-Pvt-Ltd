@@ -20,11 +20,17 @@ import {
   Phone,
   Send,
   CheckCircle,
-  HelpCircle,
   Briefcase,
   Search,
   MessageCircle,
-  X
+  X,
+  Play,
+  Heart,
+  Star,
+  Users,
+  Award,
+  Layers,
+  ArrowRight
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { db } from '@/lib/firebase';
@@ -37,79 +43,21 @@ import TechCloud from '@/components/TechCloud';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
-import CinematicIntro from '@/components/CinematicIntro';
 import AIAssistant from '@/components/AIAssistant';
 import GlobalSearch from '@/components/GlobalSearch';
 import BookingSystem from '@/components/BookingSystem';
 
-const staticDivisions = [
-  {
-    title: 'SWS Event Management',
-    desc: 'Bespoke luxury wedding planning, stage set designs, church floral setups, and corporate galas with premium decoration schemes.',
-    image: '/images/sws_robot_decor_1783346269673.jpg',
-    href: '/divisions/sws-events',
-    icon: Sparkles,
-    tag: 'Luxury Decor',
-    color: 'from-purple-500/20 to-pink-500/20'
-  },
-  {
-    title: 'Studio U1',
-    desc: 'Cinematic visual storytelling. Capturing raw emotional energy using high-altitude drone cameras, luxury studio setups, and newborn/outdoor shoots.',
-    image: '/images/u1_robot_camera_1783346286743.jpg',
-    href: '/divisions/u1-studio',
-    icon: Camera,
-    tag: 'Cinematography',
-    color: 'from-cyan-500/20 to-blue-500/20'
-  },
-  {
-    title: 'Mahdev ERP Systems',
-    desc: 'Double-entry bookkeeping, smart multi-warehouse inventory tracking, thermal printer POS checkouts, and specialized modules for schools, hotels & restaurants.',
-    image: '/images/it_robot_developer_1783346302442.jpg',
-    href: '/divisions/erp',
-    icon: Cpu,
-    tag: 'Enterprise SaaS',
-    color: 'from-amber-500/20 to-orange-500/20'
-  },
-  {
-    title: 'IT & Cloud Solutions',
-    desc: 'Custom enterprise software engineering, high-fidelity UI/UX design, AWS/Azure server orchestration, and result-oriented digital marketing strategies.',
-    image: '/images/it_robot_developer_1783346302442.jpg',
-    href: '/divisions/it-solutions',
-    icon: Globe,
-    tag: 'Software Engine',
-    color: 'from-blue-500/20 to-indigo-500/20'
-  },
-  {
-    title: 'Mahdev Travels',
-    desc: 'Premier passenger vans, luxury VIP wedding cars, and curated vacation tour packages across Sri Lanka with professional English chauffeurs.',
-    image: '/images/travels_robot_car_1783346316762.jpg',
-    href: '/divisions/travels',
-    icon: Compass,
-    tag: 'Luxury Tourism',
-    color: 'from-green-500/20 to-emerald-500/20'
-  }
-];
-
 export default function Home() {
-  const [showIntro, setShowIntro] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [stats, setStats] = useState({ happyClients: 1500, projects: 1200, software: 120, vehicles: 18, experience: 10 });
-  const [divisions, setDivisions] = useState<any[]>(staticDivisions);
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', division: 'General Inquiry', message: '' });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Check if intro has played in this session
-  useEffect(() => {
-    const introPlayed = sessionStorage.getItem('mahdev_intro_played');
-    if (introPlayed === 'true') {
-      setShowIntro(false);
-    }
-  }, []);
-
-  // Fetch dynamic statistics & divisions from Firestore in real-time
+  // Fetch stats from Firestore in real-time
   useEffect(() => {
     const unsubStats = onSnapshot(collection(db, 'stats'), (snap) => {
       if (!snap.empty) {
@@ -123,30 +71,7 @@ export default function Home() {
         });
       }
     });
-
-    const unsubDivs = onSnapshot(collection(db, 'divisions'), (snap) => {
-      if (!snap.empty) {
-        const list = snap.docs.map((docDoc) => {
-          const d = docDoc.data();
-          const href = d.slug === 'erp' ? '/divisions/erp' : `/divisions/${d.slug}`;
-          return {
-            title: d.name,
-            desc: d.description,
-            image: d.bgImage || '/images/sws_robot_decor_1783346269673.jpg',
-            href,
-            icon: d.type === 'events' ? Sparkles : d.type === 'photography' ? Camera : d.type === 'it' ? Cpu : Compass,
-            tag: d.type === 'events' ? 'Event Management' : d.type === 'photography' ? 'Cinematography' : d.type === 'it' ? 'Enterprise SaaS' : 'Tourism',
-            color: d.gradient || 'from-blue-500/20 to-indigo-500/20'
-          };
-        });
-        setDivisions(list);
-      }
-    });
-
-    return () => {
-      unsubStats();
-      unsubDivs();
-    };
+    return () => unsubStats();
   }, []);
 
   // Keyboard shortcut listener for global search
@@ -160,11 +85,6 @@ export default function Home() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  const handleIntroComplete = () => {
-    sessionStorage.setItem('mahdev_intro_played', 'true');
-    setShowIntro(false);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,28 +114,25 @@ export default function Home() {
   };
 
   return (
-    <div className="relative min-h-screen bg-navy-dark overflow-x-hidden">
-      <AnimatePresence>
-        {showIntro && <CinematicIntro onComplete={handleIntroComplete} />}
-      </AnimatePresence>
-
+    <div className="relative min-h-screen bg-navy-dark overflow-x-hidden text-left">
       <Navbar />
 
-      {/* Floating search button shortcut */}
+      {/* Floating search shortcut */}
       <div className="fixed top-24 right-6 z-[40] hidden md:block">
         <button
           onClick={() => setSearchOpen(true)}
-          className="p-3 rounded-full glass border border-gold-accent/20 hover:border-gold-accent text-gold-accent flex items-center justify-center shadow-lg"
+          className="p-3 rounded-full glass border border-gold-accent/20 hover:border-gold-accent text-gold-accent flex items-center justify-center shadow-lg hover:scale-105 transition-all"
           title="Search Directory (Press '/')"
         >
           <Search className="w-5 h-5" />
         </button>
       </div>
 
-      <main className="flex-1 w-full text-left">
+      <main className="flex-1 w-full">
+        {/* 1. Hero Section (Loads Instantly with staggered fades) */}
         <InteractiveHero />
 
-        {/* About Mahdev */}
+        {/* 2. About Mahdev Section */}
         <section id="about" className="py-24 bg-navy-dark relative overflow-hidden">
           <div className="glow-ball glow-ball-purple w-96 h-96 top-20 -left-10 opacity-15" />
           
@@ -287,7 +204,7 @@ export default function Home() {
                 <div className="relative h-[250px] sm:h-[320px] rounded-3xl overflow-hidden border border-white/5 group shadow-2xl">
                   <Image 
                     src="/images/wedding_decoration_1782729925686.jpg" 
-                    alt="Corporate Meeting" 
+                    alt="SWS Wedding Decoration" 
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-75"
                   />
@@ -307,80 +224,291 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Business Divisions Section */}
-        <section id="divisions" className="py-24 bg-navy-medium/30 relative overflow-hidden">
-          <div className="glow-ball glow-ball-gold w-96 h-96 bottom-20 -right-20 opacity-10" />
+        {/* 3. Why Choose Us Section */}
+        <WhyChooseUs />
+
+        {/* 4. SWS Event Management Homepage Section (Occupies ~40% of homepage height) */}
+        <section id="sws-homepage-section" className="py-24 bg-gradient-to-b from-navy-dark via-navy-medium to-navy-dark relative overflow-hidden border-t border-white/5">
+          <div className="glow-ball glow-ball-purple w-[500px] h-[500px] top-1/4 -right-20 opacity-20" />
+          <div className="glow-ball glow-ball-gold w-[350px] h-[350px] bottom-10 left-10 opacity-10" />
 
           <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <div className="text-center mb-16 flex flex-col gap-3">
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
-                ELITE BUSINESS SUITES
-              </span>
-              <h2 className="font-display font-black text-3xl sm:text-4xl text-white">
-                Operate at the Highest Level
-              </h2>
-              <p className="font-sans text-gray-400 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
-                Explore our distinct operational divisions. Each engineered by subject-matter experts to deliver top-tier market standards.
-              </p>
+            {/* Header */}
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
+              <div className="flex flex-col gap-3">
+                <span className="text-[10px] uppercase font-bold tracking-[0.2.5em] text-gold-soft flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-gold-accent" /> PRIMARY DIVISION FOCUS
+                </span>
+                <h2 className="font-display font-black text-4xl sm:text-5xl text-white leading-tight">
+                  SWS Event Management
+                </h2>
+                <p className="font-sans text-gray-400 max-w-xl text-sm sm:text-base leading-relaxed">
+                  We design and construct breathtaking environments. From grand glasshouse wedding canopy constructs to themed birthdays, corporate stages, and traditional oil lamp mandaps.
+                </p>
+              </div>
+              <Link 
+                href="/divisions/sws-events"
+                className="px-6 py-3 rounded-xl border border-gold-accent/25 hover:border-gold-accent text-gold-soft hover:text-white text-xs font-bold tracking-widest flex items-center justify-center gap-2 transition-all self-start lg:self-auto"
+              >
+                VIEW FULL DESIGN SUITE
+                <ChevronRight className="w-4 h-4" />
+              </Link>
             </div>
 
-            {/* Grid of Divisions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {divisions.map((div, idx) => {
-                const Icon = div.icon;
-                const displayImage = div.image;
-                return (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: idx * 0.1 }}
-                    className="glass rounded-3xl overflow-hidden border border-white/5 flex flex-col h-full hover:border-gold-accent/30 transition-all duration-300 group hover:translate-y-[-4px] shadow-xl"
-                  >
-                    <div className="relative h-56 w-full overflow-hidden">
-                      <Image 
-                        src={displayImage} 
-                        alt={div.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/90 via-navy-dark/20 to-transparent" />
-                      <div className="absolute top-4 left-4 px-3 py-1 rounded-full glass border border-white/10 text-[9px] font-bold uppercase tracking-wider text-gold-soft">
-                        {div.tag}
-                      </div>
-                    </div>
+            {/* Large Banner Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+              
+              {/* Left banner: Main Showcase */}
+              <div className="lg:col-span-7 h-[420px] rounded-3xl overflow-hidden relative group border border-white/5 shadow-2xl">
+                <Image 
+                  src="/images/wedding_decoration_1782729925686.jpg" 
+                  alt="Mughal Imperial Stage" 
+                  fill 
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.7]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/30 to-transparent" />
+                <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full glass border border-white/10 text-[9px] font-bold uppercase tracking-wider text-gold-accent">
+                  Trending Package
+                </div>
+                <div className="absolute bottom-6 left-6 right-6 text-left flex flex-col gap-2">
+                  <h3 className="font-display font-bold text-xl sm:text-2xl text-white">The Imperial Gold Canopy Setup</h3>
+                  <p className="font-sans text-xs text-gray-300 max-w-md">Our signature wedding backdrop featuring a gold arch, cascading wisterias, ambient LED uplighters, and premium floral path runs.</p>
+                  <div className="flex gap-4 items-center mt-1">
+                    <span className="text-gold-soft font-bold text-sm">Rs. 185,000</span>
+                    <button 
+                      onClick={() => setBookingOpen(true)}
+                      className="px-4 py-2 rounded-lg bg-gold-accent hover:bg-gold-soft text-navy-dark font-sans text-[10px] font-bold tracking-wider transition-all"
+                    >
+                      BOOK NOW
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-                    <div className="p-6 flex flex-col flex-1 gap-4 text-left">
+              {/* Right side: Video and Trending Packages List */}
+              <div className="lg:col-span-5 flex flex-col gap-8">
+                
+                {/* Simulated Client Video Card */}
+                <div className="h-[200px] rounded-3xl overflow-hidden relative group border border-white/5 shadow-xl">
+                  <Image 
+                    src="/images/sws_robot_decor_1783346269673.jpg" 
+                    alt="Client Wedding Reel" 
+                    fill 
+                    className="object-cover brightness-50 group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <button 
+                      onClick={() => setActiveVideo('/images/sws_robot_decor_1783346269673.jpg')}
+                      className="w-14 h-14 rounded-full bg-gold-accent/90 hover:bg-gold-accent text-navy-dark flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-95"
+                    >
+                      <Play className="w-6 h-6 fill-current translate-x-0.5" />
+                    </button>
+                  </div>
+                  <div className="absolute bottom-4 left-4 text-left">
+                    <span className="text-[9px] uppercase tracking-wider text-gold-accent font-bold">EVENT TEASER VIDEO</span>
+                    <h4 className="font-display font-semibold text-sm text-white">Rebecca & Tharindu Wedding Gala</h4>
+                  </div>
+                </div>
+
+                {/* Trending Packages Grid List */}
+                <div className="flex flex-col gap-4">
+                  {[
+                    { title: 'Royal Stage Set', price: 'Rs. 240,000', label: 'Wedding' },
+                    { title: 'Alice in Balloonland', price: 'Rs. 65,000', label: 'Birthdays' },
+                    { title: 'Cathedral Floral Sanctuary', price: 'Rs. 95,000', label: 'Church' }
+                  ].map((pkg, idx) => (
+                    <div 
+                      key={idx} 
+                      className="glass p-4 rounded-2xl border border-white/5 flex items-center justify-between hover:border-gold-accent/20 transition-all group"
+                    >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 text-gold-accent">
-                          <Icon className="w-5 h-5" />
+                        <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs shrink-0">
+                          {pkg.label[0]}
                         </div>
-                        <h3 className="font-display font-bold text-lg text-white group-hover:text-gold-soft transition-colors truncate">
-                          {div.title}
-                        </h3>
+                        <div className="text-left">
+                          <h4 className="font-display font-semibold text-xs sm:text-sm text-white group-hover:text-gold-soft transition-colors">{pkg.title}</h4>
+                          <span className="text-[10px] text-gray-500 uppercase tracking-wider font-sans">{pkg.label} Package</span>
+                        </div>
                       </div>
-                      
-                      <p className="font-sans text-xs sm:text-sm text-gray-400 leading-relaxed flex-1">
-                        {div.desc}
-                      </p>
-
-                      <Link
-                        href={div.href}
-                        className="w-full py-3 rounded-xl border border-white/10 text-center font-sans text-xs font-semibold text-white tracking-wider hover:bg-gold-accent hover:text-navy-dark hover:border-gold-accent transition-all flex items-center justify-center gap-2 mt-2"
-                      >
-                        EXPLORE DIVISION
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </Link>
+                      <span className="font-display font-bold text-xs sm:text-sm text-gold-soft">{pkg.price}</span>
                     </div>
-                  </motion.div>
-                );
-              })}
+                  ))}
+                </div>
+
+              </div>
+            </div>
+
+            {/* Popular Themes & Gallery Preview Slider */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { title: 'Glasshouse Canopy', img: '/images/wedding_decoration_1782729925686.jpg' },
+                { title: 'Pastel Ballon Arch', img: '/images/birthday_decor.jpg' },
+                { title: 'Cathedral Pew Florals', img: '/images/church_decor.jpg' },
+                { title: 'Branded Keynotes', img: '/images/sws_robot_decor_1783346269673.jpg' }
+              ].map((theme, idx) => (
+                <div 
+                  key={idx}
+                  className="relative h-44 rounded-2xl overflow-hidden group border border-white/5 shadow-md"
+                >
+                  <Image 
+                    src={theme.img} 
+                    alt={theme.title} 
+                    fill 
+                    className="object-cover group-hover:scale-105 transition-transform duration-500 brightness-75"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/90 via-navy-dark/20 to-transparent" />
+                  <span className="absolute bottom-3 left-3 text-[10px] sm:text-xs font-display font-bold text-white text-left">{theme.title}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Mini Reviews block */}
+            <div className="mt-12 p-6 rounded-3xl glass border border-gold-accent/15 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-4 text-left">
+                <div className="w-12 h-12 rounded-full overflow-hidden border border-gold-accent/30 relative shrink-0">
+                  <Image src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200" alt="Avatar" fill className="object-cover" />
+                </div>
+                <div>
+                  <div className="flex gap-0.5 text-gold-soft">
+                    {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-current" />)}
+                  </div>
+                  <p className="text-xs text-gray-300 font-sans mt-1">"The SWS Events team planned our wedding stage decoration with royal marigolds. It was cinematic!"</p>
+                  <span className="block text-[9px] uppercase tracking-wider text-gray-500 font-semibold mt-0.5">- Rebecca & Tharindu, Colombo Wedding</span>
+                </div>
+              </div>
+              <button 
+                onClick={() => setBookingOpen(true)}
+                className="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-wider hover:brightness-110 shrink-0 transition-all shadow-md shadow-gold-accent/10"
+              >
+                BOOK EVENT DECORATION
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+        {/* 5. Photography Section (Studio U1) */}
+        <section id="photography-homepage-section" className="py-24 bg-navy-dark relative border-t border-white/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
+              <div className="text-left flex flex-col gap-3">
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-cyan-400">CREATIVE SHOWROOM</span>
+                <h2 className="font-display font-black text-4xl text-white">Studio U1 Cinematography</h2>
+                <p className="font-sans text-sm text-gray-400 max-w-lg leading-relaxed">Capturing raw emotional moments using high-altitude drone cameras, luxury studio setups, and candid photography.</p>
+              </div>
+              <Link 
+                href="/divisions/u1-studio"
+                className="px-6 py-3 rounded-xl border border-cyan-400/30 hover:border-cyan-400 text-cyan-300 text-xs font-bold tracking-widest flex items-center justify-center gap-1.5 transition-all"
+              >
+                VIEW PORTFOLIO <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+              {[
+                { title: 'Wedding Photography', img: '/images/wedding_decoration_1782729925686.jpg', desc: 'Pre-wedding candid portraits' },
+                { title: 'Drone Aerial Reels', img: '/images/drone_photography.jpg', desc: 'High definition landscape runs' },
+                { title: 'Newborn Milestones', img: '/images/newborn_shoot.jpg', desc: 'Comfortable climate-controlled studio' }
+              ].map((item, idx) => (
+                <div key={idx} className="glass rounded-3xl overflow-hidden border border-white/5 group hover:border-cyan-500/30 transition-all duration-300 flex flex-col hover:translate-y-[-4px] shadow-xl">
+                  <div className="relative h-56 w-full overflow-hidden">
+                    <Image src={item.img} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/95 to-transparent" />
+                  </div>
+                  <div className="p-5 text-left flex flex-col gap-1.5">
+                    <h3 className="font-display font-bold text-base text-white">{item.title}</h3>
+                    <p className="font-sans text-xs text-gray-400 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Global Statistics Counters Section */}
+        {/* 6. IT Solutions Section */}
+        <section id="it-homepage-section" className="py-24 bg-navy-medium/30 relative border-t border-white/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
+              <div className="text-left flex flex-col gap-3">
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-blue-400 font-sans">ENTERPRISE CORE</span>
+                <h2 className="font-display font-black text-4xl text-white">IT & Cloud Solutions</h2>
+                <p className="font-sans text-sm text-gray-400 max-w-lg leading-relaxed">Deploying double-entry ERP accounting software, real-time checkout POS registers, and robust cloud configurations.</p>
+              </div>
+              <Link 
+                href="/divisions/it-solutions"
+                className="px-6 py-3 rounded-xl border border-blue-400/30 hover:border-blue-400 text-blue-300 text-xs font-bold tracking-widest flex items-center justify-center gap-1.5 transition-all"
+              >
+                REQUEST AUDIT <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Card 1: Cloud ERP */}
+              <div className="glass p-8 rounded-3xl border border-white/5 hover:border-blue-400/25 transition-all flex flex-col sm:flex-row gap-6 items-center text-left">
+                <div className="relative w-full sm:w-1/3 h-36 rounded-2xl overflow-hidden border border-white/10 shrink-0">
+                  <Image src="/images/saas_dashboard.jpg" alt="ERP Cloud" fill className="object-cover" />
+                </div>
+                <div className="flex-1 flex flex-col gap-2">
+                  <span className="text-[9px] uppercase font-bold text-blue-400">Software Suite</span>
+                  <h3 className="font-display font-bold text-lg text-white">Double-Entry ERP System</h3>
+                  <p className="font-sans text-xs text-gray-400 leading-relaxed">Integrated ledgers, inventory stock counts, and financial summaries for hotels and merchants.</p>
+                </div>
+              </div>
+
+              {/* Card 2: Cloud POS */}
+              <div className="glass p-8 rounded-3xl border border-white/5 hover:border-blue-400/25 transition-all flex flex-col sm:flex-row gap-6 items-center text-left">
+                <div className="relative w-full sm:w-1/3 h-36 rounded-2xl overflow-hidden border border-white/10 shrink-0">
+                  <Image src="/images/it_robot_developer_1783346302442.jpg" alt="POS Software" fill className="object-cover" />
+                </div>
+                <div className="flex-1 flex flex-col gap-2">
+                  <span className="text-[9px] uppercase font-bold text-blue-400">Checkout Terminal</span>
+                  <h3 className="font-display font-bold text-lg text-white">Real-Time POS Systems</h3>
+                  <p className="font-sans text-xs text-gray-400 leading-relaxed">Offline-first receipt printing, barcode scans, and WhatsApp checkout notifications.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 7. Travels Section */}
+        <section id="travels-homepage-section" className="py-24 bg-navy-dark relative border-t border-white/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
+              <div className="text-left flex flex-col gap-3">
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-green-400 font-sans">TOURISM & TRANSIT</span>
+                <h2 className="font-display font-black text-4xl text-white">Mahdev Travels</h2>
+                <p className="font-sans text-sm text-gray-400 max-w-lg leading-relaxed">Airport BIA dispatch, luxury wedding Mercedes rentals, and customized vacation packages across Sri Lanka.</p>
+              </div>
+              <Link 
+                href="/divisions/travels"
+                className="px-6 py-3 rounded-xl border border-green-400/30 hover:border-green-400 text-green-300 text-xs font-bold tracking-widest flex items-center justify-center gap-1.5 transition-all"
+              >
+                BOOK TRANSIT <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { title: 'Airport BIA Transfers', img: '/images/travels_robot_car_1783346316762.jpg', desc: 'On-time pickup in luxury vans' },
+                { title: 'Wedding VIP Mercedes', img: '/images/wedding_decoration_1782729925686.jpg', desc: 'Polished white luxury cars' },
+                { title: 'Ella Greenery Escape', img: '/images/van_tour.jpg', desc: 'Curated 3-day island package' }
+              ].map((item, idx) => (
+                <div key={idx} className="glass rounded-3xl overflow-hidden border border-white/5 group hover:border-green-500/30 transition-all duration-300 flex flex-col hover:translate-y-[-4px] shadow-xl">
+                  <div className="relative h-48 w-full overflow-hidden">
+                    <Image src={item.img} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/95 to-transparent" />
+                  </div>
+                  <div className="p-5 text-left flex flex-col gap-1">
+                    <h3 className="font-display font-bold text-base text-white">{item.title}</h3>
+                    <p className="font-sans text-xs text-gray-400">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 8. Global Statistics Counters Section */}
         <section className="py-24 bg-navy-dark relative border-t border-white/5">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-8 text-center">
@@ -406,12 +534,51 @@ export default function Home() {
 
         <TechCloud />
 
-        <WhyChooseUs />
-
+        {/* 9. Testimonials Section */}
         <Testimonials />
 
-        {/* Global CTA and Direct Contact Section */}
-        <section id="contact" className="py-24 bg-gradient-to-b from-navy-dark to-navy-medium relative overflow-hidden">
+        {/* 10. Instagram Gallery & Partners */}
+        <section className="py-24 bg-navy-dark relative border-t border-white/5 overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 relative z-10">
+            {/* Instagram Section */}
+            <div className="text-center mb-16 flex flex-col gap-3">
+              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">SOCIAL DIARY</span>
+              <h2 className="font-display font-black text-3xl text-white">Instagram Gallery</h2>
+              <p className="text-gray-400 text-xs sm:text-sm font-sans max-w-md mx-auto">Follow our live setups and project deployments on social handles.</p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-6 gap-4 mb-20">
+              {[
+                '/images/wedding_decoration_1782729925686.jpg',
+                '/images/sws_robot_decor_1783346269673.jpg',
+                '/images/birthday_decor.jpg',
+                '/images/church_decor.jpg',
+                '/images/drone_photography.jpg',
+                '/images/portrait_shoot.jpg'
+              ].map((img, idx) => (
+                <div key={idx} className="relative h-32 rounded-xl overflow-hidden group border border-white/10 shadow-sm cursor-pointer">
+                  <Image src={img} alt="Instagram Post" fill className="object-cover group-hover:scale-110 transition-transform duration-500 filter brightness-90 group-hover:brightness-100" />
+                  <div className="absolute inset-0 bg-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                    <span className="text-[10px] font-bold font-sans">VIEW POST</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Corporate Partners Section */}
+            <div className="border-t border-white/5 pt-16 text-center">
+              <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gray-500 font-sans block mb-8">ENDORSED BY LEADING CORPORATES</span>
+              <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-16 opacity-55">
+                {['Royal Palms Resort', 'Hilton Colombo', 'BIA Air Transports', 'Vastra Silks', 'Ceylon Cloud Engine'].map((partner, idx) => (
+                  <span key={idx} className="font-display font-bold text-sm sm:text-lg text-white hover:text-gold-accent cursor-pointer transition-colors tracking-widest">{partner.toUpperCase()}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 11. Global Booking CTA and Direct Contact Section */}
+        <section id="contact" className="py-24 bg-gradient-to-b from-navy-dark to-navy-medium relative overflow-hidden border-t border-white/5">
           <div className="glow-ball glow-ball-purple w-96 h-96 -top-20 right-0 opacity-15" />
 
           <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -575,6 +742,7 @@ export default function Home() {
         </section>
       </main>
 
+      {/* 12. Footer */}
       <Footer />
 
       {/* Global Interactive Search */}
@@ -595,6 +763,32 @@ export default function Home() {
                 <X className="w-6 h-6" />
               </button>
               <BookingSystem initialDivision="sws-events" onSuccess={() => setTimeout(() => setBookingOpen(false), 2000)} />
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Lightbox / Video Player Modal */}
+      <AnimatePresence>
+        {activeVideo && (
+          <div 
+            onClick={() => setActiveVideo(null)}
+            className="fixed inset-0 bg-black/95 z-[99999] flex items-center justify-center p-4 backdrop-blur-md"
+          >
+            <div className="w-full max-w-4xl h-[60vh] relative border border-white/10 rounded-3xl overflow-hidden bg-black" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => setActiveVideo(null)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-white z-10 border border-white/10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <Image src={activeVideo} alt="Play Video" fill className="object-cover opacity-80" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-0">
+                <span className="text-[10px] text-gold-accent font-bold uppercase tracking-wider mb-2">CINEMATIC TEASER REEL</span>
+                <h3 className="font-display font-black text-2xl text-white mb-4">Wedding Teaser Streaming Simulation</h3>
+                <p className="text-gray-400 text-xs font-sans max-w-md">Our high-altitude drone shots and stabilizer cameras are capturing this event. Complete production logs are available in the Studio U1 division page.</p>
+                <div className="w-12 h-1 bg-gold-accent mt-4 animate-pulse" />
+              </div>
             </div>
           </div>
         )}

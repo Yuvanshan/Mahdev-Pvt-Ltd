@@ -3,20 +3,20 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Film, Compass, User, Palette, Sparkles, X, CheckCircle, MessageSquare } from 'lucide-react';
+import { Camera, Film, Compass, User, Palette, Sparkles, X, CheckCircle, MessageSquare, Star, Eye } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingSystem from '@/components/BookingSystem';
 
-const pricingList = [
+const u1PricingList = [
   {
     title: 'Essential Shoot',
     price: 'Rs. 24,999',
     duration: '1 Day Session',
     color: 'border-white/5',
     features: [
-      '1 Lead Photographer',
-      'High-Resolution Edited Digital Copies (150+)',
+      '1 Lead Portrait Photographer',
+      'High-Res Edited Digital Copies (150+)',
       '1 Cinematic Video Teaser (2 mins)',
       'Digital Album Access for 1 Year',
       'UHD Post-Processing Color Grading'
@@ -30,9 +30,9 @@ const pricingList = [
     color: 'border-gold-accent/30 bg-gold-accent/5',
     features: [
       '2 Candid Photographers & 1 Videographer',
-      'High-Altitude Drone Shoots (Weather permitting)',
+      'High-Altitude Drone Shoots (BIA certified)',
       'Full Cinematic Movie (15-20 mins)',
-      'Premium Leatherette Physical Photobook (40 Pages)',
+      'Premium Leatherette physical album (40 Pages)',
       'Pre-Wedding Outdoor Shoot Session (Free)'
     ]
   },
@@ -43,19 +43,36 @@ const pricingList = [
     color: 'border-white/5',
     features: [
       '3 Photographers & 2 Videographers',
-      'Unlimited Drone Aerial Footage & Steadicam Runs',
-      'Full length movie & Instagram Reels package',
+      'Unlimited Drone Aerial Footage & Steadicam',
+      'Full length wedding movie & Instagram Reels',
       '2 Copy Luxury Hardcover Photobooks',
       'Live photo viewing stream on custom cloud portal'
     ]
   }
 ];
 
-const portfolioItems = [
-  { title: 'Eternal Golden Hour Union', category: 'Wedding', img: '/images/wedding_decoration_1782729925686.jpg' },
-  { title: 'Cinematic Movie Teaser Reel', category: 'Cinematography', img: '/images/u1_robot_camera_1783346286743.jpg' },
-  { title: 'Grand Palace Aerial Horizon', category: 'Drone', img: '/images/wedding_decoration_1782729925686.jpg' },
-  { title: 'Enchanted Forest Session', category: 'Outdoor', img: '/images/u1_robot_camera_1783346286743.jpg' }
+const u1Categories = [
+  { id: 'all', title: 'All' },
+  { id: 'wedding', title: 'Wedding Photography' },
+  { id: 'cinematic', title: 'Cinematic Videos' },
+  { id: 'preshoot', title: 'Pre Shoot' },
+  { id: 'drone', title: 'Drone' },
+  { id: 'baby', title: 'Baby Shoot' },
+  { id: 'family', title: 'Family Shoot' },
+  { id: 'corporate', title: 'Corporate Shoot' },
+  { id: 'studio', title: 'Studio' }
+];
+
+const u1PortfolioItems = [
+  { title: 'Eternal Golden Hour Union', category: 'wedding', img: '/images/wedding_decoration_1782729925686.jpg', h: 'h-64' },
+  { title: 'Cinematic Movie Teaser Reel', category: 'cinematic', img: '/images/u1_robot_camera_1783346286743.jpg', h: 'h-96' },
+  { title: 'Grand Palace Aerial Horizon', category: 'drone', img: '/images/drone_photography.jpg', h: 'h-80' },
+  { title: 'Newborn Warm Cradle Milestone', category: 'baby', img: '/images/newborn_shoot.jpg', h: 'h-64' },
+  { title: 'Enchanted Forest Couple Session', category: 'preshoot', img: '/images/portrait_shoot.jpg', h: 'h-96' },
+  { title: 'Executive Headshots Portfolio', category: 'studio', img: '/images/it_robot_developer_1783346302442.jpg', h: 'h-64' },
+  { title: 'Modern Office Corporate Panel', category: 'corporate', img: '/images/saas_dashboard.jpg', h: 'h-80' },
+  { title: 'Vibrant Island Coastal Tour', category: 'family', img: '/images/van_tour.jpg', h: 'h-64' },
+  { title: 'Mughal Theme Traditional Stage', category: 'wedding', img: '/images/sws_robot_decor_1783346269673.jpg', h: 'h-96' }
 ];
 
 export default function U1Studio() {
@@ -63,9 +80,9 @@ export default function U1Studio() {
   const [sliderPos, setSliderPos] = useState(50);
   const [isResizing, setIsResizing] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
-  const [activeTab, setActiveTab] = useState('All');
+  const [activeTab, setActiveTab] = useState('all');
   
-  // Camera shutter shutter animation state
+  // Camera shutter transition states
   const [shutterActive, setShutterActive] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -105,27 +122,27 @@ export default function U1Studio() {
     };
   }, [isResizing]);
 
-  const triggerShutter = (tabName: string) => {
+  const triggerShutter = (tabId: string) => {
     setShutterActive(true);
     setTimeout(() => {
-      setActiveTab(tabName);
+      setActiveTab(tabId);
     }, 350); // change tab midway during shutter close
     setTimeout(() => {
       setShutterActive(false);
     }, 700);
   };
 
-  const filteredPortfolio = activeTab === 'All' 
-    ? portfolioItems 
-    : portfolioItems.filter(item => item.category === activeTab);
+  const filteredPortfolio = activeTab === 'all' 
+    ? u1PortfolioItems 
+    : u1PortfolioItems.filter(item => item.category === activeTab);
 
   return (
-    <>
+    <div className="relative min-h-screen bg-navy-dark text-left">
       <Navbar />
 
-      <main className="min-h-screen bg-navy-dark pt-20 relative overflow-hidden">
+      <main className="min-h-screen pt-20 relative overflow-hidden">
         
-        {/* Cinematic Camera Shutter Blades Overlay Overlay */}
+        {/* Cinematic Camera Shutter Blades Overlay */}
         <AnimatePresence>
           {shutterActive && (
             <motion.div 
@@ -155,7 +172,7 @@ export default function U1Studio() {
         </AnimatePresence>
 
         {/* Banner Section */}
-        <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+        <section className="relative h-[55vh] flex items-center justify-center overflow-hidden">
           <Image 
             src="/images/u1_robot_camera_1783346286743.jpg" 
             alt="U1 Studio Banner" 
@@ -171,90 +188,69 @@ export default function U1Studio() {
             <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-7xl text-white tracking-tight leading-tight">
               Capturing Fleeting <span className="text-gradient-cyan">Raw Emotions</span>
             </h1>
-            <p className="font-sans text-gray-300 text-base sm:text-lg max-w-xl leading-relaxed">
+            <p className="font-sans text-gray-300 text-sm sm:text-base max-w-xl leading-relaxed">
               Award-winning cinematography and portraiture. We freeze raw human bonds and grand architectures with cinematic lens systems.
             </p>
-            <button
-              onClick={() => setShowBooking(true)}
-              className="mt-2 px-8 py-4 rounded-full bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest"
-            >
-              BOOK PHOTO SESSION
-            </button>
           </div>
         </section>
 
-        {/* Capabilities Grid */}
-        <section className="py-24 max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16 flex flex-col gap-3">
-            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
-              OUR CAPABILITIES
-            </span>
-            <h2 className="font-display font-bold text-3xl text-white">
-              Professional Production Services
-            </h2>
+        {/* Categories Tab Filters */}
+        <section className="py-16 max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12 flex flex-col gap-3">
+            <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gold-accent">IMAGERY CATALOG</span>
+            <h2 className="font-display font-black text-3xl text-white">Creative Portfolios</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { icon: Camera, title: 'Wedding & Candid', desc: 'Capturing split-second laughs and tearful glances with prime portrait lenses and natural lighting.' },
-              { icon: Film, title: 'Cinematography', desc: '10-bit log files, advanced gimbal stabilization runs, and custom lut color-grading pipelines.' },
-              { icon: Compass, title: 'Aerial Drone Runs', desc: 'Capturing sweeping lawn layouts, ocean backdrops, and birds-eye landscape videos.' },
-              { icon: User, title: 'Newborn & Family', desc: 'Comfortable temperature-controlled studio spaces to capture secure initial milestones.' },
-              { icon: Palette, title: 'Outdoor Shoots', desc: 'Curating natural forest coordinates and coastal paths for pre-wedding portfolio shoots.' },
-              { icon: Sparkles, title: 'Studio Portfolios', desc: 'Bespoke corporate headshots, glamour photography, and commercial product catalogs.' }
-            ].map((serv, idx) => {
-              const Icon = serv.icon;
-              return (
-                <div 
-                  key={idx}
-                  className="glass p-6 rounded-3xl border border-white/5 hover:border-gold-accent/20 transition-all duration-300 group flex flex-col gap-4 text-left"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 text-cyan-400">
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-white text-lg group-hover:text-gold-soft transition-colors">{serv.title}</h3>
-                    <p className="font-sans text-sm text-gray-400 mt-2 leading-relaxed">{serv.desc}</p>
+          <div className="flex flex-wrap justify-center items-center gap-2.5 mb-12 border-b border-white/5 pb-6">
+            {u1Categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => triggerShutter(cat.id)}
+                className={`px-4.5 py-3 rounded-xl font-sans text-xs font-bold tracking-wider transition-all cursor-pointer ${
+                  activeTab === cat.id 
+                    ? 'bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark border-none' 
+                    : 'glass text-gray-400 hover:text-white border border-white/5'
+                }`}
+              >
+                {cat.title.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          {/* Staggered Masonry Gallery Grid */}
+          <div className="columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6">
+            {filteredPortfolio.map((item, idx) => (
+              <div 
+                key={idx}
+                onClick={() => setSelectedImg(item.img)}
+                className={`relative ${item.h} rounded-3xl overflow-hidden border border-white/5 cursor-pointer group shadow-xl break-inside-avoid`}
+              >
+                <Image 
+                  src={item.img} 
+                  alt={item.title} 
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-75"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/90 via-transparent to-transparent opacity-60" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white border border-white/20">
+                    <Eye className="w-5 h-5" />
                   </div>
                 </div>
-              );
-            })}
+                <div className="absolute bottom-6 left-6 text-left flex flex-col gap-1 z-10">
+                  <span className="text-[9px] text-gold-accent font-bold uppercase tracking-wider">{item.category}</span>
+                  <h4 className="font-display font-bold text-sm text-white">{item.title}</h4>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Floating Photograph Cards with Parallax Parallax Hover Tilts */}
-        <section className="py-24 max-w-7xl mx-auto px-6 border-t border-white/5">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-5 text-left flex flex-col gap-4">
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">PORTFOLIO EXCLUSIVES</span>
-              <h2 className="font-display font-black text-2xl sm:text-3xl text-white">Dynamic Photo Cards</h2>
-              <p className="text-gray-400 text-xs sm:text-sm font-sans leading-relaxed">Hover over the floating photograph stacks on the right to examine 3D responsive rotational coordinates tilts.</p>
-            </div>
-            
-            <div className="lg:col-span-7 flex justify-center items-center gap-6 relative h-[250px]">
-              {[
-                { r: '-8deg', y: '-10px', img: '/images/wedding_decoration_1782729925686.jpg' },
-                { r: '4deg', y: '10px', img: '/images/u1_robot_camera_1783346286743.jpg' },
-                { r: '-2deg', y: '0px', img: '/images/wedding_decoration_1782729925686.jpg' }
-              ].map((card, cIdx) => (
-                <motion.div
-                  key={cIdx}
-                  whileHover={{ rotate: '0deg', scale: 1.06, y: -20, zIndex: 50 }}
-                  style={{ rotate: card.r, y: card.y }}
-                  className="w-36 sm:w-48 h-48 rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl relative cursor-pointer transition-all duration-300"
-                >
-                  <Image src={card.img} alt="Floating Shot" fill className="object-cover" />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Before / After Slider */}
+        {/* Before / After Grading Slider */}
         <section className="py-24 bg-navy-medium/30 relative">
           <div className="max-w-4xl mx-auto px-6 text-center flex flex-col gap-4">
-            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">IMAGERY POST-PROCESSING</span>
-            <h2 className="font-display font-black text-2xl sm:text-3xl text-white">Before and After Editor Slider</h2>
+            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">POST-PROCESSING</span>
+            <h2 className="font-display font-black text-2xl sm:text-3xl text-white">Before and After Color Grading</h2>
             <p className="text-gray-400 text-xs sm:text-sm font-sans mb-8">Drag the divider bar to witness our professional HDR color grading and portrait correction workflow.</p>
 
             <div 
@@ -270,7 +266,7 @@ export default function U1Studio() {
                   fill
                   className="object-cover pointer-events-none"
                 />
-                <span className="absolute bottom-4 right-6 bg-black/60 px-3 py-1 rounded text-[10px] text-white font-bold uppercase tracking-wider">AFTER GRID COLORING</span>
+                <span className="absolute bottom-4 right-6 bg-black/60 px-3 py-1 rounded text-[10px] text-white font-bold uppercase tracking-wider">AFTER HDR PIPELINE</span>
               </div>
 
               <div 
@@ -300,66 +296,16 @@ export default function U1Studio() {
           </div>
         </section>
 
-        {/* Shutter Triggered Album Preview Grid */}
-        <section className="py-24 max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16 flex flex-col gap-3">
-            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">PORTFOLIO MATRIX</span>
-            <h2 className="font-display font-black text-3xl text-white">Cinematic Shoot Catalog</h2>
-          </div>
-
-          <div className="flex justify-center gap-3 mb-10">
-            {['All', 'Wedding', 'Cinematography', 'Drone'].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => triggerShutter(cat)}
-                className={`px-4 py-2 rounded-lg font-sans text-xs font-semibold tracking-wider transition-all ${
-                  activeTab === cat 
-                    ? 'bg-gold-accent text-navy-dark' 
-                    : 'glass text-gray-400 hover:text-white'
-                }`}
-              >
-                {cat.toUpperCase()}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {filteredPortfolio.map((item, idx) => (
-              <div 
-                key={idx}
-                onClick={() => setSelectedImg(item.img)}
-                className="relative h-80 rounded-3xl overflow-hidden border border-white/5 cursor-pointer group shadow-xl"
-              >
-                <Image 
-                  src={item.img} 
-                  alt={item.title} 
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-75"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/90 via-transparent to-transparent flex items-end p-6" />
-                <div className="absolute bottom-6 left-6 flex flex-col gap-1 text-left">
-                  <span className="text-[10px] text-gold-accent font-bold uppercase tracking-wider">{item.category}</span>
-                  <h4 className="font-display font-bold text-lg text-white">{item.title}</h4>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Pricing */}
-        <section className="py-24 bg-navy-medium/30 relative overflow-hidden">
+        {/* Pricing Packages */}
+        <section className="py-24 relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="text-center mb-16 flex flex-col gap-3">
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
-                TRANSPARENT VALUE
-              </span>
-              <h2 className="font-display font-bold text-3xl text-white">
-                Cinematic Production Packages
-              </h2>
+              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">TRANSPARENT VALUE</span>
+              <h2 className="font-display font-black text-3xl text-white">Cinematic Production Packages</h2>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {pricingList.map((tier, idx) => (
+              {u1PricingList.map((tier, idx) => (
                 <div 
                   key={idx}
                   className={`glass p-8 rounded-3xl border ${tier.color} flex flex-col relative hover:translate-y-[-4px] transition-transform duration-300 text-left`}
@@ -386,7 +332,7 @@ export default function U1Studio() {
 
                   <button 
                     onClick={() => setShowBooking(true)}
-                    className="w-full py-3 rounded-xl bg-white/5 border border-white/10 hover:border-gold-accent/50 text-center text-white font-sans text-xs font-semibold hover:bg-gold-accent hover:text-navy-dark transition-all tracking-wider"
+                    className="w-full py-3.5 rounded-xl bg-white/5 border border-white/10 hover:border-gold-accent/50 text-center text-white font-sans text-xs font-semibold hover:bg-gold-accent hover:text-navy-dark transition-all tracking-wider cursor-pointer"
                   >
                     BOOK SESSION
                   </button>
@@ -404,7 +350,7 @@ export default function U1Studio() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedImg(null)}
-              className="fixed inset-0 bg-black/95 z-[999] flex items-center justify-center p-4 backdrop-blur-md"
+              className="fixed inset-0 bg-black/95 z-[9999] flex items-center justify-center p-4 backdrop-blur-md"
             >
               <button className="absolute top-6 right-6 p-2 rounded-full bg-white/5 text-white">
                 <X className="w-6 h-6" />
@@ -452,6 +398,6 @@ export default function U1Studio() {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

@@ -202,6 +202,132 @@ body {
   animation-play-state: paused;
 }
 
+/* Premium Mesh Gradient Animation */
+@keyframes mesh-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-mesh {
+  background: linear-gradient(135deg, #050b16 0%, #0c152b 25%, #1e40af 50%, #06b6d4 75%, #ffffff 100%);
+  background-size: 400% 400%;
+  animation: mesh-flow 25s ease infinite;
+}
+
+/* Trident Energy Glow keyframes */
+@keyframes trident-pulse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.4)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+  }
+  50% {
+    transform: translateY(-10px) rotate(3deg);
+    filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.6)) drop-shadow(0 0 5px rgba(255, 255, 255, 0.9));
+  }
+}
+
+.animate-trident {
+  animation: trident-pulse 6s ease-in-out infinite;
+}
+
+/* Wave Separator Animation */
+.wave-container {
+  position: absolute;
+  width: 100%;
+  height: 80px;
+  top: -80px;
+  left: 0;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.wave-container svg {
+  position: relative;
+  display: block;
+  width: calc(150% + 1.3px);
+  height: 80px;
+  transform: rotate(180deg);
+}
+
+.wave-container .shape-fill {
+  fill: #050b16;
+}
+
+@keyframes wave-move {
+  0% { transform: translateX(0) translateZ(0) scaleY(1); }
+  50% { transform: translateX(-25%) translateZ(0) scaleY(0.85); }
+  100% { transform: translateX(-50%) translateZ(0) scaleY(1); }
+}
+
+.wave-animation {
+  animation: wave-move 15s linear infinite;
+  transform-origin: center bottom;
+}
+
+/* Card Glow border & hover elevations */
+.card-glow {
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.card-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.3) 0%, rgba(168, 85, 247, 0.3) 50%, transparent 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.card-glow:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 20px 0 rgba(6, 182, 212, 0.15);
+}
+
+.card-glow:hover::before {
+  opacity: 1;
+}
+
+/* Image zoom styling */
+.image-zoom-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-zoom-container img {
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.image-zoom-container:hover img {
+  transform: scale(1.08);
+}
+
+/* Cursor Glow effect tracking */
+.cursor-glow {
+  background: radial-gradient(400px circle at var(--x, 0) var(--y, 0), rgba(6, 182, 212, 0.08), transparent 80%);
+}
+
+/* Before & After Slider styles */
+.slider-container {
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
 /* Fluid Typography for responsive layouts */
 h1.hero-fluid-title {
   font-size: clamp(2.0rem, 5.5vw, 4.5rem);
@@ -223,3 +349,4 @@ a:focus-visible, button:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+

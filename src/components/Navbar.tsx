@@ -19,7 +19,9 @@ import {
   Globe,
   Compass,
   Search,
-  BookOpen
+  BookOpen,
+  Languages,
+  Menu
 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -33,10 +35,6 @@ const defaultDivisions = [
   { name: 'Mahdev Travels', href: '/divisions/travels', icon: Compass, color: 'text-green-400' },
 ];
 
-const iconMap: Record<string, any> = {
-  Sparkles, Camera, Cpu, Globe, Compass
-};
-
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -44,10 +42,20 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [divisions, setDivisions] = useState<any[]>(defaultDivisions);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  
+  // Theme and Language simulation
+  const [language, setLanguage] = useState<'EN' | 'SI' | 'TA'>('EN');
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
+      
+      // Calculate scroll progress percentage
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalScroll > 0) {
+        setScrollProgress((window.scrollY / totalScroll) * 100);
+      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -77,6 +85,9 @@ export default function Navbar() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '/') {
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+          return;
+        }
         e.preventDefault();
         setSearchOpen(true);
       }
@@ -94,60 +105,87 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
   const isDivisionActive = () => pathname.startsWith('/divisions');
 
+  const languagesList = [
+    { code: 'EN', name: 'English' },
+    { code: 'SI', name: 'සිංහල' },
+    { code: 'TA', name: 'தமிழ்' }
+  ];
+
   return (
     <>
-      {/* Top Header - Desktop & Mobile Logo Bar */}
-      <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        scrolled ? 'py-3 bg-navy-dark/80 backdrop-blur-md border-b border-white/5' : 'py-5 bg-transparent'
+      {/* Scroll Progress Bar */}
+      <div className="scroll-progress-container">
+        <div 
+          className="scroll-progress-bar" 
+          style={{ width: `${scrollProgress}%` }} 
+        />
+      </div>
+
+      {/* Top Header */}
+      <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+        scrolled 
+          ? 'py-4 bg-[#050816]/75 backdrop-blur-[20px] border-b border-white/8 shadow-[0_20px_80px_rgba(0,0,0,0.4)]' 
+          : 'py-6 bg-transparent'
       }`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-gold-accent/20 group-hover:border-gold-accent/50 transition-all duration-300">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3.5 group select-none">
+            <div className="relative w-11 h-11 rounded-xl overflow-hidden border border-white/10 group-hover:border-gold-accent/50 group-hover:scale-105 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
               <Image 
                 src="/images/logo.png" 
                 alt="Mahdev Logo" 
                 fill 
-                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                className="object-cover group-hover:rotate-12 transition-transform duration-700"
               />
             </div>
-            <div>
-              <span className="font-display font-bold text-lg tracking-wider text-white group-hover:text-gold-soft transition-colors">MAHDEV</span>
-              <span className="block text-[9px] tracking-[0.2em] text-gold-accent font-semibold uppercase -mt-1">PVT LTD</span>
+            <div className="text-left">
+              <span className="font-display font-black text-xl tracking-wider text-white group-hover:text-gold-soft transition-colors duration-300">MAHDEV</span>
+              <span className="block text-[9px] tracking-[0.25em] text-gold-accent font-bold uppercase -mt-0.5">PVT LTD</span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link 
-              href="/" 
-              className={`font-sans text-sm font-medium tracking-wide transition-colors ${
-                isActive('/') ? 'text-gold-soft' : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Home
-            </Link>
+          <nav className="hidden lg:flex items-center gap-8 font-sans">
+            {[
+              { label: 'Home', href: '/' },
+            ].map((link) => (
+              <Link 
+                key={link.label}
+                href={link.href} 
+                className={`relative group py-2 text-[13px] font-semibold tracking-wider uppercase transition-colors duration-300 ${
+                  isActive(link.href) ? 'text-gold-soft' : 'text-white/70 hover:text-white'
+                }`}
+              >
+                <span>{link.label}</span>
+                <span className={`absolute bottom-0 left-0 h-[2px] bg-gold-accent transition-all duration-300 flex items-center overflow-hidden ${
+                  isActive(link.href) ? 'w-full' : 'w-0 group-hover:w-full'
+                }`}>
+                  <span className="ml-auto text-[5px] text-gold-accent translate-y-[-1px] font-display">►</span>
+                </span>
+              </Link>
+            ))}
 
             {/* Divisions Dropdown */}
-            <div className="relative">
+            <div className="relative" onMouseLeave={() => setDropdownOpen(false)}>
               <button 
-                onClick={() => setDropdownOpen(!dropdownOpen)}
                 onMouseEnter={() => setDropdownOpen(true)}
-                className={`flex items-center gap-1.5 font-sans text-sm font-medium tracking-wide transition-colors ${
-                  isDivisionActive() ? 'text-gold-soft' : 'text-gray-300 hover:text-white'
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className={`flex items-center gap-1.5 py-2 text-[13px] font-semibold tracking-wider uppercase transition-colors duration-300 ${
+                  isDivisionActive() ? 'text-gold-soft' : 'text-white/70 hover:text-white'
                 }`}
               >
                 Divisions
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <AnimatePresence>
                 {dropdownOpen && (
                   <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    onMouseLeave={() => setDropdownOpen(false)}
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 rounded-2xl glass-premium p-2 border border-gold-accent/20 shadow-2xl"
+                    initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 rounded-3xl glass-premium p-3 border border-white/8 shadow-[0_30px_100px_rgba(0,0,0,0.5)]"
                   >
                     <div className="grid gap-1">
                       {divisions.map((div) => {
@@ -156,14 +194,16 @@ export default function Navbar() {
                           <Link
                             key={div.name}
                             href={div.href}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                            className={`flex items-center gap-3.5 px-4.5 py-3.5 rounded-2xl transition-all duration-300 border border-transparent ${
                               isActive(div.href) 
-                                ? 'bg-gold-accent/10 border border-gold-accent/20 text-gold-soft' 
-                                : 'hover:bg-white/5 text-gray-300 hover:text-white'
+                                ? 'bg-gold-accent/10 border-gold-accent/25 text-gold-soft shadow-[0_0_20px_rgba(212,175,55,0.05)]' 
+                                : 'hover:bg-white/5 text-white/80 hover:text-white'
                             }`}
                           >
-                            <Icon className={`w-5 h-5 ${div.color}`} />
-                            <span className="font-sans text-sm font-medium">{div.name}</span>
+                            <div className="p-2.5 rounded-xl bg-white/5 group-hover:bg-white/10 transition-colors">
+                              <Icon className={`w-5 h-5 ${div.color}`} />
+                            </div>
+                            <span className="font-display text-[14px] font-bold tracking-wide">{div.name}</span>
                           </Link>
                         );
                       })}
@@ -173,179 +213,195 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
 
-            <Link 
-              href="/portfolio" 
-              className={`font-sans text-sm font-medium tracking-wide transition-colors ${
-                isActive('/portfolio') ? 'text-gold-soft' : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Portfolio
-            </Link>
-
-            <Link 
-              href="/blog" 
-              className={`font-sans text-sm font-medium tracking-wide transition-colors ${
-                isActive('/blog') ? 'text-gold-soft' : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Blog
-            </Link>
-
-            <Link 
-              href="/careers" 
-              className={`font-sans text-sm font-medium tracking-wide transition-colors ${
-                isActive('/careers') ? 'text-gold-soft' : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Careers
-            </Link>
-
-            <Link 
-              href="/contact" 
-              className={`font-sans text-sm font-medium tracking-wide transition-colors ${
-                isActive('/contact') ? 'text-gold-soft' : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              Contact
-            </Link>
+            {[
+              { label: 'Portfolio', href: '/portfolio' },
+              { label: 'Blog', href: '/blog' },
+              { label: 'Careers', href: '/careers' },
+              { label: 'Contact', href: '/contact' },
+            ].map((link) => (
+              <Link 
+                key={link.label}
+                href={link.href} 
+                className={`relative group py-2 text-[13px] font-semibold tracking-wider uppercase transition-colors duration-300 ${
+                  isActive(link.href) ? 'text-gold-soft' : 'text-white/70 hover:text-white'
+                }`}
+              >
+                <span>{link.label}</span>
+                <span className={`absolute bottom-0 left-0 h-[2px] bg-gold-accent transition-all duration-300 flex items-center overflow-hidden ${
+                  isActive(link.href) ? 'w-full' : 'w-0 group-hover:w-full'
+                }`}>
+                  <span className="ml-auto text-[5px] text-gold-accent translate-y-[-1px] font-display">►</span>
+                </span>
+              </Link>
+            ))}
           </nav>
 
-          {/* Desktop Search & Admin triggers */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Right Side Options (Search, Language, Action Button) */}
+          <div className="hidden lg:flex items-center gap-5">
+            {/* Search Trigger */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-gold-accent/40 text-gray-400 hover:text-gold-soft transition-all"
+              className="p-3.5 rounded-2xl bg-white/3 border border-white/8 hover:border-gold-accent/40 text-white/70 hover:text-gold-soft transition-all duration-300 shadow-sm"
               title="Search Directory (Press '/')"
             >
               <Search className="w-4 h-4" />
             </button>
+
+            {/* Language Switcher */}
+            <div className="relative group/lang py-2">
+              <button 
+                className="flex items-center gap-1.5 p-3 rounded-2xl border border-white/8 hover:border-gold-accent/40 text-white/70 hover:text-gold-soft transition-all duration-300 text-xs font-bold"
+              >
+                <Languages className="w-4 h-4" />
+                <span>{language}</span>
+              </button>
+              
+              <div className="absolute top-full right-0 mt-3 w-32 rounded-2xl glass border border-white/8 shadow-xl opacity-0 translate-y-2 pointer-events-none group-hover/lang:opacity-100 group-hover/lang:translate-y-0 group-hover/lang:pointer-events-auto transition-all duration-300 p-1.5">
+                {languagesList.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => setLanguage(lang.code as any)}
+                    className={`w-full text-left px-3.5 py-2 text-xs rounded-xl transition-all duration-300 ${
+                      language === lang.code 
+                        ? 'bg-gold-accent/15 text-gold-soft font-bold' 
+                        : 'text-white/70 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {lang.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Get a Quote Trigger Button */}
+            <Link 
+              href="/contact"
+              className="px-6 py-3 text-[11px] tracking-widest font-black uppercase luxury-btn luxury-btn-gold"
+            >
+              Get a Quote
+            </Link>
           </div>
 
-          {/* Mobile WhatsApp Button */}
-          <div className="md:hidden flex items-center gap-4">
+          {/* Mobile Actions Header */}
+          <div className="lg:hidden flex items-center gap-3">
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 rounded-full glass border border-white/10 text-white"
+              className="p-2.5 rounded-xl glass border border-white/8 text-white/80"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4" />
             </button>
-            <Link
-              href="https://wa.me/94768988970?text=Hi%20Mahdev%20Pvt%20Ltd"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-full glass border border-green-500/20 text-green-400"
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2.5 rounded-xl glass border border-white/8 text-white/80"
             >
-              <MessageSquare className="w-5 h-5" />
-            </Link>
+              <Menu className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Floating Bottom Menu for Mobile Version */}
-      <div className="md:hidden fixed bottom-6 left-0 w-full z-50 px-4 pointer-events-none">
-        <div className="max-w-md mx-auto rounded-full glass-premium p-2 border border-gold-accent/15 shadow-2xl flex items-center justify-around pointer-events-auto">
-          <Link href="/" className="flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-full transition-all">
-            <Home className={`w-5 h-5 ${isActive('/') ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
-            <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/') ? 'text-gold-soft' : 'text-gray-400'}`}>Home</span>
-          </Link>
-
-          {/* Divisions trigger sheet */}
-          <button 
-            onClick={() => setMobileMenuOpen(true)}
-            className="flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-full transition-all cursor-pointer"
-          >
-            <Briefcase className={`w-5 h-5 ${isDivisionActive() ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
-            <span className={`text-[9px] font-medium mt-1 tracking-wide ${isDivisionActive() ? 'text-gold-soft' : 'text-gray-400'}`}>Divisions</span>
-          </button>
-
-          <Link href="/portfolio" className="flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-full transition-all">
-            <ImageIcon className={`w-5 h-5 ${isActive('/portfolio') ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
-            <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/portfolio') ? 'text-gold-soft' : 'text-gray-400'}`}>Gallery</span>
-          </Link>
-
-          <Link href="/blog" className="flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-full transition-all">
-            <BookOpen className={`w-5 h-5 ${isActive('/blog') ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
-            <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/blog') ? 'text-gold-soft' : 'text-gray-400'}`}>Blog</span>
-          </Link>
-
-          <Link href="/contact" className="flex flex-col items-center justify-center min-w-[52px] min-h-[48px] rounded-full transition-all">
-            <Mail className={`w-5 h-5 ${isActive('/contact') ? 'text-gold-soft scale-110' : 'text-gray-400'}`} />
-            <span className={`text-[9px] font-medium mt-1 tracking-wide ${isActive('/contact') ? 'text-gold-soft' : 'text-gray-400'}`}>Contact</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Mobile Divisions Drawer / Bottom Sheet */}
+      {/* Mobile Sidebar Navigation Drawer */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
-            {/* Backdrop */}
+            {/* Backdrop overlay */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/80 z-50 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 bg-[#050816]/90 z-[999] backdrop-blur-md lg:hidden"
             />
-            {/* Sheet */}
+            {/* Drawer Panel */}
             <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 left-0 w-full rounded-t-3xl glass-premium border-t border-gold-accent/20 z-50 p-6 md:hidden max-h-[85vh] overflow-y-auto"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="fixed top-0 right-0 h-full w-80 max-w-full glass-premium border-l border-white/8 z-[1000] p-6 lg:hidden flex flex-col"
             >
-              <div className="flex items-center justify-between mb-6 pb-2 border-b border-white/5 text-left">
-                <div>
-                  <h3 className="font-display font-bold text-lg text-white">Mahdev Divisions</h3>
-                  <p className="text-xs text-gray-400">Select an elite business suite</p>
+              <div className="flex items-center justify-between mb-8 pb-3 border-b border-white/5 text-left">
+                <div className="flex items-center gap-2.5">
+                  <Image src="/images/logo.png" alt="Logo" width={32} height={32} className="rounded-lg" />
+                  <span className="font-display font-black text-base text-white tracking-wider">MAHDEV</span>
                 </div>
                 <button 
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-full hover:bg-white/5 text-gray-400 hover:text-white"
+                  className="p-2 rounded-full hover:bg-white/5 text-white/70 hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="grid gap-3 mb-8">
-                {divisions.map((div) => {
-                  const Icon = div.icon;
-                  return (
-                    <Link
-                      key={div.name}
-                      href={div.href}
-                      className={`flex items-center justify-between p-4 rounded-2xl transition-all duration-300 ${
-                        isActive(div.href)
-                          ? 'bg-gold-accent/10 border border-gold-accent/20 text-gold-soft'
-                          : 'bg-white/5 border border-white/5 text-gray-300 hover:text-white'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4 text-left">
-                        <div className="p-2 rounded-xl bg-white/5">
-                          <Icon className={`w-6 h-6 ${div.color}`} />
+              {/* Navigation Links */}
+              <div className="flex-1 flex flex-col gap-4 text-left font-sans">
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">Navigation</span>
+                
+                {[
+                  { label: 'Home', href: '/' },
+                  { label: 'Portfolio', href: '/portfolio' },
+                  { label: 'Blog', href: '/blog' },
+                  { label: 'Careers', href: '/careers' },
+                  { label: 'Contact', href: '/contact' }
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`py-3.5 px-4 rounded-2xl font-bold text-sm tracking-wide transition-all border border-transparent ${
+                      isActive(item.href)
+                        ? 'bg-gold-accent/10 border-gold-accent/25 text-gold-soft'
+                        : 'bg-white/2 border border-white/3 text-white/80 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mt-4 mb-1">Conglomerate Divisions</span>
+                <div className="grid gap-2">
+                  {divisions.map((div) => {
+                    const Icon = div.icon;
+                    return (
+                      <Link
+                        key={div.name}
+                        href={div.href}
+                        className="flex items-center justify-between p-3.5 rounded-2xl bg-white/2 border border-white/3 hover:border-gold-accent/25 text-white/80 hover:text-white transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className={`w-5 h-5 ${div.color}`} />
+                          <span className="font-display text-xs font-bold tracking-wide">{div.name}</span>
                         </div>
-                        <span className="font-sans text-sm font-semibold tracking-wide">{div.name}</span>
-                      </div>
-                      <span className="text-[10px] uppercase font-bold text-gold-accent tracking-wider">Explore</span>
-                    </Link>
-                  );
-                })}
+                        <span className="text-[8px] uppercase font-bold text-gold-accent tracking-wider group-hover:translate-x-1 transition-transform">→</span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              {/* Drawer Footer controls */}
+              <div className="border-t border-white/5 pt-6 flex flex-col gap-4">
+                {/* Language switcher inline */}
+                <div className="flex gap-2 justify-center">
+                  {languagesList.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => setLanguage(lang.code as any)}
+                      className={`flex-1 py-2 text-[10px] font-bold rounded-xl border transition-all ${
+                        language === lang.code
+                          ? 'bg-gold-accent/15 border-gold-accent/40 text-gold-soft'
+                          : 'border-white/5 bg-white/2 text-white/60'
+                      }`}
+                    >
+                      {lang.name}
+                    </button>
+                  ))}
+                </div>
+                
                 <Link
                   href="/contact"
-                  className="flex-1 py-3 text-center rounded-xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-sm font-bold tracking-wide"
+                  className="py-4 text-center rounded-2xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-black tracking-widest uppercase hover:brightness-110 shadow-lg shadow-gold-accent/15 transition-all"
                 >
-                  GET IN TOUCH
-                </Link>
-                <Link
-                  href="https://wa.me/94768988970?text=Hi%20Mahdev"
-                  target="_blank"
-                  className="px-4 py-3 rounded-xl border border-green-500/20 text-green-400 flex items-center justify-center"
-                >
-                  <MessageSquare className="w-5 h-5" />
+                  GET A QUOTE
                 </Link>
               </div>
             </motion.div>

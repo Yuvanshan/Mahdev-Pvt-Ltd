@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useAnimation, useInView } from 'framer-motion';
-import { ArrowRight, Sparkles, Play, Calendar, MapPin, PlayCircle } from 'lucide-react';
+import { ArrowRight, Sparkles, Play, Calendar, MapPin, PlayCircle, Volume2, VolumeX } from 'lucide-react';
 import * as THREE from 'three';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -19,6 +19,9 @@ export default function InteractiveHero() {
   
   // Parallax tracking
   const [parallaxY, setParallaxY] = useState(0);
+
+  // Mute state for hero media preview
+  const [isMuted, setIsMuted] = useState(true);
 
   // Firestore dynamic hero state
   const [heroData, setHeroData] = useState({
@@ -360,7 +363,7 @@ export default function InteractiveHero() {
                     const ytId = getYouTubeId(heroData.videoUrl);
                     return (
                       <iframe
-                        src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                        src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
                         className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700 pointer-events-none"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -378,20 +381,44 @@ export default function InteractiveHero() {
                   } else {
                     return (
                       <video 
-                        key={heroData.videoUrl}
+                        key={`${heroData.videoUrl}_${isMuted}`}
                         src={heroData.videoUrl}
                         autoPlay
                         loop
-                        muted
+                        muted={isMuted}
                         playsInline
                         className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700"
                       />
                     );
                   }
                 })()}
+
+                {/* Sound control button overlay */}
+                {(() => {
+                  const mediaType = getMediaType(heroData.videoUrl);
+                  if (mediaType === 'youtube' || mediaType === 'video') {
+                    return (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsMuted(!isMuted);
+                        }}
+                        className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-[#050816]/75 hover:bg-[#050816]/95 border border-white/10 hover:border-gold-accent/40 text-white transition-all duration-300 hover:scale-105 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.5)] flex items-center justify-center"
+                        title={isMuted ? "Enable Sound" : "Mute Sound"}
+                      >
+                        {isMuted ? (
+                          <VolumeX className="w-3.5 h-3.5 text-gray-400" />
+                        ) : (
+                          <Volume2 className="w-3.5 h-3.5 text-gold-accent animate-pulse" />
+                        )}
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
                 
                 {/* Simulated playback controls */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050816]/75 via-transparent to-transparent flex items-end p-4">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050816]/75 via-transparent to-transparent flex items-end p-4 pointer-events-none">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-full bg-gold-accent text-navy-dark shadow-md animate-pulse">
                       <Play className="w-3.5 h-3.5 fill-current translate-x-0.5" />

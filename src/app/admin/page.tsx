@@ -22,6 +22,7 @@ import confetti from 'canvas-confetti';
 export default function AdminPortal() {
   const [activeTab, setActiveTab] = useState<'seeder' | 'bookings' | 'divisions' | 'leads' | 'cms'>('bookings');
   const [cmsSubTab, setCmsSubTab] = useState<'homepage' | 'stats' | 'seo' | 'announcements' | 'faqs' | 'testimonials' | 'gallery' | 'posters'>('homepage');
+  const [saving, setSaving] = useState(false);
   
   // Authentication states
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -317,6 +318,7 @@ export default function AdminPortal() {
 
   const handleSaveHomepage = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       await setDoc(doc(db, 'settings', 'homepage'), {
         ...homepageData,
@@ -326,11 +328,14 @@ export default function AdminPortal() {
       alert("Homepage Hero settings successfully updated on Firestore!");
     } catch (err) {
       alertWriteError("Saving Homepage Settings", err);
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleSavePosters = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       await setDoc(doc(db, 'settings', 'division_posters'), {
         ...posters,
@@ -340,12 +345,15 @@ export default function AdminPortal() {
       alert("Division Cover Posters successfully updated on Firestore!");
     } catch (err) {
       alertWriteError("Saving Division Posters", err);
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleSeed = async (force = false) => {
     setSeeding(true);
     setSeedSuccess(false);
+    setSaving(true);
     try {
       const result = await seedDatabase(force);
       setSeedSuccess(true);
@@ -359,41 +367,52 @@ export default function AdminPortal() {
       alertWriteError("Seeding Database Initial Data", err);
     } finally {
       setSeeding(false);
+      setSaving(false);
     }
   };
 
   const handleUpdateStatus = async (id: string, status: string) => {
+    setSaving(true);
     try {
       await updateDoc(doc(db, 'bookings', id), { status });
       confetti({ particleCount: 30, spread: 30 });
     } catch (err) {
       alertWriteError("Updating Booking Status", err);
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDeleteBooking = async (id: string) => {
     if (!confirm("Are you sure you want to delete this booking?")) return;
+    setSaving(true);
     try {
       await deleteDoc(doc(db, 'bookings', id));
       confetti({ particleCount: 15 });
     } catch (err) {
       alertWriteError("Deleting Booking", err);
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDeleteLead = async (id: string) => {
     if (!confirm("Are you sure you want to delete this lead?")) return;
+    setSaving(true);
     try {
       await deleteDoc(doc(db, 'leads', id));
       confetti({ particleCount: 15 });
     } catch (err) {
       alertWriteError("Deleting Lead Record", err);
+    } finally {
+      setSaving(false);
     }
   };
 
   // Submit Stats Updates
   const handleSaveStats = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       await setDoc(doc(db, 'stats', 'mahdev_stats'), {
         ...statsData,
@@ -403,12 +422,15 @@ export default function AdminPortal() {
       alert("Achievements & Statistics saved back to Firestore! Homepage counters will update in real-time.");
     } catch (err) {
       alertWriteError("Saving Statistics Counters", err);
+    } finally {
+      setSaving(false);
     }
   };
 
   // Submit SEO Meta Updates
   const handleSaveSeo = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       await setDoc(doc(db, 'seo', seoData.pageKey), {
         title: seoData.title,
@@ -420,12 +442,15 @@ export default function AdminPortal() {
       alert(`SEO Meta config for page "${seoData.pageKey.toUpperCase()}" saved successfully.`);
     } catch (err) {
       alertWriteError("Saving SEO Tags", err);
+    } finally {
+      setSaving(false);
     }
   };
 
   // Submit Color/Announcements Updates
   const handleSavePromo = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       await setDoc(doc(db, 'settings', 'promotions'), {
         announcement: promoData.announcement,
@@ -438,6 +463,8 @@ export default function AdminPortal() {
       alert("Announcements & Theme Color Settings saved successfully.");
     } catch (err) {
       alertWriteError("Saving Promotions & Theme Colors", err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -445,6 +472,7 @@ export default function AdminPortal() {
   const handleAddFaq = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newFaq.q || !newFaq.a) return;
+    setSaving(true);
     try {
       const updatedList = [...faqList, newFaq];
       await setDoc(doc(db, 'settings', 'faqs'), {
@@ -456,11 +484,14 @@ export default function AdminPortal() {
       alert("FAQ item added successfully!");
     } catch (err) {
       alertWriteError("Adding FAQ Item", err);
+    } finally {
+      setSaving(false);
     }
   };
 
   // Delete Dynamic FAQ
   const handleDeleteFaq = async (idx: number) => {
+    setSaving(true);
     try {
       const updatedList = faqList.filter((_, i) => i !== idx);
       await setDoc(doc(db, 'settings', 'faqs'), {
@@ -470,6 +501,8 @@ export default function AdminPortal() {
       confetti({ particleCount: 15 });
     } catch (err) {
       alertWriteError("Deleting FAQ Item", err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -477,6 +510,7 @@ export default function AdminPortal() {
   const handleAddTestimonial = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTestimonial.name || !newTestimonial.comment) return;
+    setSaving(true);
     try {
       const testId = `test-${Date.now()}`;
       await setDoc(doc(db, 'testimonials', testId), {
@@ -492,17 +526,22 @@ export default function AdminPortal() {
       alert("Testimonial review successfully added to Firestore!");
     } catch (err) {
       alertWriteError("Adding Testimonial Review", err);
+    } finally {
+      setSaving(false);
     }
   };
 
   // Delete Testimonial
   const handleDeleteTestimonial = async (id: string) => {
     if (!confirm("Are you sure you want to delete this testimonial review?")) return;
+    setSaving(true);
     try {
       await deleteDoc(doc(db, 'testimonials', id));
       confetti({ particleCount: 15 });
     } catch (err) {
       alertWriteError("Deleting Testimonial Review", err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -510,6 +549,7 @@ export default function AdminPortal() {
   const handleAddGalleryItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGalleryItem.title || !newGalleryItem.img) return;
+    setSaving(true);
     try {
       const galId = `gal-${Date.now()}`;
       await setDoc(doc(db, 'gallery', galId), {
@@ -523,17 +563,22 @@ export default function AdminPortal() {
       alert("Gallery image successfully added to Firestore!");
     } catch (err) {
       alertWriteError("Adding Gallery Item", err);
+    } finally {
+      setSaving(false);
     }
   };
 
   // Delete Gallery Item
   const handleDeleteGalleryItem = async (id: string) => {
     if (!confirm("Are you sure you want to delete this gallery item?")) return;
+    setSaving(true);
     try {
       await deleteDoc(doc(db, 'gallery', id));
       confetti({ particleCount: 15 });
     } catch (err) {
       alertWriteError("Deleting Gallery Item", err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -544,7 +589,7 @@ export default function AdminPortal() {
       alert("Please fill out Division ID, Name, and URL Slug.");
       return;
     }
-
+    setSaving(true);
     try {
       const services = [];
       if (divForm.serviceTitle1) services.push({ title: divForm.serviceTitle1, description: divForm.serviceDesc1, iconName: 'Sparkles' });
@@ -577,6 +622,8 @@ export default function AdminPortal() {
       });
     } catch (err) {
       alertWriteError("Creating Dynamic Division", err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -1786,6 +1833,14 @@ export default function AdminPortal() {
       </main>
 
       <Footer />
+
+      {/* Fullscreen premium saving indicator overlay */}
+      {saving && (
+        <div className="fixed inset-0 bg-[#050816]/80 backdrop-blur-md z-[99999] flex flex-col items-center justify-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-gold-accent/20 border-t-gold-accent animate-spin" />
+          <p className="font-display text-sm font-bold text-white tracking-widest uppercase animate-pulse">Syncing modifications with Firestore...</p>
+        </div>
+      )}
     </>
   );
 }

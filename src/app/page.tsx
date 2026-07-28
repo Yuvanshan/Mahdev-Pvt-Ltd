@@ -508,11 +508,9 @@ export default function Home() {
                     onClick={() => setSelectedGalleryImage(item.img)}
                     className="pinterest-item relative rounded-2xl overflow-hidden border border-white/5 cursor-pointer group shadow-lg"
                   >
-                    <Image 
+                    <img 
                       src={item.img} 
                       alt={item.title} 
-                      width={400}
-                      height={300}
                       className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-100"
                     />
                     <div className="absolute inset-0 bg-[#050816]/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5 text-left">

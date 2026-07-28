@@ -112,11 +112,10 @@ export default function Testimonials() {
 
               <div className="flex items-center gap-4 mt-2 border-t border-white/5 pt-4">
                 <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gold-accent/20 shrink-0">
-                  <Image 
+                  <img 
                     src={currentTestimonial.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fm=webp&fit=crop&q=60&w=120'} 
                     alt={currentTestimonial.name}
-                    fill
-                    className="object-cover"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <div>

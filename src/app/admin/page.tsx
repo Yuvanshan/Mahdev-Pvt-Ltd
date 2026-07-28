@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { 
   collection, getDocs, doc, setDoc, deleteDoc, updateDoc, 
   onSnapshot, serverTimestamp 
 } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { seedDatabase } from '@/lib/seeder';
 import { 
   Database, FolderPlus, Calendar, Users, Check, Trash2, ArrowUpRight, 
@@ -27,6 +28,44 @@ export default function AdminPortal() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+
+  // Image Upload States
+  const [imageUploading, setImageUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string>('');
+
+  // Helper to handle dynamic image upload (Firebase Storage with Base64 fallback)
+  const handleImageUpload = async (file: File, folderPath: string): Promise<string> => {
+    setImageUploading(true);
+    setUploadProgress('Uploading image...');
+    try {
+      // 1. Try to upload to Firebase Storage
+      const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+      const storageRef = ref(storage, `${folderPath}/${Date.now()}_${cleanFileName}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadUrl = await getDownloadURL(snapshot.ref);
+      setUploadProgress('');
+      setImageUploading(false);
+      return downloadUrl;
+    } catch (err) {
+      console.warn("Firebase Storage upload failed. Falling back to local Base64 URL...", err);
+      setUploadProgress('Processing image file...');
+      // 2. Fallback to converting image to Base64 data URL
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setUploadProgress('');
+          setImageUploading(false);
+          resolve(reader.result as string);
+        };
+        reader.onerror = (error) => {
+          setUploadProgress('');
+          setImageUploading(false);
+          reject(new Error("Failed to convert image: " + error));
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
 
   // Division posters state
   const [posters, setPosters] = useState({
@@ -1037,44 +1076,162 @@ export default function AdminPortal() {
 
                         <form onSubmit={handleSavePosters} className="flex flex-col gap-5">
                           <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">SWS Events Poster Cover URL</label>
-                            <input 
-                              type="text" required
-                              value={posters.sws}
-                              onChange={(e) => setPosters({ ...posters, sws: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono"
-                            />
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">SWS Events Poster Cover</label>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                              <div className="flex-1">
+                                <input 
+                                  type="text" required
+                                  value={posters.sws}
+                                  onChange={(e) => setPosters({ ...posters, sws: e.target.value })}
+                                  className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono w-full"
+                                />
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <input 
+                                  type="file" accept="image/*"
+                                  disabled={imageUploading}
+                                  onChange={async (e) => {
+                                    if (e.target.files?.[0]) {
+                                      const url = await handleImageUpload(e.target.files[0], 'posters');
+                                      setPosters(prev => ({ ...prev, sws: url }));
+                                    }
+                                  }}
+                                  className="hidden" id="upload-poster-sws"
+                                />
+                                <label 
+                                  htmlFor="upload-poster-sws"
+                                  className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-gold-accent/30 hover:text-gold-soft text-[10px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-2"
+                                >
+                                  <ImageIcon className="w-3.5 h-3.5" /> CHOOSE FILE
+                                </label>
+                                {posters.sws && (
+                                  <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                                    <img src={posters.sws} alt="SWS Preview" className="w-full h-full object-cover" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
 
                           <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Studio U1 Photography Cover URL</label>
-                            <input 
-                              type="text" required
-                              value={posters.u1}
-                              onChange={(e) => setPosters({ ...posters, u1: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono"
-                            />
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Studio U1 Photography Cover</label>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                              <div className="flex-1">
+                                <input 
+                                  type="text" required
+                                  value={posters.u1}
+                                  onChange={(e) => setPosters({ ...posters, u1: e.target.value })}
+                                  className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono w-full"
+                                />
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <input 
+                                  type="file" accept="image/*"
+                                  disabled={imageUploading}
+                                  onChange={async (e) => {
+                                    if (e.target.files?.[0]) {
+                                      const url = await handleImageUpload(e.target.files[0], 'posters');
+                                      setPosters(prev => ({ ...prev, u1: url }));
+                                    }
+                                  }}
+                                  className="hidden" id="upload-poster-u1"
+                                />
+                                <label 
+                                  htmlFor="upload-poster-u1"
+                                  className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-gold-accent/30 hover:text-gold-soft text-[10px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-2"
+                                >
+                                  <ImageIcon className="w-3.5 h-3.5" /> CHOOSE FILE
+                                </label>
+                                {posters.u1 && (
+                                  <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                                    <img src={posters.u1} alt="U1 Preview" className="w-full h-full object-cover" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
 
                           <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Mahdev Travels Cover URL</label>
-                            <input 
-                              type="text" required
-                              value={posters.travels}
-                              onChange={(e) => setPosters({ ...posters, travels: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono"
-                            />
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Mahdev Travels Cover</label>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                              <div className="flex-1">
+                                <input 
+                                  type="text" required
+                                  value={posters.travels}
+                                  onChange={(e) => setPosters({ ...posters, travels: e.target.value })}
+                                  className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono w-full"
+                                />
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <input 
+                                  type="file" accept="image/*"
+                                  disabled={imageUploading}
+                                  onChange={async (e) => {
+                                    if (e.target.files?.[0]) {
+                                      const url = await handleImageUpload(e.target.files[0], 'posters');
+                                      setPosters(prev => ({ ...prev, travels: url }));
+                                    }
+                                  }}
+                                  className="hidden" id="upload-poster-travels"
+                                />
+                                <label 
+                                  htmlFor="upload-poster-travels"
+                                  className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-gold-accent/30 hover:text-gold-soft text-[10px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-2"
+                                >
+                                  <ImageIcon className="w-3.5 h-3.5" /> CHOOSE FILE
+                                </label>
+                                {posters.travels && (
+                                  <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                                    <img src={posters.travels} alt="Travels Preview" className="w-full h-full object-cover" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
 
                           <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">IT Solutions Cover URL</label>
-                            <input 
-                              type="text" required
-                              value={posters.it}
-                              onChange={(e) => setPosters({ ...posters, it: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono"
-                            />
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">IT Solutions Cover</label>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                              <div className="flex-1">
+                                <input 
+                                  type="text" required
+                                  value={posters.it}
+                                  onChange={(e) => setPosters({ ...posters, it: e.target.value })}
+                                  className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono w-full"
+                                />
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <input 
+                                  type="file" accept="image/*"
+                                  disabled={imageUploading}
+                                  onChange={async (e) => {
+                                    if (e.target.files?.[0]) {
+                                      const url = await handleImageUpload(e.target.files[0], 'posters');
+                                      setPosters(prev => ({ ...prev, it: url }));
+                                    }
+                                  }}
+                                  className="hidden" id="upload-poster-it"
+                                />
+                                <label 
+                                  htmlFor="upload-poster-it"
+                                  className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-gold-accent/30 hover:text-gold-soft text-[10px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-2"
+                                >
+                                  <ImageIcon className="w-3.5 h-3.5" /> CHOOSE FILE
+                                </label>
+                                {posters.it && (
+                                  <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                                    <img src={posters.it} alt="IT Preview" className="w-full h-full object-cover" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
+
+                          {imageUploading && (
+                            <div className="text-[11px] text-gold-accent animate-pulse font-sans">
+                              {uploadProgress}
+                            </div>
+                          )}
 
                           <button 
                             type="submit"
@@ -1168,11 +1325,37 @@ export default function AdminPortal() {
                               value={newTestimonial.role} onChange={(e) => setNewTestimonial({ ...newTestimonial, role: e.target.value })}
                               className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
                             />
-                            <input 
-                              type="text" placeholder="Avatar Photo URL (Optional)"
-                              value={newTestimonial.avatar} onChange={(e) => setNewTestimonial({ ...newTestimonial, avatar: e.target.value })}
-                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
-                            />
+                            <div className="flex flex-col gap-2">
+                              <input 
+                                type="text" placeholder="Avatar Photo URL (Optional)"
+                                value={newTestimonial.avatar} onChange={(e) => setNewTestimonial({ ...newTestimonial, avatar: e.target.value })}
+                                className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans w-full"
+                              />
+                              <div className="flex items-center gap-3">
+                                <input 
+                                  type="file" accept="image/*"
+                                  disabled={imageUploading}
+                                  onChange={async (e) => {
+                                    if (e.target.files?.[0]) {
+                                      const url = await handleImageUpload(e.target.files[0], 'testimonials');
+                                      setNewTestimonial(prev => ({ ...prev, avatar: url }));
+                                    }
+                                  }}
+                                  className="hidden" id="upload-avatar"
+                                />
+                                <label 
+                                  htmlFor="upload-avatar"
+                                  className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-gold-accent/30 hover:text-gold-soft text-[10px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-2"
+                                >
+                                  <ImageIcon className="w-3.5 h-3.5" /> UPLOAD IMAGE
+                                </label>
+                                {newTestimonial.avatar && (
+                                  <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/10 shrink-0">
+                                    <img src={newTestimonial.avatar} alt="Avatar Preview" className="w-full h-full object-cover" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                             <select 
                               value={newTestimonial.rating} onChange={(e) => setNewTestimonial({ ...newTestimonial, rating: Number(e.target.value) })}
                               className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans [&>option]:bg-navy-dark"
@@ -1201,7 +1384,7 @@ export default function AdminPortal() {
                           {testimonialList.map((test) => (
                             <div key={test.id} className="p-4.5 rounded-2xl glass border border-white/5 flex items-center justify-between gap-4 font-sans">
                               <div className="flex items-center gap-3">
-                                <Image src={test.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120'} alt="Avatar" width={40} height={40} className="rounded-full object-cover border border-white/10 shrink-0" />
+                                <img src={test.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120'} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
                                 <div>
                                   <span className="block font-bold text-white text-sm">{test.name}</span>
                                   <span className="block text-[10px] text-gray-400 mt-0.5">{test.role} &bull; {test.rating} Stars</span>
@@ -1251,11 +1434,39 @@ export default function AdminPortal() {
                               <option value="Travel">Travel Category</option>
                               <option value="Lighting">Lighting Category</option>
                             </select>
-                            <input 
-                              type="text" placeholder="Image URL (e.g. /images/wedding_decoration_1782729925686.jpg)" required
-                              value={newGalleryItem.img} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, img: e.target.value })}
-                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono sm:col-span-3"
-                            />
+                            <div className="sm:col-span-3 flex flex-col sm:flex-row sm:items-center gap-4">
+                              <div className="flex-1">
+                                <input 
+                                  type="text" placeholder="Image URL (e.g. /images/wedding_decoration_1782729925686.jpg)" required
+                                  value={newGalleryItem.img} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, img: e.target.value })}
+                                  className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono w-full"
+                                />
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <input 
+                                  type="file" accept="image/*"
+                                  disabled={imageUploading}
+                                  onChange={async (e) => {
+                                    if (e.target.files?.[0]) {
+                                      const url = await handleImageUpload(e.target.files[0], 'gallery');
+                                      setNewGalleryItem(prev => ({ ...prev, img: url }));
+                                    }
+                                  }}
+                                  className="hidden" id="upload-gallery-image"
+                                />
+                                <label 
+                                  htmlFor="upload-gallery-image"
+                                  className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-gold-accent/30 hover:text-gold-soft text-[10px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-2"
+                                >
+                                  <ImageIcon className="w-3.5 h-3.5" /> UPLOAD IMAGE
+                                </label>
+                                {newGalleryItem.img && (
+                                  <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                                    <img src={newGalleryItem.img} alt="Gallery Preview" className="w-full h-full object-cover" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
                           <button 
                             type="submit" 
@@ -1273,7 +1484,7 @@ export default function AdminPortal() {
                               <div key={item.id} className="p-3 rounded-2xl glass border border-white/5 flex items-center justify-between gap-3 font-sans">
                                 <div className="flex items-center gap-3">
                                   <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-white/10 shrink-0">
-                                    <Image src={item.img} alt={item.title} fill className="object-cover" />
+                                    <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
                                   </div>
                                   <div className="text-left">
                                     <span className="block font-bold text-white text-xs leading-normal">{item.title}</span>
@@ -1349,6 +1560,43 @@ export default function AdminPortal() {
                         value={divForm.accentColor} onChange={(e) => setDivForm({ ...divForm, accentColor: e.target.value })}
                         className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
                       />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Background Cover Image</label>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div className="flex-1">
+                        <input 
+                          type="text" required
+                          value={divForm.bgImage} onChange={(e) => setDivForm({ ...divForm, bgImage: e.target.value })}
+                          className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white w-full"
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <input 
+                          type="file" accept="image/*"
+                          disabled={imageUploading}
+                          onChange={async (e) => {
+                            if (e.target.files?.[0]) {
+                              const url = await handleImageUpload(e.target.files[0], 'divisions');
+                              setDivForm(prev => ({ ...prev, bgImage: url }));
+                            }
+                          }}
+                          className="hidden" id="upload-div-bg"
+                        />
+                        <label 
+                          htmlFor="upload-div-bg"
+                          className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-gold-accent/30 hover:text-gold-soft text-[10px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-2"
+                        >
+                          <ImageIcon className="w-3.5 h-3.5" /> UPLOAD IMAGE
+                        </label>
+                        {divForm.bgImage && (
+                          <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                            <img src={divForm.bgImage} alt="Cover Preview" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 

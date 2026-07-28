@@ -703,29 +703,34 @@ export function ProjectInquiryWizard() {
 
     setLoading(true);
     try {
-      // Write database entry
-      await addDoc(collection(db, 'inquiries'), {
-        name,
-        email,
-        phone,
-        division,
-        date,
-        details,
-        timestamp: serverTimestamp()
+      // 1. Try database write (catch permission/rule blocks gracefully)
+      try {
+        await addDoc(collection(db, 'inquiries'), {
+          name,
+          email,
+          phone,
+          division,
+          date,
+          details,
+          timestamp: serverTimestamp()
+        });
+      } catch (dbErr) {
+        console.warn("Firestore inquiry write blocked by Security Rules:", dbErr);
+      }
+
+      // 2. Dispatch the Next.js API mail request, throwing real errors if mail server fails
+      const mailRes = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name, email, phone, division,
+          message: `Wizard Booking Request. Target Date: ${date}. Detail logs: ${details}`
+        })
       });
 
-      // Try background mail notification
-      try {
-        await fetch('/api/send-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name, email, phone, division,
-            message: `Wizard Booking Request. Target Date: ${date}. Detail logs: ${details}`
-          })
-        });
-      } catch (e) {
-        console.error('Mail forward error:', e);
+      if (!mailRes.ok) {
+        const errData = await mailRes.json();
+        throw new Error(errData.error || 'Failed to dispatch email');
       }
 
       setSuccess(true);
@@ -736,7 +741,7 @@ export function ProjectInquiryWizard() {
       });
     } catch (err) {
       console.error(err);
-      alert('Failed submitting wizard inquiry request. Please try again.');
+      alert('Failed to send inquiry: ' + (err as Error).message);
     } finally {
       setLoading(false);
     }

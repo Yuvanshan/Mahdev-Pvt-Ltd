@@ -841,13 +841,36 @@ export default function AdminPortal() {
                           </div>
 
                           <div className="flex flex-col gap-2">
-                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Auto-Playing Card Video URL (mp4)</label>
-                            <input 
-                              type="text" required
-                              value={homepageData.heroVideoUrl}
-                              onChange={(e) => setHomepageData({ ...homepageData, heroVideoUrl: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono"
-                            />
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Hero Card Media URL (Image/Video File or YouTube/Direct Link)</label>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                              <div className="flex-1">
+                                <input 
+                                  type="text" required
+                                  value={homepageData.heroVideoUrl}
+                                  onChange={(e) => setHomepageData({ ...homepageData, heroVideoUrl: e.target.value })}
+                                  className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono w-full"
+                                />
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <input 
+                                  type="file" accept="image/*,video/*"
+                                  disabled={imageUploading}
+                                  onChange={async (e) => {
+                                    if (e.target.files?.[0]) {
+                                      const url = await handleImageUpload(e.target.files[0], 'homepage');
+                                      setHomepageData(prev => ({ ...prev, heroVideoUrl: url }));
+                                    }
+                                  }}
+                                  className="hidden" id="upload-homepage-hero-media"
+                                />
+                                <label 
+                                  htmlFor="upload-homepage-hero-media"
+                                  className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-gold-accent/30 hover:text-gold-soft text-[10px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-2 shrink-0"
+                                >
+                                  <ImageIcon className="w-3.5 h-3.5" /> CHOOSE FILE
+                                </label>
+                              </div>
+                            </div>
                           </div>
 
                           <button 

@@ -119,7 +119,7 @@ export default function Footer() {
           </div>
 
           {/* Contact Details & Hours */}
-          <div className="lg:col-span-2.5 flex flex-col gap-4 text-left font-sans text-xs sm:text-sm">
+          <div className="lg:col-span-3 flex flex-col gap-4 text-left font-sans text-xs sm:text-sm">
             <h4 className="font-display text-xs font-bold uppercase text-gold-accent tracking-wider">Contact & Hours</h4>
             
             <div className="flex flex-col gap-3 text-gray-400">
@@ -151,7 +151,7 @@ export default function Footer() {
           </div>
 
           {/* Google Maps & Newsletter */}
-          <div className="lg:col-span-2.5 flex flex-col gap-5 text-left">
+          <div className="lg:col-span-2 flex flex-col gap-5 text-left">
             <div className="flex flex-col gap-3">
               <h4 className="font-display text-xs font-bold uppercase text-gold-accent tracking-wider">Newsletter</h4>
               

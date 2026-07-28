@@ -55,7 +55,7 @@ const defaultDivisions: DivisionData[] = [
     type: 'events',
     accentColor: '#a855f7',
     gradient: 'from-purple-500/20 to-pink-500/20',
-    bgImage: '/images/sws_robot_decor_1783346269673.jpg',
+    bgImage: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1200',
     services: [
       { title: 'Wedding Decorations', description: 'Magical, royal, and luxury stages, entry walkways, and floral canopies.', iconName: 'Heart' },
       { title: 'Church Decorations', description: 'Solemn, elegant, and serene floral arrangements and altar backdrops.', iconName: 'Church' },
@@ -88,7 +88,7 @@ const defaultDivisions: DivisionData[] = [
     type: 'photography',
     accentColor: '#06b6d4',
     gradient: 'from-cyan-500/20 to-blue-500/20',
-    bgImage: '/images/u1_robot_camera_1783346286743.jpg',
+    bgImage: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=1200',
     services: [
       { title: 'Wedding Photography', description: 'Capturing split-second laughs and tearful glances with prime portrait lenses.', iconName: 'Camera' },
       { title: 'Cinematography', description: '10-bit log files, advanced gimbal stabilization runs, and custom lut color-grading.', iconName: 'Film' },
@@ -127,7 +127,7 @@ const defaultDivisions: DivisionData[] = [
     type: 'it',
     accentColor: '#3b82f6',
     gradient: 'from-blue-500/20 to-indigo-500/20',
-    bgImage: '/images/it_robot_developer_1783346302442.jpg',
+    bgImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200',
     services: [
       { title: 'ERP Systems', description: 'Double-entry bookkeeping, multi-warehouse inventory tracking, and specialized modules.', iconName: 'Cpu' },
       { title: 'POS Solutions', description: 'Thermal printer checkouts, omnichannel software suites, and cloud register sync.', iconName: 'Terminal' },
@@ -159,7 +159,7 @@ const defaultDivisions: DivisionData[] = [
     type: 'travels',
     accentColor: '#10b981',
     gradient: 'from-green-500/20 to-emerald-500/20',
-    bgImage: '/images/travels_robot_car_1783346316762.jpg',
+    bgImage: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=1200',
     services: [
       { title: 'Airport Transfers', description: 'On-time pickup/drop-off at BIA Airport with premium high-roof Toyota KDH vans.', iconName: 'Plane' },
       { title: 'Curated Island Tours', description: 'Tailored itineraries covering Ella greenery, Sigiriya trails, and Galle coastal sunset.', iconName: 'Compass' },
@@ -183,9 +183,9 @@ const defaultDivisions: DivisionData[] = [
       }
     ],
     packages: [
-      { title: 'Ella Greenery Escape', duration: '3 Days / 2 Nights', price: 'Rs. 45,000+', features: ['Sightseeing in scenic train bridges, tea plantations, waterfalls, and Ella Rock climbs.'], img: '/images/van_tour.jpg' },
-      { title: 'Sigiriya Cultural Trail', duration: '2 Days / 1 Night', price: 'Rs. 35,000+', features: ['Explore historical rock fortress, Dambulla cave temple, and heritage ruins.'], img: '/images/travels_robot_car_1783346316762.jpg' },
-      { title: 'Galle Coastal Sunset', duration: '1 Day Tour', price: 'Rs. 18,000+', features: ['Visit Portuguese Galle Fort, sea turtle conservation hubs, and relax on sandy beaches.'], img: '/images/van_tour.jpg' }
+      { title: 'Ella Greenery Escape', duration: '3 Days / 2 Nights', price: 'Rs. 45,000+', features: ['Sightseeing in scenic train bridges, tea plantations, waterfalls, and Ella Rock climbs.'], img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=800' },
+      { title: 'Sigiriya Cultural Trail', duration: '2 Days / 1 Night', price: 'Rs. 35,000+', features: ['Explore historical rock fortress, Dambulla cave temple, and heritage ruins.'], img: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800' },
+      { title: 'Galle Coastal Sunset', duration: '1 Day Tour', price: 'Rs. 18,000+', features: ['Visit Portuguese Galle Fort, sea turtle conservation hubs, and relax on sandy beaches.'], img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=800' }
     ]
   }
 ];
@@ -231,7 +231,7 @@ const defaultBlogs = [
     category: 'Events',
     author: 'SWS Decor Lead',
     date: 'July 15, 2026',
-    image: '/images/sws_robot_decor_1783346269673.jpg'
+    image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800'
   },
   {
     title: 'Migrating to Cloud ERP: Why Double-Entry Ledger Matters',
@@ -240,7 +240,7 @@ const defaultBlogs = [
     category: 'Technology',
     author: 'ERP System Architect',
     date: 'June 28, 2026',
-    image: '/images/it_robot_developer_1783346302442.jpg'
+    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800'
   },
   {
     title: 'Exploring Sri Lanka: The Ultimate Ella-Galle Road Trip',
@@ -249,7 +249,7 @@ const defaultBlogs = [
     category: 'Travel',
     author: 'Mahdev Travels Director',
     date: 'May 14, 2026',
-    image: '/images/travels_robot_car_1783346316762.jpg'
+    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=800'
   }
 ];
 
@@ -281,14 +281,14 @@ const defaultCareers = [
 ];
 
 const defaultGallery = [
-  { id: '1', title: 'Mughal Imperial Canopy', category: 'Wedding', img: '/images/wedding_decoration_1782729925686.jpg' },
-  { id: '2', title: 'Studio U1 Drone Footage', category: 'Cinema', img: '/images/drone_photography.jpg' },
-  { id: '3', title: 'VIP Wedding Mercedes', category: 'Travel', img: '/images/wedding_decoration_1782729925686.jpg' },
-  { id: '4', title: 'Hilton Keynote Backdrop', category: 'Corporate', img: '/images/sws_robot_decor_1783346269673.jpg' },
-  { id: '5', title: 'Fairy Light Arch Lanes', category: 'Lighting', img: '/images/sws_robot_decor_1783346269673.jpg' },
-  { id: '6', title: 'Ella Greenery Escape Van', category: 'Travel', img: '/images/van_tour.jpg' },
-  { id: '7', title: 'Church Canopy Pew Flowers', category: 'Wedding', img: '/images/church_decor.jpg' },
-  { id: '8', title: 'Cinematic Newborn Shoot', category: 'Cinema', img: '/images/newborn_shoot.jpg' }
+  { id: '1', title: 'Mughal Imperial Canopy', category: 'Wedding', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800' },
+  { id: '2', title: 'Studio U1 Drone Footage', category: 'Cinema', img: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?q=80&w=800' },
+  { id: '3', title: 'VIP Wedding Mercedes', category: 'Travel', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800' },
+  { id: '4', title: 'Hilton Keynote Backdrop', category: 'Corporate', img: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800' },
+  { id: '5', title: 'Fairy Light Arch Lanes', category: 'Lighting', img: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800' },
+  { id: '6', title: 'Ella Greenery Escape Van', category: 'Travel', img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=800' },
+  { id: '7', title: 'Church Canopy Pew Flowers', category: 'Wedding', img: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?q=80&w=800' },
+  { id: '8', title: 'Cinematic Newborn Shoot', category: 'Cinema', img: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=800' }
 ];
 
 const defaultFaqs = [

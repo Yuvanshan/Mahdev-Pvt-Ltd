@@ -166,9 +166,12 @@ export default function Navbar() {
             ))}
 
             {/* Divisions Dropdown */}
-            <div className="relative" onMouseLeave={() => setDropdownOpen(false)}>
+            <div 
+              className="relative" 
+              onMouseEnter={() => setDropdownOpen(true)}
+              onMouseLeave={() => setDropdownOpen(false)}
+            >
               <button 
-                onMouseEnter={() => setDropdownOpen(true)}
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className={`flex items-center gap-1.5 py-2 text-[13px] font-semibold tracking-wider uppercase transition-colors duration-300 ${
                   isDivisionActive() ? 'text-gold-soft' : 'text-white/70 hover:text-white'
@@ -185,7 +188,7 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 15, scale: 0.95 }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 rounded-3xl glass-premium p-3 border border-white/8 shadow-[0_30px_100px_rgba(0,0,0,0.5)]"
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 rounded-3xl glass-premium p-3 border border-white/8 shadow-[0_30px_100px_rgba(0,0,0,0.5)] before:content-[''] before:absolute before:-top-4 before:left-0 before:right-0 before:h-4"
                   >
                     <div className="grid gap-1">
                       {divisions.map((div) => {

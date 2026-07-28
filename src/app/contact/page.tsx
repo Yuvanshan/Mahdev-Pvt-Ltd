@@ -18,10 +18,35 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
     try {
-      await addDoc(collection(db, 'contact'), {
-        ...formData,
-        timestamp: serverTimestamp()
+      // 1. Try Firestore database log (catch authorization blocks gracefully)
+      try {
+        await addDoc(collection(db, 'contact'), {
+          ...formData,
+          timestamp: serverTimestamp()
+        });
+      } catch (dbErr) {
+        console.warn("Firestore write blocked by Security Rules:", dbErr);
+      }
+
+      // 2. Dispatch real email through Nodemailer SMTP server portal
+      const mailRes = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          division: formData.division,
+          message: formData.message
+        })
       });
+
+      if (!mailRes.ok) {
+        const errData = await mailRes.json();
+        throw new Error(errData.error || 'Failed to dispatch email');
+      }
       
       setSuccess(true);
       confetti({
@@ -34,7 +59,7 @@ export default function Contact() {
       setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
       console.error(err);
-      alert("Failed to send message. Please try again.");
+      alert("Failed to send message: " + (err as Error).message);
     } finally {
       setLoading(false);
     }

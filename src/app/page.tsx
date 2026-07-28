@@ -14,6 +14,7 @@ import { FaWhatsapp, FaFacebook, FaInstagram, FaLinkedin, FaArrowUp } from 'reac
 import confetti from 'canvas-confetti';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, onSnapshot, serverTimestamp, doc } from 'firebase/firestore';
+import { getMediaType, getYouTubeId } from '@/lib/media';
 
 // Core Custom Components
 import Navbar from '@/components/Navbar';
@@ -66,17 +67,17 @@ function CounterNumber({ value, suffix = "" }: { value: number; suffix?: string 
 // Fade-up section animation wrapper
 function FadeUpSection({ children, id }: { children: React.ReactNode; id?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-150px" });
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
     <div
       ref={ref}
       id={id}
       style={{
-        transform: isInView ? "none" : "translateY(50px)",
+        transform: isInView ? "none" : "translateY(35px)",
         opacity: isInView ? 1 : 0,
-        filter: isInView ? "blur(0px)" : "blur(4px)",
-        transition: "all 0.9s cubic-bezier(0.16, 1, 0.3, 1)"
+        filter: isInView ? "blur(0px)" : "blur(2px)",
+        transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)"
       }}
     >
       {children}
@@ -182,27 +183,34 @@ export default function Home() {
     e.preventDefault();
     setLoading(true);
     try {
-      await addDoc(collection(db, 'contact'), {
-        ...formData,
-        timestamp: serverTimestamp()
-      });
-
+      // 1. Try to log to Firestore database, handle permission blocks gracefully
       try {
-        await fetch('/api/send-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            division: formData.division,
-            message: formData.message
-          })
+        await addDoc(collection(db, 'contact'), {
+          ...formData,
+          timestamp: serverTimestamp()
         });
-      } catch (mailErr) {
-        console.error("Failed to forward contact request email:", mailErr);
+      } catch (dbErr) {
+        console.warn("Firestore contact write blocked by Security Rules:", dbErr);
+      }
+
+      // 2. Dispatch the real email using the Next.js API route handler
+      const mailRes = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          division: formData.division,
+          message: formData.message
+        })
+      });
+      
+      if (!mailRes.ok) {
+        const errData = await mailRes.json();
+        throw new Error(errData.error || 'Failed to dispatch email');
       }
       
       setSuccess(true);
@@ -217,7 +225,7 @@ export default function Home() {
       setTimeout(() => setSuccess(false), 5000);
     } catch (error) {
       console.error("Error submitting message: ", error);
-      alert("Failed to submit message. Please try again.");
+      alert("Failed to send message: " + (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -944,12 +952,30 @@ export default function Home() {
               >
                 <X className="w-5 h-5" />
               </button>
-              <video 
-                src={activeVideo} 
-                controls 
-                autoPlay 
-                className="w-full h-full object-contain"
-              />
+              {(() => {
+                const mediaType = getMediaType(activeVideo);
+                if (mediaType === 'youtube') {
+                  const ytId = getYouTubeId(activeVideo);
+                  return (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${ytId}?autoplay=1&controls=1&modestbranding=1&rel=0`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{ border: 'none' }}
+                    />
+                  );
+                } else {
+                  return (
+                    <video 
+                      src={activeVideo} 
+                      controls 
+                      autoPlay 
+                      className="w-full h-full object-contain"
+                    />
+                  );
+                }
+              })()}
             </div>
           </div>
         )}

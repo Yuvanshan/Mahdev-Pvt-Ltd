@@ -7,6 +7,7 @@ import { ArrowRight, Sparkles, Play, Calendar, MapPin, PlayCircle } from 'lucide
 import * as THREE from 'three';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
+import { getMediaType, getYouTubeId } from '@/lib/media';
 
 const heroBulletTags = ['Events', 'Software', 'Media', 'Travels'];
 
@@ -352,16 +353,42 @@ export default function InteractiveHero() {
               </div>
 
               {/* Video Preview Loop Container */}
-              <div className="relative flex-1 my-4.5 rounded-2xl overflow-hidden border border-white/8 group shadow-inner z-10">
-                <video 
-                  key={heroData.videoUrl}
-                  src={heroData.videoUrl}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700"
-                />
+              <div className="relative flex-1 my-4.5 rounded-2xl overflow-hidden border border-white/8 group shadow-inner z-10 flex items-center justify-center bg-black">
+                {(() => {
+                  const mediaType = getMediaType(heroData.videoUrl);
+                  if (mediaType === 'youtube') {
+                    const ytId = getYouTubeId(heroData.videoUrl);
+                    return (
+                      <iframe
+                        src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                        className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700 pointer-events-none"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        style={{ border: 'none' }}
+                      />
+                    );
+                  } else if (mediaType === 'image') {
+                    return (
+                      <img
+                        src={heroData.videoUrl}
+                        alt="Hero Media"
+                        className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700"
+                      />
+                    );
+                  } else {
+                    return (
+                      <video 
+                        key={heroData.videoUrl}
+                        src={heroData.videoUrl}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700"
+                      />
+                    );
+                  }
+                })()}
                 
                 {/* Simulated playback controls */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050816]/75 via-transparent to-transparent flex items-end p-4">
@@ -389,6 +416,24 @@ export default function InteractiveHero() {
           </div>
         </div>
 
+      </div>
+
+      {/* Scroll indicator mouse */}
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10 opacity-60 hover:opacity-90 transition-opacity">
+        <div className="w-5.5 h-9.5 rounded-full border border-gold-accent/40 flex justify-center p-1.5 bg-navy-dark/40 backdrop-blur-sm">
+          <motion.div 
+            animate={{ 
+              y: [0, 10, 0],
+            }}
+            transition={{ 
+              duration: 1.6, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+            className="w-1.5 h-1.5 rounded-full bg-gold-accent" 
+          />
+        </div>
+        <span className="text-[8px] uppercase tracking-[0.25em] text-gray-500 font-bold">SCROLL</span>
       </div>
 
       {/* Golden Wave separator at the bottom of hero */}

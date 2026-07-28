@@ -287,6 +287,34 @@ export default function AdminPortal() {
     }
   };
 
+  const alertWriteError = (operationName: string, err: any) => {
+    const errorCode = err?.code || 'unknown';
+    const errorMessage = err?.message || String(err);
+    console.error(`[Admin Write Blocked] ${operationName}:`, err);
+
+    if (errorCode === 'permission-denied' || errorMessage.includes('permissions')) {
+      alert(
+        `⚠️ Firestore Security Rules Blocked Save\n\n` +
+        `The action '${operationName}' failed because the database Security Rules for your named Firestore instance 'mahdev-pvt-ldt' currently deny all client-side write permissions.\n\n` +
+        `To fix this and enable saving successfully:\n` +
+        `1. Open Firebase Console Rules panel:\n` +
+        `   https://console.firebase.google.com/u/0/project/for-her-33ea9/firestore/databases/mahdev-pvt-ldt/rules\n\n` +
+        `2. Adjust your Security Rules to allow writes, for example:\n` +
+        `   rules_version = '2';\n` +
+        `   service cloud.firestore {\n` +
+        `     match /databases/{database}/documents {\n` +
+        `       match /{document=**} {\n` +
+        `         allow read, write: if true;\n` +
+        `       }\n` +
+        `     }\n` +
+        `   }\n\n` +
+        `3. Click the 'Publish' button, return to this portal, and click save again!`
+      );
+    } else {
+      alert(`Error during '${operationName}': ` + errorMessage);
+    }
+  };
+
   const handleSaveHomepage = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -297,7 +325,7 @@ export default function AdminPortal() {
       confetti({ particleCount: 50 });
       alert("Homepage Hero settings successfully updated on Firestore!");
     } catch (err) {
-      alert("Error saving homepage: " + (err as Error).message);
+      alertWriteError("Saving Homepage Settings", err);
     }
   };
 
@@ -311,7 +339,7 @@ export default function AdminPortal() {
       confetti({ particleCount: 50 });
       alert("Division Cover Posters successfully updated on Firestore!");
     } catch (err) {
-      alert("Error saving posters settings: " + (err as Error).message);
+      alertWriteError("Saving Division Posters", err);
     }
   };
 
@@ -328,8 +356,7 @@ export default function AdminPortal() {
       });
       alert(result ? "Firebase database successfully seeded!" : "Database already has records.");
     } catch (err) {
-      console.error(err);
-      alert("Error seeding data: " + (err as Error).message);
+      alertWriteError("Seeding Database Initial Data", err);
     } finally {
       setSeeding(false);
     }
@@ -340,7 +367,7 @@ export default function AdminPortal() {
       await updateDoc(doc(db, 'bookings', id), { status });
       confetti({ particleCount: 30, spread: 30 });
     } catch (err) {
-      alert("Update failed");
+      alertWriteError("Updating Booking Status", err);
     }
   };
 
@@ -348,8 +375,9 @@ export default function AdminPortal() {
     if (!confirm("Are you sure you want to delete this booking?")) return;
     try {
       await deleteDoc(doc(db, 'bookings', id));
+      confetti({ particleCount: 15 });
     } catch (err) {
-      alert("Delete failed");
+      alertWriteError("Deleting Booking", err);
     }
   };
 
@@ -357,8 +385,9 @@ export default function AdminPortal() {
     if (!confirm("Are you sure you want to delete this lead?")) return;
     try {
       await deleteDoc(doc(db, 'leads', id));
+      confetti({ particleCount: 15 });
     } catch (err) {
-      alert("Delete failed");
+      alertWriteError("Deleting Lead Record", err);
     }
   };
 
@@ -373,7 +402,7 @@ export default function AdminPortal() {
       confetti({ particleCount: 50 });
       alert("Achievements & Statistics saved back to Firestore! Homepage counters will update in real-time.");
     } catch (err) {
-      alert("Error saving stats: " + (err as Error).message);
+      alertWriteError("Saving Statistics Counters", err);
     }
   };
 
@@ -390,7 +419,7 @@ export default function AdminPortal() {
       confetti({ particleCount: 50 });
       alert(`SEO Meta config for page "${seoData.pageKey.toUpperCase()}" saved successfully.`);
     } catch (err) {
-      alert("Error saving SEO: " + (err as Error).message);
+      alertWriteError("Saving SEO Tags", err);
     }
   };
 
@@ -408,7 +437,7 @@ export default function AdminPortal() {
       confetti({ particleCount: 50 });
       alert("Announcements & Theme Color Settings saved successfully.");
     } catch (err) {
-      alert("Error saving promotions: " + (err as Error).message);
+      alertWriteError("Saving Promotions & Theme Colors", err);
     }
   };
 
@@ -426,7 +455,7 @@ export default function AdminPortal() {
       confetti({ particleCount: 30 });
       alert("FAQ item added successfully!");
     } catch (err) {
-      alert("Error saving FAQ: " + (err as Error).message);
+      alertWriteError("Adding FAQ Item", err);
     }
   };
 
@@ -438,8 +467,9 @@ export default function AdminPortal() {
         items: updatedList,
         updatedAt: serverTimestamp()
       });
+      confetti({ particleCount: 15 });
     } catch (err) {
-      alert("Error deleting FAQ: " + (err as Error).message);
+      alertWriteError("Deleting FAQ Item", err);
     }
   };
 
@@ -461,7 +491,7 @@ export default function AdminPortal() {
       confetti({ particleCount: 30 });
       alert("Testimonial review successfully added to Firestore!");
     } catch (err) {
-      alert("Error saving testimonial: " + (err as Error).message);
+      alertWriteError("Adding Testimonial Review", err);
     }
   };
 
@@ -472,7 +502,7 @@ export default function AdminPortal() {
       await deleteDoc(doc(db, 'testimonials', id));
       confetti({ particleCount: 15 });
     } catch (err) {
-      alert("Delete failed");
+      alertWriteError("Deleting Testimonial Review", err);
     }
   };
 
@@ -492,7 +522,7 @@ export default function AdminPortal() {
       confetti({ particleCount: 30 });
       alert("Gallery image successfully added to Firestore!");
     } catch (err) {
-      alert("Error saving gallery item: " + (err as Error).message);
+      alertWriteError("Adding Gallery Item", err);
     }
   };
 
@@ -503,7 +533,7 @@ export default function AdminPortal() {
       await deleteDoc(doc(db, 'gallery', id));
       confetti({ particleCount: 15 });
     } catch (err) {
-      alert("Delete failed");
+      alertWriteError("Deleting Gallery Item", err);
     }
   };
 
@@ -546,7 +576,7 @@ export default function AdminPortal() {
         serviceTitle1: '', serviceDesc1: '', serviceTitle2: '', serviceDesc2: '', serviceTitle3: '', serviceDesc3: ''
       });
     } catch (err) {
-      alert("Error adding division: " + (err as Error).message);
+      alertWriteError("Creating Dynamic Division", err);
     }
   };
 

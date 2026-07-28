@@ -15,8 +15,8 @@ const firebaseConfig = {
 // Initialize Firebase App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firestore with specific database ID from public/firebase-applet-config.json
-const db = initializeFirestore(app, {}, "ai-studio-mahadeveliteserv-2f36f4fc-e0aa-4704-9de8-e9a8b723fc8a");
+// Initialize Firestore with specific database ID
+const db = initializeFirestore(app, {}, "mahdev-pvt-ltd");
 
 // Initialize Storage
 const storage = getStorage(app);

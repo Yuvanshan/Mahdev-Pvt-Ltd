@@ -280,6 +280,31 @@ const defaultCareers = [
   }
 ];
 
+const defaultGallery = [
+  { id: '1', title: 'Mughal Imperial Canopy', category: 'Wedding', img: '/images/wedding_decoration_1782729925686.jpg' },
+  { id: '2', title: 'Studio U1 Drone Footage', category: 'Cinema', img: '/images/drone_photography.jpg' },
+  { id: '3', title: 'VIP Wedding Mercedes', category: 'Travel', img: '/images/wedding_decoration_1782729925686.jpg' },
+  { id: '4', title: 'Hilton Keynote Backdrop', category: 'Corporate', img: '/images/sws_robot_decor_1783346269673.jpg' },
+  { id: '5', title: 'Fairy Light Arch Lanes', category: 'Lighting', img: '/images/sws_robot_decor_1783346269673.jpg' },
+  { id: '6', title: 'Ella Greenery Escape Van', category: 'Travel', img: '/images/van_tour.jpg' },
+  { id: '7', title: 'Church Canopy Pew Flowers', category: 'Wedding', img: '/images/church_decor.jpg' },
+  { id: '8', title: 'Cinematic Newborn Shoot', category: 'Cinema', img: '/images/newborn_shoot.jpg' }
+];
+
+const defaultFaqs = [
+  { q: 'What services are included in SWS Event backdrops?', a: 'SWS Event Planning specializes in custom structural builds including grand glasshouse canopies, traditional oil lamps (mandaps), imported pastel balloon arches, and ambient church floral setups.' },
+  { q: 'Can I request a custom API checkout inventory module for the POS system?', a: 'Yes. Our IT & Cloud Solutions division customizes POS cash registers, double-entry ERP software layers, stock count logs, and custom payment terminals for hotels and restaurants.' },
+  { q: 'How early should I book the Travels VIP luxury Mercedes convoys?', a: 'For wedding Mercedes hires, VIP Colombo transfers, or customized Ella greenery escape runs, we suggest placing bookings at least 3 weeks in advance to lock the fleet allocation.' },
+  { q: 'Is there direct database integration for checking event progress?', a: 'Yes. Authorized clients receive credentials to access the secure Client Portal to review real-time blueprints, invoice payouts, and design drafts.' }
+];
+
+const defaultHomepage = {
+  heroTitleLine1: 'Crafting Luxury Events',
+  heroTitleLine2: 'That People Remember Forever.',
+  heroDescription: 'We deploy logical, enterprise-grade cloud software while choreographing breath-taking wedding, corporate, and travel events that live in memory.',
+  heroVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4'
+};
+
 export async function seedDatabase(force = false) {
   try {
     const snap = await getDocs(collection(db, 'divisions'));
@@ -320,6 +345,28 @@ export async function seedDatabase(force = false) {
     for (const job of defaultCareers) {
       await setDoc(doc(db, 'careers', job.id), {
         ...job,
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    // Seed homepage configs
+    await setDoc(doc(db, 'settings', 'homepage'), {
+      ...defaultHomepage,
+      updatedAt: serverTimestamp()
+    });
+
+    // Seed FAQs configs
+    await setDoc(doc(db, 'settings', 'faqs'), {
+      items: defaultFaqs,
+      updatedAt: serverTimestamp()
+    });
+
+    // Seed Gallery collection
+    for (const item of defaultGallery) {
+      await setDoc(doc(db, 'gallery', `gal-${item.id}`), {
+        title: item.title,
+        category: item.category,
+        img: item.img,
         updatedAt: serverTimestamp()
       });
     }

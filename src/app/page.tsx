@@ -109,6 +109,9 @@ export default function Home() {
     it: '/images/saas_dashboard.jpg' 
   });
 
+  const [galleryList, setGalleryList] = useState<any[]>([]);
+  const [faqList, setFaqList] = useState<any[]>([]);
+
   // Fetch stats and posters from Firestore in real-time
   useEffect(() => {
     const unsubStats = onSnapshot(collection(db, 'stats'), (snap) => {
@@ -136,9 +139,28 @@ export default function Home() {
       }
     });
 
+    const unsubGallery = onSnapshot(collection(db, 'gallery'), (snap) => {
+      if (!snap.empty) {
+        const list = snap.docs.map(docDoc => ({ id: docDoc.id, ...docDoc.data() }));
+        setGalleryList(list);
+      } else {
+        setGalleryList([]);
+      }
+    });
+
+    const unsubFaq = onSnapshot(doc(db, 'settings', 'faqs'), (snap) => {
+      if (snap.exists()) {
+        setFaqList(snap.data().items || []);
+      } else {
+        setFaqList([]);
+      }
+    });
+
     return () => {
       unsubStats();
       unsubPosters();
+      unsubGallery();
+      unsubFaq();
     };
   }, []);
 
@@ -203,19 +225,21 @@ export default function Home() {
 
   // Gallery Masonry dataset
   const galleryItems = [
-    { id: 1, title: 'Mughal Imperial Canopy', category: 'Wedding', img: '/images/wedding_decoration_1782729925686.jpg' },
-    { id: 2, title: 'Studio U1 Drone Footage', category: 'Cinema', img: '/images/drone_photography.jpg' },
-    { id: 3, title: 'VIP Wedding Mercedes', category: 'Travel', img: '/images/wedding_decoration_1782729925686.jpg' },
-    { id: 4, title: 'Hilton Keynote Backdrop', category: 'Corporate', img: '/images/sws_robot_decor_1783346269673.jpg' },
-    { id: 5, title: 'Fairy Light Arch Lanes', category: 'Lighting', img: '/images/sws_robot_decor_1783346269673.jpg' },
-    { id: 6, title: 'Ella Greenery Escape Van', category: 'Travel', img: '/images/van_tour.jpg' },
-    { id: 7, title: 'Church Canopy Pew Flowers', category: 'Wedding', img: '/images/church_decor.jpg' },
-    { id: 8, title: 'Cinematic Newborn Shoot', category: 'Cinema', img: '/images/newborn_shoot.jpg' }
+    { id: '1', title: 'Mughal Imperial Canopy', category: 'Wedding', img: '/images/wedding_decoration_1782729925686.jpg' },
+    { id: '2', title: 'Studio U1 Drone Footage', category: 'Cinema', img: '/images/drone_photography.jpg' },
+    { id: '3', title: 'VIP Wedding Mercedes', category: 'Travel', img: '/images/wedding_decoration_1782729925686.jpg' },
+    { id: '4', title: 'Hilton Keynote Backdrop', category: 'Corporate', img: '/images/sws_robot_decor_1783346269673.jpg' },
+    { id: '5', title: 'Fairy Light Arch Lanes', category: 'Lighting', img: '/images/sws_robot_decor_1783346269673.jpg' },
+    { id: '6', title: 'Ella Greenery Escape Van', category: 'Travel', img: '/images/van_tour.jpg' },
+    { id: '7', title: 'Church Canopy Pew Flowers', category: 'Wedding', img: '/images/church_decor.jpg' },
+    { id: '8', title: 'Cinematic Newborn Shoot', category: 'Cinema', img: '/images/newborn_shoot.jpg' }
   ];
 
+  const activeGalleryItems = galleryList.length > 0 ? galleryList : galleryItems;
+
   const filteredGallery = activeFilter === 'All' 
-    ? galleryItems 
-    : galleryItems.filter(item => item.category === activeFilter);
+    ? activeGalleryItems 
+    : activeGalleryItems.filter(item => item.category === activeFilter);
 
   // FAQ Accordion State
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -225,6 +249,8 @@ export default function Home() {
     { q: 'How early should I book the Travels VIP luxury Mercedes convoys?', a: 'For wedding Mercedes hires, VIP Colombo transfers, or customized Ella greenery escape runs, we suggest placing bookings at least 3 weeks in advance to lock the fleet allocation.' },
     { q: 'Is there direct database integration for checking event progress?', a: 'Yes. Authorized clients receive credentials to access the secure Client Portal to review real-time blueprints, invoice payouts, and design drafts.' }
   ];
+
+  const activeFaqs = faqList.length > 0 ? faqList : faqs;
 
   return (
     <div className="relative min-h-screen bg-[#050816] text-[#BFC8E6] font-sans overflow-x-hidden text-left pb-10">
@@ -731,7 +757,7 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col gap-4 text-left select-none">
-                {faqs.map((faq, idx) => (
+                {activeFaqs.map((faq, idx) => (
                   <div 
                     key={idx}
                     className="glass rounded-2xl border border-white/5 overflow-hidden transition-all duration-300"

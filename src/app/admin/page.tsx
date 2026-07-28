@@ -3,16 +3,24 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { 
+  collection, getDocs, doc, setDoc, deleteDoc, updateDoc, 
+  onSnapshot, serverTimestamp 
+} from 'firebase/firestore';
 import { seedDatabase } from '@/lib/seeder';
-import { Database, FolderPlus, Calendar, Users, Check, Trash2, ArrowUpRight, Cpu, Settings, Sliders, Shield, Tag, Globe, Sparkles, Image as ImageIcon, Car, Info } from 'lucide-react';
+import { 
+  Database, FolderPlus, Calendar, Users, Check, Trash2, ArrowUpRight, 
+  Cpu, Settings, Sliders, Shield, Tag, Globe, Sparkles, Image as ImageIcon, 
+  Car, Info, PlusCircle, HelpCircle, User, Star
+} from 'lucide-react';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import confetti from 'canvas-confetti';
 
 export default function AdminPortal() {
   const [activeTab, setActiveTab] = useState<'seeder' | 'bookings' | 'divisions' | 'leads' | 'cms'>('bookings');
-  const [cmsSubTab, setCmsSubTab] = useState<'stats' | 'seo' | 'announcements' | 'fleet' | 'it' | 'posters'>('stats');
+  const [cmsSubTab, setCmsSubTab] = useState<'homepage' | 'stats' | 'seo' | 'announcements' | 'faqs' | 'testimonials' | 'gallery' | 'posters'>('homepage');
   
   // Authentication states
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,6 +40,26 @@ export default function AdminPortal() {
   const [leads, setLeads] = useState<any[]>([]);
   const [seeding, setSeeding] = useState(false);
   const [seedSuccess, setSeedSuccess] = useState(false);
+
+  // Homepage CMS state
+  const [homepageData, setHomepageData] = useState({
+    heroTitleLine1: 'Crafting Luxury Events',
+    heroTitleLine2: 'That People Remember Forever.',
+    heroDescription: 'We deploy logical, enterprise-grade cloud software while choreographing breath-taking wedding, corporate, and travel events that live in memory.',
+    heroVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4'
+  });
+
+  // FAQs CMS state
+  const [faqList, setFaqList] = useState<Array<{q: string; a: string}>>([]);
+  const [newFaq, setNewFaq] = useState({ q: '', a: '' });
+
+  // Testimonials CMS state
+  const [testimonialList, setTestimonialList] = useState<any[]>([]);
+  const [newTestimonial, setNewTestimonial] = useState({ name: '', role: '', comment: '', avatar: '', rating: 5 });
+
+  // Gallery CMS state
+  const [galleryList, setGalleryList] = useState<any[]>([]);
+  const [newGalleryItem, setNewGalleryItem] = useState({ title: '', category: 'Wedding', img: '' });
 
   // Stats CMS state
   const [statsData, setStatsData] = useState({
@@ -58,6 +86,20 @@ export default function AdminPortal() {
     secondaryColor: '#0c152b'
   });
 
+  // New division configuration form state
+  const [divForm, setDivForm] = useState({
+    id: '',
+    name: '',
+    slug: '',
+    tagline: '',
+    description: '',
+    accentColor: '#10b981',
+    bgImage: '/images/sws_robot_decor_1783346269673.jpg',
+    serviceTitle1: '', serviceDesc1: '',
+    serviceTitle2: '', serviceDesc2: '',
+    serviceTitle3: '', serviceDesc3: ''
+  });
+
   // Check login state on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -66,6 +108,50 @@ export default function AdminPortal() {
         setIsLoggedIn(true);
       }
     }
+  }, []);
+
+  // Listen to dynamic configs in Firestore (homepage settings)
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'homepage'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        setHomepageData({
+          heroTitleLine1: d.heroTitleLine1 || 'Crafting Luxury Events',
+          heroTitleLine2: d.heroTitleLine2 || 'That People Remember Forever.',
+          heroDescription: d.heroDescription || '',
+          heroVideoUrl: d.heroVideoUrl || ''
+        });
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Listen to FAQs in Firestore
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'faqs'), (snap) => {
+      if (snap.exists()) {
+        setFaqList(snap.data().items || []);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Listen to Testimonials collection
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'testimonials'), (snap) => {
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setTestimonialList(list);
+    });
+    return () => unsub();
+  }, []);
+
+  // Listen to Gallery collection
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'gallery'), (snap) => {
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setGalleryList(list);
+    });
+    return () => unsub();
   }, []);
 
   // Listen to division posters settings in Firestore
@@ -83,59 +169,6 @@ export default function AdminPortal() {
     });
     return () => unsubPosters();
   }, []);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username === 'admin' && password === 'admin') {
-      setIsLoggedIn(true);
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('mahdev_admin_logged', 'true');
-      }
-      confetti({
-        particleCount: 100,
-        spread: 60,
-        colors: ['#c5a880', '#dfba73']
-      });
-      setLoginError('');
-    } else {
-      setLoginError('Invalid administrator credentials.');
-    }
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('mahdev_admin_logged');
-    }
-  };
-
-  const handleSavePosters = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await setDoc(doc(db, 'settings', 'division_posters'), {
-        ...posters,
-        updatedAt: serverTimestamp()
-      });
-      confetti({ particleCount: 50 });
-      alert("Division Cover Posters successfully updated on Firestore!");
-    } catch (err) {
-      alert("Error saving posters settings: " + (err as Error).message);
-    }
-  };
-
-  // New division configuration form state
-  const [divForm, setDivForm] = useState({
-    id: '',
-    name: '',
-    slug: '',
-    tagline: '',
-    description: '',
-    accentColor: '#10b981',
-    bgImage: '/images/sws_robot_decor_1783346269673.jpg',
-    serviceTitle1: '', serviceDesc1: '',
-    serviceTitle2: '', serviceDesc2: '',
-    serviceTitle3: '', serviceDesc3: ''
-  });
 
   // Listen to bookings in real-time
   useEffect(() => {
@@ -190,6 +223,59 @@ export default function AdminPortal() {
     return () => unsubSeo();
   }, [seoData.pageKey]);
 
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username === 'admin' && password === 'admin') {
+      setIsLoggedIn(true);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('mahdev_admin_logged', 'true');
+      }
+      confetti({
+        particleCount: 100,
+        spread: 60,
+        colors: ['#D4AF37', '#FFD978']
+      });
+      setLoginError('');
+    } else {
+      setLoginError('Invalid administrator credentials.');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('mahdev_admin_logged');
+    }
+  };
+
+  const handleSaveHomepage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await setDoc(doc(db, 'settings', 'homepage'), {
+        ...homepageData,
+        updatedAt: serverTimestamp()
+      });
+      confetti({ particleCount: 50 });
+      alert("Homepage Hero settings successfully updated on Firestore!");
+    } catch (err) {
+      alert("Error saving homepage: " + (err as Error).message);
+    }
+  };
+
+  const handleSavePosters = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await setDoc(doc(db, 'settings', 'division_posters'), {
+        ...posters,
+        updatedAt: serverTimestamp()
+      });
+      confetti({ particleCount: 50 });
+      alert("Division Cover Posters successfully updated on Firestore!");
+    } catch (err) {
+      alert("Error saving posters settings: " + (err as Error).message);
+    }
+  };
+
   const handleSeed = async (force = false) => {
     setSeeding(true);
     setSeedSuccess(false);
@@ -199,7 +285,7 @@ export default function AdminPortal() {
       confetti({
         particleCount: 120,
         spread: 60,
-        colors: ['#c5a880', '#dfba73', '#10b981']
+        colors: ['#D4AF37', '#FFD978', '#10b981']
       });
       alert(result ? "Firebase database successfully seeded!" : "Database already has records.");
     } catch (err) {
@@ -287,6 +373,101 @@ export default function AdminPortal() {
     }
   };
 
+  // Add Dynamic Custom FAQ
+  const handleAddFaq = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFaq.q || !newFaq.a) return;
+    try {
+      const updatedList = [...faqList, newFaq];
+      await setDoc(doc(db, 'settings', 'faqs'), {
+        items: updatedList,
+        updatedAt: serverTimestamp()
+      });
+      setNewFaq({ q: '', a: '' });
+      confetti({ particleCount: 30 });
+      alert("FAQ item added successfully!");
+    } catch (err) {
+      alert("Error saving FAQ: " + (err as Error).message);
+    }
+  };
+
+  // Delete Dynamic FAQ
+  const handleDeleteFaq = async (idx: number) => {
+    try {
+      const updatedList = faqList.filter((_, i) => i !== idx);
+      await setDoc(doc(db, 'settings', 'faqs'), {
+        items: updatedList,
+        updatedAt: serverTimestamp()
+      });
+    } catch (err) {
+      alert("Error deleting FAQ: " + (err as Error).message);
+    }
+  };
+
+  // Add Dynamic Testimonial Review
+  const handleAddTestimonial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTestimonial.name || !newTestimonial.comment) return;
+    try {
+      const testId = `test-${Date.now()}`;
+      await setDoc(doc(db, 'testimonials', testId), {
+        name: newTestimonial.name,
+        role: newTestimonial.role || 'Client Partner',
+        comment: newTestimonial.comment,
+        avatar: newTestimonial.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120',
+        rating: Number(newTestimonial.rating),
+        updatedAt: serverTimestamp()
+      });
+      setNewTestimonial({ name: '', role: '', comment: '', avatar: '', rating: 5 });
+      confetti({ particleCount: 30 });
+      alert("Testimonial review successfully added to Firestore!");
+    } catch (err) {
+      alert("Error saving testimonial: " + (err as Error).message);
+    }
+  };
+
+  // Delete Testimonial
+  const handleDeleteTestimonial = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this testimonial review?")) return;
+    try {
+      await deleteDoc(doc(db, 'testimonials', id));
+      confetti({ particleCount: 15 });
+    } catch (err) {
+      alert("Delete failed");
+    }
+  };
+
+  // Add Dynamic Gallery item
+  const handleAddGalleryItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newGalleryItem.title || !newGalleryItem.img) return;
+    try {
+      const galId = `gal-${Date.now()}`;
+      await setDoc(doc(db, 'gallery', galId), {
+        title: newGalleryItem.title,
+        category: newGalleryItem.category,
+        img: newGalleryItem.img,
+        updatedAt: serverTimestamp()
+      });
+      setNewGalleryItem({ title: '', category: 'Wedding', img: '' });
+      confetti({ particleCount: 30 });
+      alert("Gallery image successfully added to Firestore!");
+    } catch (err) {
+      alert("Error saving gallery item: " + (err as Error).message);
+    }
+  };
+
+  // Delete Gallery Item
+  const handleDeleteGalleryItem = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this gallery item?")) return;
+    try {
+      await deleteDoc(doc(db, 'gallery', id));
+      confetti({ particleCount: 15 });
+    } catch (err) {
+      alert("Delete failed");
+    }
+  };
+
   // Add dynamic custom division
   const handleAddDivision = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -332,10 +513,9 @@ export default function AdminPortal() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-[#050b16] flex items-center justify-center p-4 text-white text-left relative overflow-hidden">
-        {/* Abstract glowing backgrounds */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full filter blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gold-accent/10 rounded-full filter blur-[120px] pointer-events-none" />
+      <div className="min-h-screen bg-[#050816] flex items-center justify-center p-4 text-white text-left relative overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full filter blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gold-accent/5 rounded-full filter blur-[120px] pointer-events-none" />
 
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
@@ -355,24 +535,24 @@ export default function AdminPortal() {
 
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Administrator Username</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Username</label>
               <input 
                 type="text" required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="e.g. admin"
-                className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-2xl px-4 py-3.5 text-sm focus:outline-none text-white transition-all placeholder:text-gray-600"
+                className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-2xl px-4 py-3.5 text-sm focus:outline-none text-white transition-all placeholder:text-gray-600 font-sans"
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Access Password</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1">Password</label>
               <input 
                 type="password" required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-2xl px-4 py-3.5 text-sm focus:outline-none text-white transition-all placeholder:text-gray-600"
+                className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-2xl px-4 py-3.5 text-sm focus:outline-none text-white transition-all placeholder:text-gray-600 font-sans"
               />
             </div>
 
@@ -395,7 +575,7 @@ export default function AdminPortal() {
           </form>
 
           <p className="text-[10px] text-gray-600 text-center font-sans mt-8 uppercase tracking-widest">
-            Mahdev Pvt Ltd • Security Core
+            Mahdev Pvt Ltd &bull; Security Core
           </p>
         </motion.div>
       </div>
@@ -406,12 +586,12 @@ export default function AdminPortal() {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-navy-dark pt-32 pb-24 text-white text-left">
+      <main className="min-h-screen bg-[#050816] pt-32 pb-24 text-white text-left">
         <div className="max-w-7xl mx-auto px-6">
           
           {/* Dashboard Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-8 mb-12">
-            <div className="flex justify-between items-center w-full md:w-auto gap-4">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border-b border-white/5 pb-8 mb-12">
+            <div className="flex justify-between items-center w-full lg:w-auto gap-4">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent flex items-center gap-1">
                   <Sliders className="w-3.5 h-3.5 text-gold-accent" /> MAHDEV CONTROL CENTRE
@@ -421,7 +601,7 @@ export default function AdminPortal() {
 
               <button 
                 onClick={handleLogout}
-                className="px-4 py-2 rounded-xl border border-white/10 hover:border-red-500 hover:text-red-400 text-xs font-bold tracking-wider transition-all md:hidden"
+                className="px-4 py-2 rounded-xl border border-white/10 hover:border-red-500 hover:text-red-400 text-xs font-bold tracking-wider transition-all lg:hidden"
               >
                 SIGN OUT
               </button>
@@ -455,7 +635,7 @@ export default function AdminPortal() {
 
               <button 
                 onClick={handleLogout}
-                className="px-5 py-2.5 rounded-xl border border-white/10 hover:border-red-500 hover:text-red-400 text-xs font-bold tracking-wider transition-all hidden md:block"
+                className="px-5 py-2.5 rounded-xl border border-white/10 hover:border-red-500 hover:text-red-400 text-xs font-bold tracking-wider transition-all hidden lg:block"
               >
                 SIGN OUT
               </button>
@@ -524,7 +704,7 @@ export default function AdminPortal() {
                               <button
                                 onClick={() => handleDeleteBooking(bk.id)}
                                 className="p-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all cursor-pointer"
-                                title="Delete Record"
+                                  title="Delete Record"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -546,12 +726,14 @@ export default function AdminPortal() {
                 <div className="lg:col-span-3 flex flex-col gap-2.5">
                   <span className="text-[9px] uppercase tracking-wider text-gray-500 font-bold block pl-3 mb-1">CMS MODULES</span>
                   {[
+                    { id: 'homepage', label: 'Homepage Header', icon: Sliders },
                     { id: 'stats', label: 'Achievements Counters', icon: Sliders },
                     { id: 'seo', label: 'SEO Metadata Manager', icon: Globe },
                     { id: 'announcements', label: 'Promotions & Themes', icon: Tag },
-                    { id: 'fleet', label: 'Travel Fleet Speeds', icon: Car },
-                    { id: 'it', label: 'IT Case Studies', icon: Cpu },
-                    { id: 'posters', label: 'Division Posters', icon: ImageIcon }
+                    { id: 'posters', label: 'Division Posters', icon: ImageIcon },
+                    { id: 'faqs', label: 'Homepage FAQs', icon: HelpCircle },
+                    { id: 'testimonials', label: 'Client Reviews', icon: User },
+                    { id: 'gallery', label: 'Event Portfolio', icon: ImageIcon }
                   ].map((sub) => {
                     const SubIcon = sub.icon;
                     return (
@@ -576,6 +758,69 @@ export default function AdminPortal() {
                 <div className="lg:col-span-9">
                   <AnimatePresence mode="wait">
                     
+                    {/* Homepage Header editor */}
+                    {cmsSubTab === 'homepage' && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5"
+                      >
+                        <div className="border-b border-white/5 pb-4 mb-6">
+                          <h3 className="font-display font-black text-xl text-white">Homepage Hero Configuration</h3>
+                          <p className="text-gray-400 text-xs mt-1">Configure layout text lines and auto-playing video previews.</p>
+                        </div>
+
+                        <form onSubmit={handleSaveHomepage} className="flex flex-col gap-5">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Hero Title Line 1 (White)</label>
+                            <input 
+                              type="text" required
+                              value={homepageData.heroTitleLine1}
+                              onChange={(e) => setHomepageData({ ...homepageData, heroTitleLine1: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
+                            />
+                          </div>
+                          
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Hero Title Line 2 (Gold Gradient)</label>
+                            <input 
+                              type="text" required
+                              value={homepageData.heroTitleLine2}
+                              onChange={(e) => setHomepageData({ ...homepageData, heroTitleLine2: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Hero Subtitle / Description Paragraph</label>
+                            <textarea 
+                              rows={3} required
+                              value={homepageData.heroDescription}
+                              onChange={(e) => setHomepageData({ ...homepageData, heroDescription: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white resize-none font-sans"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Auto-Playing Card Video URL (mp4)</label>
+                            <input 
+                              type="text" required
+                              value={homepageData.heroVideoUrl}
+                              onChange={(e) => setHomepageData({ ...homepageData, heroVideoUrl: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono"
+                            />
+                          </div>
+
+                          <button 
+                            type="submit"
+                            className="py-3 px-6 rounded-xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest hover:brightness-110 self-start mt-2 transition-all cursor-pointer"
+                          >
+                            SAVE HOMEPAGE DATA
+                          </button>
+                        </form>
+                      </motion.div>
+                    )}
+
                     {/* Stat editor */}
                     {cmsSubTab === 'stats' && (
                       <motion.div 
@@ -681,7 +926,7 @@ export default function AdminPortal() {
                               type="text" required
                               value={seoData.title}
                               onChange={(e) => setSeoData({ ...seoData, title: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
                             />
                           </div>
 
@@ -691,7 +936,7 @@ export default function AdminPortal() {
                               rows={3} required
                               value={seoData.description}
                               onChange={(e) => setSeoData({ ...seoData, description: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white resize-none"
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white resize-none font-sans"
                             />
                           </div>
 
@@ -701,7 +946,7 @@ export default function AdminPortal() {
                               type="text" required
                               value={seoData.keywords}
                               onChange={(e) => setSeoData({ ...seoData, keywords: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
                             />
                           </div>
 
@@ -734,7 +979,7 @@ export default function AdminPortal() {
                               type="text" required
                               value={promoData.announcement}
                               onChange={(e) => setPromoData({ ...promoData, announcement: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
                             />
                           </div>
 
@@ -778,67 +1023,7 @@ export default function AdminPortal() {
                       </motion.div>
                     )}
 
-                    {/* Fleet Mock Management Info */}
-                    {cmsSubTab === 'fleet' && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5 flex flex-col gap-4"
-                      >
-                        <div className="border-b border-white/5 pb-4 mb-2">
-                          <h3 className="font-display font-black text-xl text-white">Travel Vehicle Fleet Registry</h3>
-                          <p className="text-gray-400 text-xs mt-1">Manage active rental cars, AC specifications, seating counts, and chauffeurs.</p>
-                        </div>
-
-                        <div className="p-4 rounded-xl bg-gold-accent/5 border border-gold-accent/20 text-xs text-gold-soft leading-relaxed flex gap-3">
-                          <Info className="w-5 h-5 shrink-0" />
-                          <span>
-                            <strong>Real-Time CMS Sync Active:</strong> Current fleet cars are driven dynamically from the travels database collections. Add new vehicle profiles below or request a database seeder refresh.
-                          </span>
-                        </div>
-
-                        <div className="grid gap-3 font-sans text-xs">
-                          {['Toyota KDH High-Roof Van (14 Seats)', 'Mercedes-Benz C-Class VIP (4 Seats)', 'Chrysler 300C Limo (8 Seats)'].map((car, idx) => (
-                            <div key={idx} className="p-4 rounded-xl bg-white/5 flex items-center justify-between border border-white/5">
-                              <span className="font-semibold text-white">{car}</span>
-                              <span className="text-[10px] text-green-400 font-bold uppercase tracking-wider">Active in CMS</span>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {/* IT Mock Management Info */}
-                    {cmsSubTab === 'it' && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5 flex flex-col gap-4"
-                      >
-                        <div className="border-b border-white/5 pb-4 mb-2">
-                          <h3 className="font-display font-black text-xl text-white">IT Project case studies</h3>
-                          <p className="text-gray-400 text-xs mt-1">Edit screenshot preview URLs, features, technology stack frameworks, and Live demo URLs.</p>
-                        </div>
-
-                        <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 text-xs text-blue-300 leading-relaxed flex gap-3">
-                          <Info className="w-5 h-5 shrink-0" />
-                          <span>
-                            <strong>IT Portfolio CMS Core:</strong> Case studies representing ERP SaaS, POS registers, and Cloud Kubernetes clusters are loaded from the cloud collections registry.
-                          </span>
-                        </div>
-
-                        <div className="grid gap-3 font-sans text-xs">
-                          {['Mahdev Enterprise ERP Suite', 'Cloud POS Cash Registers', 'AWS Kubernetes clusters deployment'].map((item, idx) => (
-                            <div key={idx} className="p-4 rounded-xl bg-white/5 flex items-center justify-between border border-white/5">
-                              <span className="font-semibold text-white">{item}</span>
-                              <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Sync Active</span>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {/* Division Posters CMS Tab */}
+                    {/* Posters CMS editor */}
                     {cmsSubTab === 'posters' && (
                       <motion.div 
                         initial={{ opacity: 0, y: 10 }}
@@ -857,7 +1042,7 @@ export default function AdminPortal() {
                               type="text" required
                               value={posters.sws}
                               onChange={(e) => setPosters({ ...posters, sws: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono"
                             />
                           </div>
 
@@ -867,7 +1052,7 @@ export default function AdminPortal() {
                               type="text" required
                               value={posters.u1}
                               onChange={(e) => setPosters({ ...posters, u1: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono"
                             />
                           </div>
 
@@ -877,7 +1062,7 @@ export default function AdminPortal() {
                               type="text" required
                               value={posters.travels}
                               onChange={(e) => setPosters({ ...posters, travels: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono"
                             />
                           </div>
 
@@ -887,7 +1072,7 @@ export default function AdminPortal() {
                               type="text" required
                               value={posters.it}
                               onChange={(e) => setPosters({ ...posters, it: e.target.value })}
-                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono"
                             />
                           </div>
 
@@ -898,6 +1083,213 @@ export default function AdminPortal() {
                             SAVE POSTERS
                           </button>
                         </form>
+                      </motion.div>
+                    )}
+
+                    {/* Dynamic FAQs tab */}
+                    {cmsSubTab === 'faqs' && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5 flex flex-col gap-6"
+                      >
+                        <div className="border-b border-white/5 pb-4">
+                          <h3 className="font-display font-black text-xl text-white">Homepage FAQ Accordions</h3>
+                          <p className="text-gray-400 text-xs mt-1">Add or remove frequently asked questions shown on the homepage.</p>
+                        </div>
+
+                        {/* Add new FAQ */}
+                        <form onSubmit={handleAddFaq} className="flex flex-col gap-4 bg-white/2 p-5 rounded-2xl border border-white/5 text-left">
+                          <span className="text-[10px] font-bold text-gold-accent uppercase tracking-wider">Add New FAQ</span>
+                          <div className="flex flex-col gap-2">
+                            <input 
+                              type="text" placeholder="Question Title (e.g. What packages are offered?)" required
+                              value={newFaq.q} onChange={(e) => setNewFaq({ ...newFaq, q: e.target.value })}
+                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
+                            />
+                            <textarea 
+                              rows={3} placeholder="Answer Content details..." required
+                              value={newFaq.a} onChange={(e) => setNewFaq({ ...newFaq, a: e.target.value })}
+                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white resize-none font-sans"
+                            />
+                          </div>
+                          <button 
+                            type="submit" 
+                            className="py-2.5 px-5 bg-gold-accent hover:bg-gold-soft text-navy-dark text-xs font-bold rounded-xl self-start transition-all cursor-pointer"
+                          >
+                            ADD FAQ ITEM
+                          </button>
+                        </form>
+
+                        {/* List of active FAQs */}
+                        <div className="flex flex-col gap-3 text-left">
+                          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider pl-1">Active FAQs ({faqList.length})</span>
+                          {faqList.map((faq, idx) => (
+                            <div key={idx} className="p-4.5 rounded-2xl glass border border-white/5 flex items-center justify-between gap-4 font-sans">
+                              <div>
+                                <span className="block font-bold text-white text-sm">{faq.q}</span>
+                                <span className="block text-xs text-gray-400 mt-1 leading-relaxed">{faq.a}</span>
+                              </div>
+                              <button 
+                                onClick={() => handleDeleteFaq(idx)}
+                                className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/25 transition-colors shrink-0"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Testimonials tab */}
+                    {cmsSubTab === 'testimonials' && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5 flex flex-col gap-6"
+                      >
+                        <div className="border-b border-white/5 pb-4">
+                          <h3 className="font-display font-black text-xl text-white">Client Testimonials Reviews</h3>
+                          <p className="text-gray-400 text-xs mt-1">Manage dynamic feedback logs that feed into the infinite carousel.</p>
+                        </div>
+
+                        {/* Add new Testimonial */}
+                        <form onSubmit={handleAddTestimonial} className="flex flex-col gap-4 bg-white/2 p-5 rounded-2xl border border-white/5 text-left font-sans">
+                          <span className="text-[10px] font-bold text-gold-accent uppercase tracking-wider">Add Client Feedback</span>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <input 
+                              type="text" placeholder="Client Name" required
+                              value={newTestimonial.name} onChange={(e) => setNewTestimonial({ ...newTestimonial, name: e.target.value })}
+                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
+                            />
+                            <input 
+                              type="text" placeholder="Client Company / Location" required
+                              value={newTestimonial.role} onChange={(e) => setNewTestimonial({ ...newTestimonial, role: e.target.value })}
+                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
+                            />
+                            <input 
+                              type="text" placeholder="Avatar Photo URL (Optional)"
+                              value={newTestimonial.avatar} onChange={(e) => setNewTestimonial({ ...newTestimonial, avatar: e.target.value })}
+                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
+                            />
+                            <select 
+                              value={newTestimonial.rating} onChange={(e) => setNewTestimonial({ ...newTestimonial, rating: Number(e.target.value) })}
+                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans [&>option]:bg-navy-dark"
+                            >
+                              <option value="5">5 Stars Rating</option>
+                              <option value="4">4 Stars Rating</option>
+                              <option value="3">3 Stars Rating</option>
+                            </select>
+                          </div>
+                          <textarea 
+                            rows={3} placeholder="Client comment review details..." required
+                            value={newTestimonial.comment} onChange={(e) => setNewTestimonial({ ...newTestimonial, comment: e.target.value })}
+                            className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white resize-none font-sans"
+                          />
+                          <button 
+                            type="submit" 
+                            className="py-2.5 px-5 bg-gold-accent hover:bg-gold-soft text-navy-dark text-xs font-bold rounded-xl self-start transition-all cursor-pointer"
+                          >
+                            ADD TESTIMONIAL
+                          </button>
+                        </form>
+
+                        {/* List of active Testimonials */}
+                        <div className="flex flex-col gap-3 text-left">
+                          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider pl-1">Active Testimonials ({testimonialList.length})</span>
+                          {testimonialList.map((test) => (
+                            <div key={test.id} className="p-4.5 rounded-2xl glass border border-white/5 flex items-center justify-between gap-4 font-sans">
+                              <div className="flex items-center gap-3">
+                                <Image src={test.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120'} alt="Avatar" width={40} height={40} className="rounded-full object-cover border border-white/10 shrink-0" />
+                                <div>
+                                  <span className="block font-bold text-white text-sm">{test.name}</span>
+                                  <span className="block text-[10px] text-gray-400 mt-0.5">{test.role} &bull; {test.rating} Stars</span>
+                                  <p className="text-xs text-gray-300 italic mt-1.5 leading-relaxed">"{test.comment}"</p>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => handleDeleteTestimonial(test.id)}
+                                className="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/25 transition-colors shrink-0"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Gallery photos editor */}
+                    {cmsSubTab === 'gallery' && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5 flex flex-col gap-6"
+                      >
+                        <div className="border-b border-white/5 pb-4">
+                          <h3 className="font-display font-black text-xl text-white">Event Portfolio Gallery</h3>
+                          <p className="text-gray-400 text-xs mt-1">Manage categories and image paths representing SWS wedding decors, Travels fleet convoys, and Cinema shoots.</p>
+                        </div>
+
+                        {/* Add Gallery Item */}
+                        <form onSubmit={handleAddGalleryItem} className="flex flex-col gap-4 bg-white/2 p-5 rounded-2xl border border-white/5 text-left font-sans">
+                          <span className="text-[10px] font-bold text-gold-accent uppercase tracking-wider">Add Image to Portfolio</span>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <input 
+                              type="text" placeholder="Project Title (e.g. Mughal Gold Canopy)" required
+                              value={newGalleryItem.title} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, title: e.target.value })}
+                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans sm:col-span-2"
+                            />
+                            <select 
+                              value={newGalleryItem.category} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, category: e.target.value })}
+                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans [&>option]:bg-navy-dark"
+                            >
+                              <option value="Wedding">Wedding Category</option>
+                              <option value="Corporate">Corporate Category</option>
+                              <option value="Cinema">Cinema Category</option>
+                              <option value="Travel">Travel Category</option>
+                              <option value="Lighting">Lighting Category</option>
+                            </select>
+                            <input 
+                              type="text" placeholder="Image URL (e.g. /images/wedding_decoration_1782729925686.jpg)" required
+                              value={newGalleryItem.img} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, img: e.target.value })}
+                              className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-mono sm:col-span-3"
+                            />
+                          </div>
+                          <button 
+                            type="submit" 
+                            className="py-2.5 px-5 bg-gold-accent hover:bg-gold-soft text-navy-dark text-xs font-bold rounded-xl self-start transition-all cursor-pointer"
+                          >
+                            ADD GALLERY ITEM
+                          </button>
+                        </form>
+
+                        {/* List of active items */}
+                        <div className="flex flex-col gap-3 text-left">
+                          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider pl-1">Active Portfolio Items ({galleryList.length})</span>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {galleryList.map((item) => (
+                              <div key={item.id} className="p-3 rounded-2xl glass border border-white/5 flex items-center justify-between gap-3 font-sans">
+                                <div className="flex items-center gap-3">
+                                  <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-white/10 shrink-0">
+                                    <Image src={item.img} alt={item.title} fill className="object-cover" />
+                                  </div>
+                                  <div className="text-left">
+                                    <span className="block font-bold text-white text-xs leading-normal">{item.title}</span>
+                                    <span className="block text-[8px] uppercase tracking-wider text-gold-accent font-semibold mt-0.5">{item.category}</span>
+                                  </div>
+                                </div>
+                                <button 
+                                  onClick={() => handleDeleteGalleryItem(item.id)}
+                                  className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/25 transition-colors shrink-0"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       </motion.div>
                     )}
 
@@ -965,7 +1357,7 @@ export default function AdminPortal() {
                     <textarea 
                       rows={3} required placeholder="Detailed corporate definition of operations..."
                       value={divForm.description} onChange={(e) => setDivForm({ ...divForm, description: e.target.value })}
-                      className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white resize-none"
+                      className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white resize-none font-sans"
                     />
                   </div>
 
@@ -1057,10 +1449,10 @@ export default function AdminPortal() {
 
             {/* Tab: Seeder */}
             {activeTab === 'seeder' && (
-              <div className="glass-premium rounded-3xl p-8 border border-white/5 flex flex-col gap-6 max-w-2xl">
+              <div className="glass-premium rounded-3xl p-8 border border-white/5 flex flex-col gap-6 max-w-2xl text-left">
                 <h3 className="font-display font-black text-2xl text-white">Firestore Database Initialization</h3>
                 <p className="font-sans text-sm text-gray-400 leading-relaxed">
-                  Seed initial datasets to populate all operational division services, mock reviews, fleet cars, blogs, and career listings directly in Cloud Firestore database.
+                  Seed initial datasets to populate homepage Hero details, FAQ questions, testimonials, division services, and career listings directly in Cloud Firestore.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 mt-4">
@@ -1082,7 +1474,7 @@ export default function AdminPortal() {
 
                 {seedSuccess && (
                   <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-sans mt-2">
-                    ✓ Firestore seed successful! Divisions, reviews, and blogs are active.
+                    ✓ Firestore seed successful! Homepage details, FAQs, testimonials, and divisions are active.
                   </div>
                 )}
               </div>

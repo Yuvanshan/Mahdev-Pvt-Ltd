@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import { ArrowRight, Sparkles, Play, Calendar, MapPin, PlayCircle } from 'lucide-react';
 import * as THREE from 'three';
+import { db } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 const heroBulletTags = ['Events', 'Software', 'Media', 'Travels'];
 
@@ -16,6 +18,29 @@ export default function InteractiveHero() {
   
   // Parallax tracking
   const [parallaxY, setParallaxY] = useState(0);
+
+  // Firestore dynamic hero state
+  const [heroData, setHeroData] = useState({
+    title1: 'Crafting Luxury Events',
+    title2: 'That People Remember Forever.',
+    desc: 'We deploy logical, enterprise-grade cloud software while choreographing breath-taking wedding, corporate, and travel events that live in memory.',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4'
+  });
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'homepage'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        setHeroData({
+          title1: d.heroTitleLine1 || 'Crafting Luxury Events',
+          title2: d.heroTitleLine2 || 'That People Remember Forever.',
+          desc: d.heroDescription || 'We deploy logical, enterprise-grade cloud software while choreographing breath-taking wedding, corporate, and travel events that live in memory.',
+          videoUrl: d.heroVideoUrl || 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4'
+        });
+      }
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -182,8 +207,8 @@ export default function InteractiveHero() {
   } as any;
 
   const textLines = [
-    { text: "Crafting Luxury Events", class: "text-white" },
-    { text: "That People Remember Forever.", class: "text-gradient-gold" }
+    { text: heroData.title1, class: "text-white" },
+    { text: heroData.title2, class: "text-gradient-gold" }
   ];
 
   return (
@@ -263,7 +288,7 @@ export default function InteractiveHero() {
             transition={{ duration: 0.8, delay: 0.7 }}
             className="font-sans text-[#BFC8E6] text-base sm:text-[17px] leading-relaxed max-w-xl text-left font-light"
           >
-            We deploy logical, enterprise-grade cloud software while choreographing breath-taking wedding, corporate, and travel events that live in memory.
+            {heroData.desc}
           </motion.p>
 
           {/* Action Call to Buttons */}
@@ -329,7 +354,8 @@ export default function InteractiveHero() {
               {/* Video Preview Loop Container */}
               <div className="relative flex-1 my-4.5 rounded-2xl overflow-hidden border border-white/8 group shadow-inner z-10">
                 <video 
-                  src="https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4"
+                  key={heroData.videoUrl}
+                  src={heroData.videoUrl}
                   autoPlay
                   loop
                   muted

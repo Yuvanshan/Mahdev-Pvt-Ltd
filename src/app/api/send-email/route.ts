@@ -11,8 +11,9 @@ export async function POST(request: Request) {
       nodemailer = dynamicRequire('nodemailer');
     } catch (e) {
       console.log("----- [MOCK EMAIL DISPATCHED (Nodemailer Not Installed)] -----");
-      console.log("To: info.mahdev.lk@gmail.com");
-      console.log("From Client Name:", name);
+      console.log("To: yuvanshan875@gmail.com");
+      console.log("From: info.mahdev.lk@gmail.com");
+      console.log("Client Name:", name);
       console.log("Client Email:", email);
       console.log("Client Phone:", phone);
       console.log("Division Section:", division);
@@ -25,24 +26,26 @@ export async function POST(request: Request) {
       });
     }
 
-    // Use SMTP environment variables or fallback to a standard transporter
+    // Configure the Nodemailer SMTP transporter using standard environment variables
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.SMTP_USER || 'info.mahdev.lk@gmail.com',
-        // In production, the user will configure their Gmail App Password as SMTP_PASS env variable
-        pass: process.env.SMTP_PASS || 'mock_app_password_here'
+        // Gmail App Passwords can be configured as the SMTP_PASS environment variable
+        pass: process.env.SMTP_PASS || ''
       }
     });
 
     const mailOptions = {
       from: `"Mahdev Portal" <info.mahdev.lk@gmail.com>`,
-      to: 'info.mahdev.lk@gmail.com',
+      to: 'yuvanshan875@gmail.com',
       replyTo: email,
       subject: `New Contact Request: ${division} from ${name}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-          <h2 style="color: #dfba73; border-bottom: 2px solid #dfba73; padding-bottom: 10px; margin-top: 0;">New Contact Form Entry</h2>
+          <h2 style="color: #D4AF37; border-bottom: 2px solid #D4AF37; padding-bottom: 10px; margin-top: 0;">New Contact Form Entry</h2>
           <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
             <tr>
               <td style="padding: 8px 0; font-weight: bold; width: 150px; color: #555;">Name:</td>
@@ -58,10 +61,10 @@ export async function POST(request: Request) {
             </tr>
             <tr>
               <td style="padding: 8px 0; font-weight: bold; color: #555;">Division:</td>
-              <td style="padding: 8px 0; color: #dfba73; font-weight: bold;">${division}</td>
+              <td style="padding: 8px 0; color: #D4AF37; font-weight: bold;">${division}</td>
             </tr>
           </table>
-          <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #dfba73; border-radius: 4px;">
+          <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #D4AF37; border-radius: 4px;">
             <strong style="color: #555; display: block; margin-bottom: 5px;">Client Message:</strong>
             <p style="margin: 0; color: #444; line-height: 1.6; font-style: italic;">"${message || 'No message provided.'}"</p>
           </div>
@@ -72,10 +75,11 @@ export async function POST(request: Request) {
       `
     };
 
-    // If SMTP_PASS is mock or empty, log the email details in dev console to allow previewing
-    if (!process.env.SMTP_PASS || process.env.SMTP_PASS === 'mock_app_password_here') {
+    // If SMTP_PASS is not configured, fallback to mock console log in dev
+    if (!process.env.SMTP_PASS) {
       console.log("----- [MOCK EMAIL DISPATCHED] -----");
-      console.log("To: info.mahdev.lk@gmail.com");
+      console.log("To: yuvanshan875@gmail.com");
+      console.log("From: info.mahdev.lk@gmail.com");
       console.log("Subject:", mailOptions.subject);
       console.log("Body Preview:", message);
       console.log("-----------------------------------");

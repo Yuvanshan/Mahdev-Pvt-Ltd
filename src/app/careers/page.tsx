@@ -297,18 +297,65 @@ export default function CareersPortal() {
 
                           setUploadingResume(true);
                           try {
-                            const storageRef = ref(storage, `resumes/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
-                            const snapshot = await uploadBytes(storageRef, file);
-                            const downloadUrl = await getDownloadURL(snapshot.ref);
-                            setFormData(prev => ({ 
-                              ...prev, 
-                              resumeName: file.name, 
-                              resumeUrl: downloadUrl 
-                            }));
+                            // Try 1: Local API Upload Route (Best for local dev and standard hosting)
+                            try {
+                              const uploadFormData = new FormData();
+                              uploadFormData.append('file', file);
+                              const uploadRes = await fetch('/api/upload', {
+                                method: 'POST',
+                                body: uploadFormData
+                              });
+                              if (uploadRes.ok) {
+                                const uploadData = await uploadRes.json();
+                                if (uploadData.url) {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    resumeName: file.name,
+                                    resumeUrl: uploadData.url
+                                  }));
+                                  setUploadingResume(false);
+                                  return;
+                                }
+                              }
+                            } catch (localErr) {
+                              console.warn("Local API upload failed, falling back to Firebase Storage:", localErr);
+                            }
+
+                            // Try 2: Firebase Storage (Cloud fallback)
+                            try {
+                              const storageRef = ref(storage, `resumes/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+                              const snapshot = await uploadBytes(storageRef, file);
+                              const downloadUrl = await getDownloadURL(snapshot.ref);
+                              setFormData(prev => ({
+                                ...prev,
+                                resumeName: file.name,
+                                resumeUrl: downloadUrl
+                              }));
+                              setUploadingResume(false);
+                              return;
+                            } catch (fbErr) {
+                              console.warn("Firebase Storage upload failed, falling back to Base64 embedding:", fbErr);
+                            }
+
+                            // Try 3: Base64 data URL embedding (Fail-proof database-only fallback)
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              const base64Url = reader.result as string;
+                              setFormData(prev => ({
+                                ...prev,
+                                resumeName: file.name,
+                                resumeUrl: base64Url
+                              }));
+                              setUploadingResume(false);
+                            };
+                            reader.onerror = () => {
+                              throw new Error("FileReader failed to convert file to Base64.");
+                            };
+                            reader.readAsDataURL(file);
+
                           } catch (err) {
-                            console.error("Resume upload failed", err);
+                            console.error("All resume upload methods failed:", err);
                             alert("Failed to upload CV file. Please try again.");
-                          } finally {
                             setUploadingResume(false);
                           }
                         }}

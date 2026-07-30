@@ -115,11 +115,11 @@
   },
   {
     "route": "/careers",
-    "firstLoadUncompressedJsBytes": 1429008,
+    "firstLoadUncompressedJsBytes": 1429608,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0ny9yi5s2vsu6.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
-      "dist\\static\\chunks\\0e5w9k0jr8g8d.js",
+      "dist\\static\\chunks\\35vb3g_laxy6d.js",
       "dist\\static\\chunks\\1b4bfy0tsdl2z.js",
       "dist\\static\\chunks\\3jvkbm-wxvaor.js",
       "dist\\static\\chunks\\011mwum6do4jh.js",

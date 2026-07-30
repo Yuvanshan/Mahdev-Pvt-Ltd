@@ -21,7 +21,9 @@ import {
   Search,
   BookOpen,
   Languages,
-  Menu
+  Menu,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
@@ -44,8 +46,33 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   
-  // Theme and Language simulation
+  // Theme and Language control
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [language, setLanguage] = useState<'EN' | 'SI' | 'TA'>('EN');
+
+  useEffect(() => {
+    // Read theme preference from localStorage on client-side
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      setTheme('light');
+      document.documentElement.classList.remove('dark');
+    } else {
+      // Default to Dark Mode as requested
+      setTheme('dark');
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -239,15 +266,24 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Right Side Options (Search, Language, Action Button) */}
+           {/* Right Side Options (Search, Language, Action Button) */}
           <div className="hidden lg:flex items-center gap-5">
             {/* Search Trigger */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-3.5 rounded-2xl bg-white/3 border border-white/8 hover:border-gold-accent/40 text-white/70 hover:text-gold-soft transition-all duration-300 shadow-sm"
+              className="p-3.5 rounded-2xl bg-white/3 border border-white/8 hover:border-gold-accent/40 text-white/70 hover:text-gold-soft transition-all duration-300 shadow-sm cursor-pointer"
               title="Search Directory (Press '/')"
             >
               <Search className="w-4 h-4" />
+            </button>
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-3.5 rounded-2xl bg-white/3 border border-white/8 hover:border-gold-accent/40 text-white/70 hover:text-gold-soft transition-all duration-300 shadow-sm cursor-pointer"
+              title={theme === 'light' ? "Switch to Dark Mode" : "Switch to Light Mode"}
+            >
+              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </button>
 
             {/* Language Switcher */}
@@ -289,13 +325,20 @@ export default function Navbar() {
           <div className="lg:hidden flex items-center gap-3">
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2.5 rounded-xl glass border border-white/8 text-white/80"
+              className="p-2.5 rounded-xl glass border border-white/8 text-white/80 cursor-pointer"
             >
               <Search className="w-4 h-4" />
             </button>
             <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl glass border border-white/8 text-white/80 cursor-pointer"
+              title={theme === 'light' ? "Switch to Dark Mode" : "Switch to Light Mode"}
+            >
+              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            </button>
+            <button
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2.5 rounded-xl glass border border-white/8 text-white/80"
+              className="p-2.5 rounded-xl glass border border-white/8 text-white/80 cursor-pointer"
             >
               <Menu className="w-4 h-4" />
             </button>

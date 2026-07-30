@@ -19,7 +19,6 @@ import { getMediaType, getYouTubeId } from '@/lib/media';
 // Core Custom Components
 import Navbar from '@/components/Navbar';
 import InteractiveHero from '@/components/InteractiveHero';
-import CinematicIntro from '@/components/CinematicIntro';
 import TechCloud from '@/components/TechCloud';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Testimonials from '@/components/Testimonials';
@@ -87,20 +86,6 @@ function FadeUpSection({ children, id }: { children: React.ReactNode; id?: strin
 }
 
 export default function Home() {
-  const [showIntro, setShowIntro] = useState(false);
-
-  useEffect(() => {
-    const played = sessionStorage.getItem('mahdev_intro_played');
-    if (played !== 'true') {
-      setShowIntro(true);
-    }
-  }, []);
-
-  const handleIntroComplete = () => {
-    setShowIntro(false);
-    sessionStorage.setItem('mahdev_intro_played', 'true');
-  };
-
   const [searchOpen, setSearchOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -277,9 +262,6 @@ export default function Home() {
 
   return (
     <>
-      <AnimatePresence>
-        {showIntro && <CinematicIntro onComplete={handleIntroComplete} />}
-      </AnimatePresence>
       <div className="relative min-h-screen bg-[#050816] text-[#BFC8E6] font-sans overflow-x-hidden text-left pb-10">
         
         {/* Scroll indicator overlay */}

@@ -51,15 +51,18 @@ const reasons = [
 export default function WhyChooseUs() {
   return (
     <div className="w-full py-20 relative bg-navy-dark overflow-hidden">
+      {/* Background glow */}
+      <div className="glow-ball glow-ball-blue w-96 h-96 top-10 right-0 opacity-10" />
+
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="text-center mb-16 flex flex-col gap-3">
-          <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-soft">
+          <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
             OUR UNIQUE ADVANTAGE
           </span>
-          <h2 className="font-display font-bold text-3xl sm:text-4xl text-text-heading">
+          <h2 className="font-display font-black text-3xl sm:text-4xl text-white">
             Why Elite Companies Choose Mahdev
           </h2>
-          <p className="font-sans text-text-body max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+          <p className="font-sans text-gray-400 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
             We merge standard architectural precision with luxury design guidelines to create products that scale and spaces that inspire.
           </p>
         </div>
@@ -70,20 +73,20 @@ export default function WhyChooseUs() {
             return (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className={`glass p-6 rounded-xl border border-card-border hover:border-gold-soft/30 transition-all duration-200 group flex flex-col gap-4 hover:translate-y-[-2px]`}
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+                className={`glass p-6 rounded-3xl border ${reason.border} hover:border-gold-accent/30 transition-all duration-300 group flex flex-col gap-4 hover:translate-y-[-4px]`}
               >
-                <div className="w-10 h-10 rounded-lg bg-navy-medium flex items-center justify-center border border-card-border">
-                  <Icon className={`w-5 h-5 text-gold-soft`} />
+                <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-gold-accent/20 transition-colors">
+                  <Icon className={`w-6 h-6 ${reason.color} group-hover:scale-110 transition-transform`} />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <h3 className="font-display font-bold text-lg text-text-heading">
+                  <h3 className="font-display font-bold text-lg text-white group-hover:text-gold-soft transition-colors">
                     {reason.title}
                   </h3>
-                  <p className="font-sans text-sm text-text-body leading-relaxed">
+                  <p className="font-sans text-sm text-gray-400 leading-relaxed">
                     {reason.desc}
                   </p>
                 </div>

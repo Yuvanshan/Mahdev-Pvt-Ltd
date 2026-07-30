@@ -532,7 +532,7 @@ export default function CinematicIntro({ onComplete }: { onComplete: () => void 
   };
 
   return (
-    <div className="fixed inset-0 z-[99999] bg-[#050b16] select-none flex flex-col justify-between items-center py-12 px-6">
+    <div className="fixed inset-0 z-[99999] bg-[#21103B] select-none flex flex-col justify-between items-center py-12 px-6">
       {/* sound controls */}
       <div className="w-full max-w-7xl flex justify-between items-center relative z-20">
         <button

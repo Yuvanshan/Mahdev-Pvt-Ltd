@@ -12,7 +12,7 @@ import { seedDatabase } from '@/lib/seeder';
 import { 
   Database, FolderPlus, Calendar, Users, Check, Trash2, ArrowUpRight, 
   Cpu, Settings, Sliders, Shield, Tag, Globe, Sparkles, Image as ImageIcon, 
-  Car, Info, PlusCircle, HelpCircle, User, Star
+  Car, Info, PlusCircle, HelpCircle, User, Star, Mail
 } from 'lucide-react';
 import Image from 'next/image';
 import Navbar from '@/components/Navbar';
@@ -20,7 +20,7 @@ import Footer from '@/components/Footer';
 import confetti from 'canvas-confetti';
 
 export default function AdminPortal() {
-  const [activeTab, setActiveTab] = useState<'seeder' | 'bookings' | 'divisions' | 'leads' | 'cms'>('bookings');
+  const [activeTab, setActiveTab] = useState<'seeder' | 'bookings' | 'divisions' | 'leads' | 'cms' | 'applications' | 'inquiries'>('bookings');
   const [cmsSubTab, setCmsSubTab] = useState<'homepage' | 'stats' | 'seo' | 'announcements' | 'faqs' | 'testimonials' | 'gallery' | 'posters'>('homepage');
   const [saving, setSaving] = useState(false);
   
@@ -34,15 +34,91 @@ export default function AdminPortal() {
   const [imageUploading, setImageUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string>('');
 
+  // Client-side image compression helper using HTML5 Canvas
+  const compressImage = (file: File, maxWidth = 1024, maxHeight = 1024, quality = 0.6): Promise<File> => {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith('image/')) {
+        resolve(file);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new (window.Image || Image)();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Adjust dimensions while keeping aspect ratio
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(file);
+            return;
+          }
+
+          // Fill background color in case of PNG transparency
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                // Return compressed JPEG file
+                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+        img.onerror = () => resolve(file);
+        img.src = event.target?.result as string;
+      };
+      reader.onerror = () => resolve(file);
+      reader.readAsDataURL(file);
+    });
+  };
+
   // Helper to handle dynamic image upload (Firebase Storage with Base64 fallback)
   const handleImageUpload = async (file: File, folderPath: string): Promise<string> => {
     setImageUploading(true);
+    setUploadProgress('Compressing image...');
+    
+    let processedFile = file;
+    try {
+      processedFile = await compressImage(file);
+    } catch (compressErr) {
+      console.warn("Client image compression failed, using original file", compressErr);
+    }
+
     setUploadProgress('Uploading image...');
     try {
       // 1. Try to upload to Firebase Storage
-      const cleanFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+      const cleanFileName = processedFile.name.replace(/[^a-zA-Z0-9.]/g, '_');
       const storageRef = ref(storage, `${folderPath}/${Date.now()}_${cleanFileName}`);
-      const snapshot = await uploadBytes(storageRef, file);
+      const snapshot = await uploadBytes(storageRef, processedFile);
       const downloadUrl = await getDownloadURL(snapshot.ref);
       setUploadProgress('');
       setImageUploading(false);
@@ -63,7 +139,7 @@ export default function AdminPortal() {
           setImageUploading(false);
           reject(new Error("Failed to convert image: " + error));
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(processedFile);
       });
     }
   };
@@ -78,6 +154,8 @@ export default function AdminPortal() {
 
   const [bookings, setBookings] = useState<any[]>([]);
   const [leads, setLeads] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [contactInquiries, setContactInquiries] = useState<any[]>([]);
   const [seeding, setSeeding] = useState(false);
   const [seedSuccess, setSeedSuccess] = useState(false);
 
@@ -99,7 +177,7 @@ export default function AdminPortal() {
 
   // Gallery CMS state
   const [galleryList, setGalleryList] = useState<any[]>([]);
-  const [newGalleryItem, setNewGalleryItem] = useState({ title: '', category: 'Wedding', img: '' });
+  const [newGalleryItem, setNewGalleryItem] = useState({ title: '', category: 'SWS Events', img: '' });
 
   // Stats CMS state
   const [statsData, setStatsData] = useState({
@@ -228,6 +306,26 @@ export default function AdminPortal() {
       setLeads(list);
     });
     return () => unsubLeads();
+  }, []);
+
+  // Listen to Careers applications in real-time
+  useEffect(() => {
+    const unsubApps = onSnapshot(collection(db, 'applications'), (snap) => {
+      const list = snap.docs.map(docDoc => ({ id: docDoc.id, ...docDoc.data() }));
+      list.sort((a: any, b: any) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+      setApplications(list);
+    });
+    return () => unsubApps();
+  }, []);
+
+  // Listen to Contact Inquiries in real-time
+  useEffect(() => {
+    const unsubInquiries = onSnapshot(collection(db, 'contact'), (snap) => {
+      const list = snap.docs.map(docDoc => ({ id: docDoc.id, ...docDoc.data() }));
+      list.sort((a: any, b: any) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+      setContactInquiries(list);
+    });
+    return () => unsubInquiries();
   }, []);
 
   // Fetch current stats from Firestore for the editor
@@ -409,6 +507,44 @@ export default function AdminPortal() {
     }
   };
 
+  const handleDeleteInquiry = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this contact inquiry?")) return;
+    setSaving(true);
+    try {
+      await deleteDoc(doc(db, 'contact', id));
+      confetti({ particleCount: 15 });
+    } catch (err) {
+      alertWriteError("Deleting Contact Inquiry", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteApplication = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this application?")) return;
+    setSaving(true);
+    try {
+      await deleteDoc(doc(db, 'applications', id));
+      confetti({ particleCount: 15 });
+    } catch (err) {
+      alertWriteError("Deleting Application", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdateApplicationStatus = async (id: string, status: string) => {
+    setSaving(true);
+    try {
+      await updateDoc(doc(db, 'applications', id), { status });
+      confetti({ particleCount: 30, spread: 30 });
+    } catch (err) {
+      alertWriteError("Updating Application Status", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Submit Stats Updates
   const handleSaveStats = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -558,7 +694,7 @@ export default function AdminPortal() {
         img: newGalleryItem.img,
         updatedAt: serverTimestamp()
       });
-      setNewGalleryItem({ title: '', category: 'Wedding', img: '' });
+      setNewGalleryItem({ title: '', category: 'SWS Events', img: '' });
       confetti({ particleCount: 30 });
       alert("Gallery image successfully added to Firestore!");
     } catch (err) {
@@ -727,6 +863,8 @@ export default function AdminPortal() {
             <div className="flex flex-wrap gap-2 items-center">
               {[
                 { id: 'bookings', label: 'Bookings List', icon: Calendar },
+                { id: 'applications', label: 'Applicants', icon: User },
+                { id: 'inquiries', label: 'Inquiries', icon: Mail },
                 { id: 'cms', label: 'CMS Settings', icon: Settings },
                 { id: 'divisions', label: 'Create Division', icon: FolderPlus },
                 { id: 'leads', label: 'AI Leads', icon: Users },
@@ -1528,6 +1666,9 @@ export default function AdminPortal() {
                               value={newGalleryItem.category} onChange={(e) => setNewGalleryItem({ ...newGalleryItem, category: e.target.value })}
                               className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans [&>option]:bg-navy-dark"
                             >
+                              <option value="SWS Events">SWS Events Category</option>
+                              <option value="Studio U1">Studio U1 Category</option>
+                              <option value="IT Solutions">IT Solutions Category</option>
                               <option value="Wedding">Wedding Category</option>
                               <option value="Corporate">Corporate Category</option>
                               <option value="Cinema">Cinema Category</option>
@@ -1783,6 +1924,159 @@ export default function AdminPortal() {
                             <button
                               onClick={() => handleDeleteLead(ld.id)}
                               className="p-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+
+            {/* Tab: Applications (Careers Applicants) */}
+            {activeTab === 'applications' && (
+              <div className="glass rounded-3xl p-6 sm:p-8 border border-white/5 overflow-x-auto">
+                <h3 className="font-display font-black text-2xl text-white mb-6">Careers Applicants</h3>
+
+                {applications.length === 0 ? (
+                  <div className="py-12 text-center text-gray-500 text-sm font-sans">
+                    No job applications submitted yet.
+                  </div>
+                ) : (
+                  <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm min-w-[700px]">
+                    <thead>
+                      <tr className="border-b border-white/5 text-gray-500 uppercase tracking-widest text-[9px]">
+                        <th className="py-3 px-4">Applicant Name</th>
+                        <th className="py-3 px-4">Contact info</th>
+                        <th className="py-3 px-4">Position Requested</th>
+                        <th className="py-3 px-4">Resume CV</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {applications.map((app) => (
+                        <tr key={app.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                          <td className="py-4 px-4">
+                            <span className="font-semibold text-white block">{app.name}</span>
+                            <span className="text-[10px] text-gray-400 block mt-1 max-w-[200px] truncate" title={app.message}>{app.message}</span>
+                          </td>
+                          <td className="py-4 px-4 font-mono text-[11px] text-gray-300">
+                            <a href={`mailto:${app.email}`} className="block hover:text-gold-soft">{app.email}</a>
+                            <a href={`tel:${app.phone}`} className="block hover:text-gold-soft mt-0.5">{app.phone}</a>
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className="text-white font-semibold block">{app.jobTitle}</span>
+                            <span className="text-[9px] text-gray-500 block uppercase mt-0.5">ID: {app.jobId}</span>
+                          </td>
+                          <td className="py-4 px-4">
+                            {app.resumeUrl ? (
+                              <a 
+                                href={app.resumeUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="px-3 py-1.5 rounded-lg bg-gold-accent/10 hover:bg-gold-accent hover:text-navy-dark border border-gold-accent/30 text-gold-soft text-[10px] font-bold uppercase transition-all inline-flex items-center gap-1"
+                              >
+                                View CV
+                              </a>
+                            ) : (
+                              <span className="text-gray-500 text-[10px] italic">No file ({app.resumeName || 'mock'})</span>
+                            )}
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                              app.status === 'Approved' || app.status === 'Shortlisted' ? 'bg-green-500/20 text-green-400' :
+                              app.status === 'Rejected' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
+                            }`}>
+                              {app.status}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <div className="flex justify-end gap-1.5">
+                              {app.status !== 'Shortlisted' && (
+                                <button
+                                  onClick={() => handleUpdateApplicationStatus(app.id, 'Shortlisted')}
+                                  className="px-2 py-1 text-[10px] font-bold rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition-all cursor-pointer animate-none"
+                                  title="Shortlist Applicant"
+                                >
+                                  Shortlist
+                                </button>
+                              )}
+                              {app.status !== 'Approved' && (
+                                <button
+                                  onClick={() => handleUpdateApplicationStatus(app.id, 'Approved')}
+                                  className="px-2 py-1 text-[10px] font-bold rounded bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/20 transition-all cursor-pointer animate-none"
+                                  title="Approve Applicant"
+                                >
+                                  Approve
+                                </button>
+                              )}
+                              {app.status !== 'Rejected' && (
+                                <button
+                                  onClick={() => handleUpdateApplicationStatus(app.id, 'Rejected')}
+                                  className="px-2 py-1 text-[10px] font-bold rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all cursor-pointer animate-none"
+                                  title="Reject Applicant"
+                                >
+                                  Reject
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDeleteApplication(app.id)}
+                                className="p-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all cursor-pointer ml-1"
+                                title="Delete Record"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+
+            {/* Tab: Inquiries (Contact Form entries) */}
+            {activeTab === 'inquiries' && (
+              <div className="glass rounded-3xl p-6 sm:p-8 border border-white/5 overflow-x-auto">
+                <h3 className="font-display font-black text-2xl text-white mb-6">Contact Inquiries</h3>
+
+                {contactInquiries.length === 0 ? (
+                  <div className="py-12 text-center text-gray-500 text-sm font-sans">
+                    No contact inquiries captured yet.
+                  </div>
+                ) : (
+                  <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm min-w-[600px]">
+                    <thead>
+                      <tr className="border-b border-white/5 text-gray-500 uppercase tracking-widest text-[9px]">
+                        <th className="py-3 px-4">Client Details</th>
+                        <th className="py-3 px-4">Division Interest</th>
+                        <th className="py-3 px-4 font-sans">Message Detail</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {contactInquiries.map((inq) => (
+                        <tr key={inq.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                          <td className="py-4 px-4">
+                            <span className="font-semibold text-white block">{inq.name}</span>
+                            <span className="text-[10px] text-gray-400 block font-mono mt-0.5">{inq.email} | {inq.phone}</span>
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className="text-gold-soft font-bold uppercase text-[10px]">{inq.division}</span>
+                          </td>
+                          <td className="py-4 px-4 text-gray-300 leading-normal max-w-sm italic">
+                            "{inq.message || 'No message logged.'}"
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <button
+                              onClick={() => handleDeleteInquiry(inq.id)}
+                              className="p-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all cursor-pointer"
+                              title="Delete Inquiry"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>

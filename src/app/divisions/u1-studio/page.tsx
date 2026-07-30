@@ -170,7 +170,7 @@ export default function U1Studio() {
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ duration: 0.35, ease: 'easeInOut' }}
-                className="absolute top-0 bottom-0 left-0 w-1/2 bg-[#050b16] border-r border-gold-accent/20"
+                className="absolute top-0 bottom-0 left-0 w-1/2 bg-[#21103B] border-r border-gold-accent/20"
               />
               {/* Shutter Blade Right */}
               <motion.div 
@@ -178,7 +178,7 @@ export default function U1Studio() {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ duration: 0.35, ease: 'easeInOut' }}
-                className="absolute top-0 bottom-0 right-0 w-1/2 bg-[#050b16] border-l border-gold-accent/20"
+                className="absolute top-0 bottom-0 right-0 w-1/2 bg-[#21103B] border-l border-gold-accent/20"
               />
             </motion.div>
           )}

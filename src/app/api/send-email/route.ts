@@ -2,27 +2,30 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { name, email, phone, division, message } = await request.json();
+    const payload = await request.json();
+    const { 
+      name, email, phone, division, message, // inquiry fields
+      date, location, packageName, specialRequests, divisionName, calculatedPrice, type // booking fields
+    } = payload;
+
+    const isBooking = type === 'booking' || !!packageName;
+    const recipient = process.env.SMTP_TO || process.env.SMTP_USER || 'yuvanshan875@gmail.com';
 
     let nodemailer;
     try {
-      // Bypassing Turbopack's static resolver using dynamic eval require
+      // Dynamic require nodemailer to prevent bundler compilation errors
       const dynamicRequire = eval('require');
       nodemailer = dynamicRequire('nodemailer');
     } catch (e) {
       console.log("----- [MOCK EMAIL DISPATCHED (Nodemailer Not Installed)] -----");
-      console.log("To: yuvanshan875@gmail.com");
-      console.log("From: info.mahdev.lk@gmail.com");
-      console.log("Client Name:", name);
-      console.log("Client Email:", email);
-      console.log("Client Phone:", phone);
-      console.log("Division Section:", division);
-      console.log("Message Details:", message);
+      console.log("To:", recipient);
+      console.log("Subject:", isBooking ? `Booking Request` : `Contact Request`);
+      console.log("Payload:", JSON.stringify(payload, null, 2));
       console.log("-------------------------------------------------------------");
       return NextResponse.json({ 
         success: true, 
         mock: true, 
-        message: "Nodemailer is not installed. Contact request logged to server console successfully." 
+        message: "Nodemailer is not installed. Request logged to server console successfully." 
       });
     }
 
@@ -33,17 +36,66 @@ export async function POST(request: Request) {
       secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.SMTP_USER || 'info.mahdev.lk@gmail.com',
-        // Gmail App Passwords can be configured as the SMTP_PASS environment variable
         pass: process.env.SMTP_PASS || ''
+      },
+      tls: {
+        // Prevent connection drop due to local self-signed or unauthorized certificates on some environments
+        rejectUnauthorized: false
       }
     });
 
-    const mailOptions = {
-      from: `"Mahdev Portal" <info.mahdev.lk@gmail.com>`,
-      to: 'yuvanshan875@gmail.com',
-      replyTo: email,
-      subject: `New Contact Request: ${division} from ${name}`,
-      html: `
+    const subject = isBooking
+      ? `New Booking Reservation: ${divisionName} (${packageName}) from ${name}`
+      : `New Contact Request: ${division} from ${name}`;
+
+    const htmlContent = isBooking
+      ? `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #D4AF37; border-bottom: 2px solid #D4AF37; padding-bottom: 10px; margin-top: 0;">New Reservation Logged</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; width: 150px; color: #555;">Client Name:</td>
+              <td style="padding: 8px 0; color: #333;">${name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #555;">Email:</td>
+              <td style="padding: 8px 0; color: #333;"><a href="mailto:${email}">${email}</a></td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #555;">Phone:</td>
+              <td style="padding: 8px 0; color: #333;"><a href="tel:${phone}">${phone}</a></td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #555;">Division Name:</td>
+              <td style="padding: 8px 0; color: #333;">${divisionName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #555;">Selected Package:</td>
+              <td style="padding: 8px 0; color: #D4AF37; font-weight: bold;">${packageName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #555;">Date Scheduled:</td>
+              <td style="padding: 8px 0; color: #333;">${date}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #555;">Location / Venue:</td>
+              <td style="padding: 8px 0; color: #333;">${location}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; font-weight: bold; color: #555;">Estimated Cost:</td>
+              <td style="padding: 8px 0; color: #D4AF37; font-weight: bold;">Rs. ${calculatedPrice?.toLocaleString() || '0'}</td>
+            </tr>
+          </table>
+          <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #D4AF37; border-radius: 4px;">
+            <strong style="color: #555; display: block; margin-bottom: 5px;">Special Requests:</strong>
+            <p style="margin: 0; color: #444; line-height: 1.6; font-style: italic;">"${specialRequests || 'None provided.'}"</p>
+          </div>
+          <p style="font-size: 11px; color: #999; margin-top: 30px; text-align: center; border-top: 1px solid #eee; padding-top: 15px;">
+            This email was auto-generated by the Mahdev Conglomerate Web Server.
+          </p>
+        </div>
+      `
+      : `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
           <h2 style="color: #D4AF37; border-bottom: 2px solid #D4AF37; padding-bottom: 10px; margin-top: 0;">New Contact Form Entry</h2>
           <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
@@ -72,16 +124,23 @@ export async function POST(request: Request) {
             This email was auto-generated by the Mahdev Conglomerate Web Server.
           </p>
         </div>
-      `
+      `;
+
+    const mailOptions = {
+      from: `"Mahdev Portal" <${process.env.SMTP_USER || 'info.mahdev.lk@gmail.com'}>`,
+      to: recipient,
+      replyTo: email,
+      subject: subject,
+      html: htmlContent
     };
 
     // If SMTP_PASS is not configured, fallback to mock console log in dev
     if (!process.env.SMTP_PASS) {
       console.log("----- [MOCK EMAIL DISPATCHED] -----");
-      console.log("To: yuvanshan875@gmail.com");
-      console.log("From: info.mahdev.lk@gmail.com");
+      console.log("To:", mailOptions.to);
+      console.log("From:", mailOptions.from);
       console.log("Subject:", mailOptions.subject);
-      console.log("Body Preview:", message);
+      console.log("Body Preview:", isBooking ? packageName : message);
       console.log("-----------------------------------");
       return NextResponse.json({ 
         success: true, 

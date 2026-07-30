@@ -138,6 +138,30 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
       // Write to Firestore
       const docRef = await addDoc(collection(db, 'bookings'), bookingRecord);
 
+      // Dispatch automatic reservation email alert to admin and user
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            date: formData.date,
+            location: formData.location,
+            packageName: formData.packageName,
+            specialRequests: formData.specialRequests,
+            divisionName: currentConfig.name,
+            calculatedPrice: selectedPkg ? selectedPkg.priceVal : 0,
+            type: 'booking'
+          })
+        });
+      } catch (mailErr) {
+        console.warn("Mail dispatch failed, record saved to Firestore successfully:", mailErr);
+      }
+
       confetti({
         particleCount: 150,
         spread: 80,

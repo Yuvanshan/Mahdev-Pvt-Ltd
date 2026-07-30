@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, where, onSnapshot, serverTimestamp } from 'firebase/firestore';
-import { Briefcase, Calendar, CheckCircle, Search, Mail, Send, ChevronRight, X } from 'lucide-react';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { Briefcase, Calendar, CheckCircle, Search, Mail, Send, ChevronRight, X, FileText, UploadCloud } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,9 +20,11 @@ export default function CareersPortal() {
     email: '',
     phone: '',
     jobId: '',
-    resumeName: 'mock_resume.pdf',
+    resumeName: '',
+    resumeUrl: '',
     message: ''
   });
+  const [uploadingResume, setUploadingResume] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [applySuccess, setApplySuccess] = useState(false);
 
@@ -49,12 +52,22 @@ export default function CareersPortal() {
       alert("Please fill out all mandatory fields.");
       return;
     }
+    if (!formData.resumeUrl) {
+      alert("Please upload your CV / Resume (PDF) first.");
+      return;
+    }
 
     setSubmitting(true);
     try {
       const selectedJob = jobs.find(j => j.id === formData.jobId);
       const appPayload = {
-        ...formData,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        jobId: formData.jobId,
+        resumeName: formData.resumeName,
+        resumeUrl: formData.resumeUrl,
+        message: formData.message,
         jobTitle: selectedJob ? selectedJob.title : 'General Internship',
         status: 'Pending Review',
         timestamp: serverTimestamp()
@@ -75,7 +88,8 @@ export default function CareersPortal() {
         email: '',
         phone: '',
         jobId: jobs[0]?.id || '',
-        resumeName: 'mock_resume.pdf',
+        resumeName: '',
+        resumeUrl: '',
         message: ''
       });
       setTimeout(() => setApplySuccess(false), 8000);
@@ -193,7 +207,16 @@ export default function CareersPortal() {
                       <div key={res.id} className="p-3 rounded-xl bg-white/5 border border-white/5 flex justify-between items-center text-xs">
                         <div>
                           <span className="text-white font-bold block">{res.jobTitle}</span>
-                          <span className="text-[10px] text-gray-500 block mt-0.5">Submitted via {res.resumeName}</span>
+                          <span className="text-[10px] text-gray-500 block mt-0.5">
+                            Submitted via:{' '}
+                            {res.resumeUrl ? (
+                              <a href={res.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-gold-soft hover:underline font-semibold font-mono">
+                                {res.resumeName || 'CV PDF'}
+                              </a>
+                            ) : (
+                              <span className="font-mono">{res.resumeName || 'mock_resume.pdf'}</span>
+                            )}
+                          </span>
                         </div>
                         <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
                           res.status === 'Shortlisted' || res.status === 'Approved' ? 'bg-green-500/20 text-green-400' :
@@ -258,10 +281,59 @@ export default function CareersPortal() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-sans">Upload Resume (PDF)</label>
-                      <div className="bg-white/5 border border-white/10 border-dashed rounded-xl px-4 py-2.5 text-xs text-gray-400 font-sans flex items-center justify-between cursor-pointer hover:border-gold-accent/40 transition-all">
-                        <span>{formData.resumeName}</span>
-                        <span className="text-[8px] bg-white/5 border border-white/10 px-2 py-1 rounded text-white font-bold uppercase tracking-wider">MOCK FILE</span>
-                      </div>
+                      <input 
+                        type="file" 
+                        accept=".pdf"
+                        id="resume-file-input"
+                        disabled={uploadingResume}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          
+                          if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                            alert("Only PDF documents are allowed.");
+                            return;
+                          }
+
+                          setUploadingResume(true);
+                          try {
+                            const storageRef = ref(storage, `resumes/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+                            const snapshot = await uploadBytes(storageRef, file);
+                            const downloadUrl = await getDownloadURL(snapshot.ref);
+                            setFormData(prev => ({ 
+                              ...prev, 
+                              resumeName: file.name, 
+                              resumeUrl: downloadUrl 
+                            }));
+                          } catch (err) {
+                            console.error("Resume upload failed", err);
+                            alert("Failed to upload CV file. Please try again.");
+                          } finally {
+                            setUploadingResume(false);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                      <label 
+                        htmlFor="resume-file-input"
+                        className={`bg-white/5 border border-white/10 border-dashed rounded-xl px-4 py-2.5 text-xs text-gray-400 font-sans flex items-center justify-between cursor-pointer hover:border-gold-accent/40 transition-all ${
+                          uploadingResume ? 'opacity-50 pointer-events-none' : ''
+                        }`}
+                      >
+                        <span className="truncate max-w-[70%]">
+                          {uploadingResume ? 'Uploading resume PDF...' : formData.resumeName || 'Choose PDF file...'}
+                        </span>
+                        <span className="text-[8px] bg-white/5 border border-white/10 px-2 py-1 rounded text-white font-bold uppercase tracking-wider flex items-center gap-1">
+                          {uploadingResume ? (
+                            <div className="w-2.5 h-2.5 border border-white border-t-transparent rounded-full animate-spin" />
+                          ) : formData.resumeUrl ? (
+                            <FileText className="w-3.5 h-3.5 text-gold-soft" />
+                          ) : (
+                            <UploadCloud className="w-3.5 h-3.5" />
+                          )}
+                          {uploadingResume ? 'UPLOADING' : formData.resumeUrl ? 'READY' : 'UPLOAD'}
+                        </span>
+                      </label>
                     </div>
                   </div>
 

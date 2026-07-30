@@ -2,15 +2,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy-dark: #050816;
-  --color-navy-medium: #0B1023;
-  --color-navy-light: #151B33;
-  --color-gold-accent: #D4AF37;
-  --color-gold-soft: #FFD978;
-  --color-purple-deep: #0C061A;
-  --color-purple-bright: #A5B4FC;
-  --color-blue-royal: #1E40AF;
-  --color-blue-electric: #38BDF8;
+  --color-navy-dark: #F8F7F2;      /* Premium Off White background */
+  --color-navy-medium: #FFFFFF;     /* Cloud White background */
+  --color-navy-light: #E8E5EE;      /* Soft Gray border/accent */
+  --color-gold-accent: #21103B;     /* Deep Dark Purple brand */
+  --color-gold-soft: #4B1D7A;       /* Royal Purple secondary */
+  --color-purple-deep: #21103B;     /* Deep Dark Purple brand */
+  --color-purple-bright: #4B1D7A;   /* Royal Purple secondary */
+  --color-blue-royal: #00B7FF;      /* Electric Blue CTA */
+  --color-blue-electric: #38D8FF;   /* Neon Electric Blue */
   
   --font-sans: 'Inter', var(--font-sans), sans-serif;
   --font-display: 'Space Grotesk', var(--font-display), sans-serif;
@@ -27,16 +27,16 @@
 }
 
 @keyframes glow {
-  0%, 100% { filter: drop-shadow(0 0 15px rgba(165, 180, 252, 0.15)); }
-  50% { filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.3)); }
+  0%, 100% { filter: drop-shadow(0 0 15px rgba(0, 183, 255, 0.15)); }
+  50% { filter: drop-shadow(0 0 30px rgba(56, 216, 255, 0.3)); }
 }
 
 :root {
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Space Grotesk', sans-serif;
   --font-numbers: 'Manrope', sans-serif;
-  --background: #050816;
-  --foreground: #BFC8E6;
+  --background: #F8F7F2;
+  --foreground: #17151C;
   scroll-behavior: smooth;
 }
 
@@ -54,58 +54,54 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #050816;
+  background: #F8F7F2;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.2);
+  background: rgba(33, 16, 59, 0.2);
   border-radius: 9999px;
-  border: 3px solid #050816;
+  border: 3px solid #F8F7F2;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 175, 55, 0.4);
+  background: rgba(33, 16, 59, 0.4);
 }
 
 /* Premium Shadows & Radii */
 .premium-shadow {
-  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 20px 80px rgba(33, 16, 59, 0.08);
   transition: box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .premium-shadow:hover {
-  box-shadow: 0 30px 100px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 30px 100px rgba(0, 183, 255, 0.15);
 }
 
-/* Glassmorphism Styles */
+/* Glassmorphism Styles (Overridden for clean light mode) */
 .glass {
-  background: rgba(11, 16, 35, 0.65);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF !important;
+  border: 1px solid #E8E5EE !important;
+  box-shadow: 0 15px 50px rgba(33, 16, 59, 0.06) !important;
 }
 
 .glass-premium {
-  background: linear-gradient(135deg, rgba(12, 6, 26, 0.7) 0%, rgba(11, 16, 35, 0.75) 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(212, 175, 55, 0.15);
-  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 247, 242, 0.95) 100%) !important;
+  border: 1px solid #E8E5EE !important;
+  box-shadow: 0 20px 80px rgba(33, 16, 59, 0.08) !important;
 }
 
-/* Luxury Glass Buttons */
+/* Luxury Glass Buttons (Adjusted for rebranding colors) */
 .luxury-btn {
   position: relative;
   overflow: hidden;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  color: #FFFFFF;
+  border: 1px solid #00B7FF !important;
+  background: transparent !important;
+  color: #21103B !important;
   font-family: var(--font-sans);
   font-weight: 600;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
 .luxury-btn::after {
@@ -115,7 +111,7 @@ body {
   left: -150%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.4), transparent);
+  background: linear-gradient(to right, transparent, rgba(0, 183, 255, 0.4), transparent);
   transform: skewX(-25deg);
   transition: 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -126,24 +122,25 @@ body {
 
 .luxury-btn:hover {
   transform: scale(1.03);
-  box-shadow: 0 20px 40px rgba(212, 175, 55, 0.2);
-  border-color: #D4AF37;
-  color: #FFD978;
+  box-shadow: 0 20px 40px rgba(0, 183, 255, 0.2);
+  border-color: #38D8FF;
+  color: #4B1D7A !important;
 }
 
 .luxury-btn-gold {
-  background: linear-gradient(135deg, #D4AF37 0%, #FFD978 100%);
-  color: #050816 !important;
-  border: none;
+  background: #21103B !important;
+  color: #FFFFFF !important;
+  border: none !important;
 }
 
 .luxury-btn-gold::after {
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.6), transparent);
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
 }
 
 .luxury-btn-gold:hover {
-  color: #050816 !important;
-  box-shadow: 0 20px 50px rgba(212, 175, 55, 0.35);
+  background: #00B7FF !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 20px 50px rgba(0, 183, 255, 0.3);
   transform: scale(1.03);
 }
 
@@ -160,7 +157,7 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1.5px;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.4) 0%, rgba(165, 180, 252, 0.2) 50%, transparent 100%);
+  background: linear-gradient(135deg, rgba(33, 16, 59, 0.2) 0%, rgba(0, 183, 255, 0.2) 50%, transparent 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -171,8 +168,8 @@ body {
 
 .card-premium-glow:hover {
   transform: translateY(-10px);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.15);
-  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 30px 80px rgba(33, 16, 59, 0.08), 0 0 30px rgba(0, 183, 255, 0.1);
+  border-color: rgba(33, 16, 59, 0.2);
 }
 
 .card-premium-glow:hover::before {
@@ -181,15 +178,17 @@ body {
 
 /* Text Gradients */
 .text-gradient-gold {
-  background: linear-gradient(135deg, #FFFFFF 0%, #FFD978 60%, #D4AF37 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background: linear-gradient(135deg, #00B7FF 0%, #38D8FF 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
 }
 
 .text-gradient-purple-blue {
-  background: linear-gradient(135deg, #A5B4FC 0%, #38BDF8 60%, #1E40AF 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background: linear-gradient(135deg, #21103B 0%, #4B1D7A 60%, #00B7FF 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
 }
 
 /* Scroll indicator circular progress */
@@ -199,13 +198,13 @@ body {
   left: 0;
   width: 100%;
   height: 3px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(33, 16, 59, 0.05);
   z-index: 1000;
 }
 
 .scroll-progress-bar {
   height: 100%;
-  background: linear-gradient(to right, #D4AF37, #FFD978);
+  background: linear-gradient(to right, #21103B, #00B7FF);
   width: 0%;
 }
 
@@ -250,15 +249,15 @@ body {
 @keyframes draw-logo {
   0% {
     stroke-dashoffset: 1000;
-    fill: rgba(212, 175, 55, 0);
+    fill: rgba(33, 16, 59, 0);
   }
   70% {
     stroke-dashoffset: 0;
-    fill: rgba(212, 175, 55, 0);
+    fill: rgba(33, 16, 59, 0);
   }
   100% {
     stroke-dashoffset: 0;
-    fill: rgba(212, 175, 55, 1);
+    fill: rgba(33, 16, 59, 1);
   }
 }
 
@@ -291,7 +290,7 @@ body {
   margin-bottom: 1.5rem;
 }
 
-/* Premium noise overlay overlay */
+/* Premium noise overlay */
 .noise-overlay {
   position: fixed;
   top: 0;
@@ -299,7 +298,7 @@ body {
   width: 100%;
   height: 100%;
   background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.02;
+  opacity: 0.015;
   z-index: 9999;
   pointer-events: none;
 }
@@ -310,16 +309,16 @@ body {
   padding-bottom: 80px;
 }
 
-/* Background animated layers */
+/* Background animated layers (Off-white radial) */
 .premium-bg-gradient {
-  background: radial-gradient(circle at 50% -20%, #0c122b 0%, #050816 80%);
+  background: radial-gradient(circle at 50% -20%, #E8E5EE 0%, #F8F7F2 80%) !important;
 }
 
 .mesh-gradient-glow {
   position: absolute;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(165, 180, 252, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0, 183, 255, 0.05) 0%, transparent 70%) !important;
   filter: blur(100px);
   pointer-events: none;
 }
@@ -351,7 +350,7 @@ body {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #D4AF37;
+  background: #00B7FF;
   cursor: ew-resize;
   z-index: 10;
 }
@@ -365,12 +364,111 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #D4AF37;
-  border: 4px solid #050816;
-  color: #050816;
+  background: #00B7FF;
+  border: 4px solid #F8F7F2;
+  color: #FFFFFF;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 20px rgba(0, 183, 255, 0.4);
+}
+
+
+/* ------------------------------------------------------------- */
+/* TAILWIND ESCAPE SEQUENCES INTERCEPT OVERRIDES                 */
+/* ------------------------------------------------------------- */
+
+/* Intercept and override Tailwind hardcoded dark backgrounds */
+.bg-\[\#050816\], 
+.bg-\[\#050b16\],
+[class*="bg-[#050816]"],
+[class*="bg-[#050b16]"] {
+  background-color: #F8F7F2 !important;
+}
+
+.bg-\[\#050816\]\/80 { background-color: rgba(248, 247, 242, 0.8) !important; }
+.bg-\[\#050816\]\/75 { background-color: rgba(248, 247, 242, 0.75) !important; }
+.bg-\[\#050816\]\/70 { background-color: rgba(248, 247, 242, 0.7) !important; }
+.bg-\[\#050816\]\/90 { background-color: rgba(248, 247, 242, 0.9) !important; }
+
+.bg-\[\#0B1023\],
+[class*="bg-[#0B1023]"] {
+  background-color: #FFFFFF !important;
+}
+
+/* Intercept and override Tailwind hardcoded dark utility text classes */
+.text-white {
+  color: #17151C !important;
+}
+
+.text-gray-400,
+.text-gray-300,
+.text-gray-200,
+.text-gray-500,
+.text-\[\#BFC8E6\],
+.text-\[\#BFC8E6\]\/80 {
+  color: #21103B !important;
+}
+
+/* Restore white text on dark background elements */
+.bg-gradient-to-r .text-white,
+.bg-gradient-to-r.text-white,
+.bg-navy-dark .text-white,
+.bg-navy-medium .text-white,
+.bg-gold-accent .text-white,
+.bg-gold-soft .text-white,
+.bg-purple-deep .text-white,
+.bg-blue-royal .text-white,
+.bg-blue-electric .text-white,
+.bg-\[\#21103B\] .text-white,
+.bg-\[\#21103B\] .text-gray-400,
+.bg-\[\#21103B\] a,
+.bg-\[\#4B1D7A\] .text-white,
+.bg-\[\#00B7FF\] .text-white,
+.bg-\[\#38D8FF\] .text-white,
+.bg-green-500 .text-white,
+.bg-red-500 .text-white,
+.bg-amber-500 .text-white,
+.bg-green-500\/20 .text-white,
+.bg-red-500\/20 .text-white,
+.bg-amber-500\/20 .text-white,
+.luxury-btn-gold,
+.luxury-btn-gold .text-white,
+.luxury-btn,
+.luxury-btn .text-white,
+button.bg-gradient-to-r,
+button.bg-gold-accent,
+button.bg-gold-soft,
+button.bg-navy-dark,
+button.bg-navy-medium,
+button.luxury-btn-gold,
+a.bg-gradient-to-r,
+a.bg-navy-dark,
+button[type="submit"],
+button[type="submit"] .text-white,
+.nav-link-active,
+.mobile-nav-menu .text-white,
+.cinematic-intro .text-white,
+.cinematic-intro span,
+.cinematic-intro h1,
+.cinematic-intro p,
+footer .text-white,
+footer .text-gray-400,
+footer a,
+.scroll-progress-bar,
+.glow-ball {
+  color: #FFFFFF !important;
+}
+
+/* Force service card icons to display the #21103B -> #00B7FF gradient */
+.text-purple-400,
+.text-cyan-400,
+.text-yellow-400,
+.text-blue-400,
+.text-green-400 {
+  background: linear-gradient(135deg, #21103B 0%, #00B7FF 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
 }

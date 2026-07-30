@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, Info, MessageSquare } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 const portfolioItems = [
   { id: 'p1', title: 'The Imperial Marigold Haven', category: 'SWS Events', img: '/images/sws_robot_decor_1783346269673.jpg' },
@@ -24,15 +26,26 @@ const portfolioItems = [
   { id: 'p12', title: 'HealPath Clinics Hub App', category: 'IT Solutions', img: '/images/it_robot_developer_1783346302442.jpg' },
 ];
 
-const categories = ['All', 'SWS Events', 'Studio U1', 'IT Solutions'];
-
 export default function Portfolio() {
   const [filter, setFilter] = useState('All');
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const [galleryList, setGalleryList] = useState<any[]>([]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'gallery'), (snap) => {
+      const list = snap.docs.map(docDoc => ({ id: docDoc.id, ...docDoc.data() }));
+      setGalleryList(list);
+    });
+    return () => unsub();
+  }, []);
+
+  const activeItems = galleryList.length > 0 ? galleryList : portfolioItems;
+
+  const categories = ['All', ...Array.from(new Set(activeItems.map(item => item.category)))];
 
   const filteredItems = filter === 'All' 
-    ? portfolioItems 
-    : portfolioItems.filter(item => item.category === filter);
+    ? activeItems 
+    : activeItems.filter(item => item.category === filter);
 
   return (
     <>

@@ -76,14 +76,12 @@ export default function Testimonials() {
 
   return (
     <div className="w-full py-20 relative bg-navy-medium/30 overflow-hidden">
-      <div className="glow-ball glow-ball-purple w-80 h-80 top-1/2 left-0 opacity-10" />
-
       <div className="max-w-4xl mx-auto px-6 relative z-10">
         <div className="text-center mb-12 flex flex-col gap-3">
-          <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
+          <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-soft">
             CLIENT TESTIMONIALS
           </span>
-          <h2 className="font-display font-bold text-3xl sm:text-4xl text-white">
+          <h2 className="font-display font-bold text-3xl sm:text-4xl text-text-heading">
             Trusted by Leaders Across Industries
           </h2>
         </div>
@@ -92,13 +90,13 @@ export default function Testimonials() {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeIdx}
-              initial={{ opacity: 0, x: 50, scale: 0.95 }}
+              initial={{ opacity: 0, x: 20, scale: 0.98 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -50, scale: 0.95 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full glass-premium rounded-3xl p-8 sm:p-10 border border-gold-accent/15 flex flex-col gap-6 relative text-left"
+              exit={{ opacity: 0, x: -20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full glass-premium rounded-xl p-8 sm:p-10 border border-card-border flex flex-col gap-6 relative text-left"
             >
-              <Quote className="absolute top-6 right-8 w-12 h-12 text-gold-accent/10 pointer-events-none" />
+              <Quote className="absolute top-6 right-8 w-12 h-12 text-gold-soft/5 pointer-events-none" />
 
               <div className="flex items-center gap-1">
                 {Array.from({ length: Math.min(5, currentTestimonial.rating || 5) }).map((_, i) => (
@@ -106,12 +104,12 @@ export default function Testimonials() {
                 ))}
               </div>
 
-              <p className="font-sans text-gray-300 text-base sm:text-lg leading-relaxed italic">
+              <p className="font-sans text-text-body text-base sm:text-lg leading-relaxed italic">
                 "{currentTestimonial.comment}"
               </p>
 
-              <div className="flex items-center gap-4 mt-2 border-t border-white/5 pt-4">
-                <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gold-accent/20 shrink-0">
+              <div className="flex items-center gap-4 mt-2 border-t border-card-border pt-4">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden border border-card-border shrink-0">
                   <img 
                     src={currentTestimonial.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fm=webp&fit=crop&q=60&w=120'} 
                     alt={currentTestimonial.name}
@@ -119,10 +117,10 @@ export default function Testimonials() {
                   />
                 </div>
                 <div>
-                  <h4 className="font-display font-bold text-white text-sm sm:text-base">
+                  <h4 className="font-display font-bold text-text-heading text-sm sm:text-base">
                     {currentTestimonial.name}
                   </h4>
-                  <p className="font-sans text-xs text-gray-400">
+                  <p className="font-sans text-xs text-text-body">
                     {currentTestimonial.role}
                   </p>
                 </div>

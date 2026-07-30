@@ -19,6 +19,7 @@ import { getMediaType, getYouTubeId } from '@/lib/media';
 // Core Custom Components
 import Navbar from '@/components/Navbar';
 import InteractiveHero from '@/components/InteractiveHero';
+import CinematicIntro from '@/components/CinematicIntro';
 import TechCloud from '@/components/TechCloud';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Testimonials from '@/components/Testimonials';
@@ -86,6 +87,20 @@ function FadeUpSection({ children, id }: { children: React.ReactNode; id?: strin
 }
 
 export default function Home() {
+  const [showIntro, setShowIntro] = useState(false);
+
+  useEffect(() => {
+    const played = sessionStorage.getItem('mahdev_intro_played');
+    if (played !== 'true') {
+      setShowIntro(true);
+    }
+  }, []);
+
+  const handleIntroComplete = () => {
+    setShowIntro(false);
+    sessionStorage.setItem('mahdev_intro_played', 'true');
+  };
+
   const [searchOpen, setSearchOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -261,10 +276,14 @@ export default function Home() {
   const activeFaqs = faqList.length > 0 ? faqList : faqs;
 
   return (
-    <div className="relative min-h-screen bg-[#050816] text-[#BFC8E6] font-sans overflow-x-hidden text-left pb-10">
-      
-      {/* Scroll indicator overlay */}
-      <Navbar />
+    <>
+      <AnimatePresence>
+        {showIntro && <CinematicIntro onComplete={handleIntroComplete} />}
+      </AnimatePresence>
+      <div className="relative min-h-screen bg-[#050816] text-[#BFC8E6] font-sans overflow-x-hidden text-left pb-10">
+        
+        {/* Scroll indicator overlay */}
+        <Navbar />
 
       <main className="flex-1 w-full relative z-10">
         
@@ -336,7 +355,7 @@ export default function Home() {
                     <Link
                       key={sIdx}
                       href={serv.href}
-                      className={`glass p-8 sm:p-9.5 rounded-[24px] border border-white/5 hover:border-gold-accent/30 hover:-translate-y-2.5 transition-all duration-500 flex flex-col justify-between group shadow-lg ${serv.border}`}
+                      className={`glass p-8 sm:p-9.5 rounded-xl border border-white/5 hover:border-gold-accent/30 hover:-translate-y-2.5 transition-all duration-500 flex flex-col justify-between group shadow-lg ${serv.border}`}
                     >
                       <div className="flex flex-col gap-6 text-left">
                         {/* Icon rotates on card hover */}
@@ -389,7 +408,7 @@ export default function Home() {
               </div>
 
               {/* Large Netflix Style Featured Backdrop Banner */}
-              <div className="relative w-full h-[400px] sm:h-[500px] rounded-[32px] overflow-hidden border border-white/8 shadow-[0_20px_80px_rgba(0,0,0,0.55)] group mb-12">
+              <div className="relative w-full h-[400px] sm:h-[500px] rounded-2xl overflow-hidden border border-white/8 shadow-[0_20px_80px_rgba(0,0,0,0.55)] group mb-12">
                 <Image 
                   src="/images/wedding_decoration_1782729925686.jpg" 
                   alt="Featured Mughal Wedding Backdrop" 
@@ -554,7 +573,7 @@ export default function Home() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 
                 {/* Left Panel: Cloud Software solutions */}
-                <div className="glass-premium rounded-[32px] p-8 border border-white/10 text-left flex flex-col gap-6.5 shadow-xl">
+                <div className="glass-premium rounded-xl p-8 border border-white/10 text-left flex flex-col gap-6.5 shadow-xl">
                   <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
                     <Laptop className="w-6 h-6" />
                   </div>
@@ -577,7 +596,7 @@ export default function Home() {
                 </div>
 
                 {/* Right Panel: Travels Fleet */}
-                <div className="glass-premium rounded-[32px] p-8 border border-white/10 text-left flex flex-col gap-6.5 shadow-xl">
+                <div className="glass-premium rounded-xl p-8 border border-white/10 text-left flex flex-col gap-6.5 shadow-xl">
                   <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                     <Compass className="w-6 h-6" />
                   </div>
@@ -622,7 +641,7 @@ export default function Home() {
                   { client: 'Singhania Ledger System', metric: '100% Audit Integrity', desc: 'Integrated custom dual-entry ERP accounts, sync POS checkout receipt logs with Firebase backends.' },
                   { client: 'Ceylon Travels Dispatch', metric: 'BIA Transit Logistics', desc: 'Managed wedding transfers using a convoy of 4 Mercedes cars and luxury KDH tour vans.' }
                 ].map((caseItem, idx) => (
-                  <div key={idx} className="glass p-6 rounded-3xl border border-white/5 hover:border-gold-accent/25 transition-all text-left flex flex-col justify-between min-h-[220px]">
+                  <div key={idx} className="glass p-6 rounded-xl border border-white/5 hover:border-gold-accent/25 transition-all text-left flex flex-col justify-between min-h-[220px]">
                     <div className="flex flex-col gap-3">
                       <span className="text-[9px] uppercase font-black text-gold-soft tracking-widest font-sans">{caseItem.metric}</span>
                       <h4 className="font-display font-bold text-lg text-white">{caseItem.client}</h4>
@@ -654,7 +673,7 @@ export default function Home() {
                   { title: '5-Star Travels Fleet', year: '2023', body: 'Tourism Association LK' },
                   { title: 'Elite IT Integrators', year: '2026', body: 'conglomerate systems audit' }
                 ].map((aw, idx) => (
-                  <div key={idx} className="glass p-6.5 rounded-3xl border border-white/5 flex flex-col gap-2 shadow-md hover:border-gold-accent/20 transition-all">
+                  <div key={idx} className="glass p-6.5 rounded-xl border border-white/5 flex flex-col gap-2 shadow-md hover:border-gold-accent/20 transition-all">
                     <div className="w-10 h-10 rounded-full bg-gold-accent/10 border border-gold-accent/20 text-gold-soft flex items-center justify-center mx-auto mb-2">
                       <Award className="w-5 h-5" />
                     </div>
@@ -728,7 +747,7 @@ export default function Home() {
                   { label: 'Vehicles In Fleet', count: stats.vehicles, suffix: '' },
                   { label: 'Years Experience', count: stats.experience, suffix: '+' }
                 ].map((st, idx) => (
-                  <div key={idx} className="glass p-6 rounded-3xl border border-white/5 flex flex-col gap-2.5 shadow-md hover:border-gold-accent/25 hover:-translate-y-1.5 transition-all duration-300">
+                  <div key={idx} className="glass p-6 rounded-xl border border-white/5 flex flex-col gap-2.5 shadow-md hover:border-gold-accent/25 hover:-translate-y-1.5 transition-all duration-300">
                     <span className="text-3xl sm:text-4xl font-display font-black leading-none">
                       <CounterNumber value={st.count} suffix={st.suffix} />
                     </span>
@@ -1025,5 +1044,6 @@ export default function Home() {
       </AnimatePresence>
 
     </div>
+    </>
   );
 }

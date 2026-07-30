@@ -195,22 +195,22 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
-            className="glass-premium rounded-3xl p-6 sm:p-10 border border-gold-accent/15 shadow-2xl relative"
+            className="bg-navy-dark rounded-xl p-6 sm:p-10 border border-card-border shadow-lg relative"
           >
             {/* Step Progress Header */}
             <div className="mb-8 text-left">
-              <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent mb-3">
+              <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-[0.2em] text-gold-soft mb-3">
                 <span>PREMIUM RESERVATIONS</span>
                 <span>STEP {step} OF 5</span>
               </div>
               
               {/* Progress Bar */}
-              <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden flex gap-0.5">
+              <div className="w-full h-1 bg-navy-medium rounded-lg overflow-hidden flex gap-0.5">
                 {stepsList.map((_, idx) => (
                   <div 
                     key={idx}
-                    className={`h-full flex-1 transition-all duration-500 rounded-full ${
-                      idx + 1 <= step ? 'bg-gradient-to-r from-gold-accent to-gold-soft' : 'bg-white/5'
+                    className={`h-full flex-1 transition-all duration-500 ${
+                      idx + 1 <= step ? 'bg-gold-soft' : 'bg-navy-medium'
                     }`}
                   />
                 ))}
@@ -227,8 +227,8 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col gap-5 text-left"
                 >
-                  <h3 className="font-display font-black text-xl sm:text-2xl text-white">Select Service Division</h3>
-                  <p className="text-gray-400 text-xs sm:text-sm">Choose the operational branch under which you would like to book your premium service.</p>
+                  <h3 className="font-display font-bold text-xl sm:text-2xl text-text-heading">Select Service Division</h3>
+                  <p className="text-text-body text-xs sm:text-sm">Choose the operational branch under which you would like to book your premium service.</p>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                     {Object.entries(bookingConfigs).map(([key, config]) => {
@@ -239,18 +239,18 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                           key={key}
                           type="button"
                           onClick={() => setDivision(key)}
-                          className={`p-5 rounded-2xl border text-left flex gap-4 items-start transition-all cursor-pointer ${
+                          className={`p-5 rounded-lg border text-left flex gap-4 items-start transition-all cursor-pointer ${
                             isSelected 
-                              ? 'bg-gold-accent/10 border-gold-accent text-white shadow-lg shadow-gold-accent/5' 
-                              : 'glass border-white/5 hover:border-white/20 text-gray-300'
+                              ? 'bg-navy-medium border-gold-soft text-text-heading shadow-md' 
+                              : 'bg-navy-medium border-card-border hover:border-gold-soft/30 text-text-body'
                           }`}
                         >
-                          <div className={`p-2.5 rounded-xl shrink-0 ${isSelected ? 'bg-gold-accent/20 text-gold-soft' : 'bg-white/5 text-gray-400'}`}>
+                          <div className={`p-2 rounded-md shrink-0 ${isSelected ? 'bg-gold-soft/10 text-gold-soft' : 'bg-navy-medium border border-card-border text-text-body/60'}`}>
                             <Icon className="w-5 h-5" />
                           </div>
                           <div>
                             <h4 className="font-display font-bold text-sm">{config.name}</h4>
-                            <p className="text-[10px] text-gray-500 mt-1 leading-relaxed">Book elite event designs, photography, travels, or software packages.</p>
+                            <p className="text-[10px] text-text-body/80 mt-1 leading-relaxed">Book elite event designs, photography, travels, or software packages.</p>
                           </div>
                         </button>
                       );
@@ -266,8 +266,8 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col gap-5 text-left"
                 >
-                  <h3 className="font-display font-black text-xl sm:text-2xl text-white">Choose Your Package</h3>
-                  <p className="text-gray-400 text-xs sm:text-sm">Select the service tier level. Pricing will adjust dynamically in the review stage.</p>
+                  <h3 className="font-display font-bold text-xl sm:text-2xl text-text-heading">Choose Your Package</h3>
+                  <p className="text-text-body text-xs sm:text-sm">Select the service tier level. Pricing will adjust dynamically in the review stage.</p>
                   
                   <div className="flex flex-col gap-4 mt-2">
                     {currentConfig?.packages.map((pkg, idx) => {
@@ -277,17 +277,17 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                           key={idx}
                           type="button"
                           onClick={() => setFormData({ ...formData, packageName: pkg.name })}
-                          className={`p-5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                          className={`p-5 rounded-lg border text-left flex items-center justify-between transition-all cursor-pointer ${
                             isSelected 
-                              ? 'bg-gold-accent/10 border-gold-accent text-white' 
-                              : 'glass border-white/5 hover:border-white/20 text-gray-300'
+                              ? 'bg-navy-medium border-gold-soft text-text-heading' 
+                              : 'bg-navy-medium border-card-border hover:border-gold-soft/30 text-text-body'
                           }`}
                         >
                           <div className="flex flex-col gap-1 max-w-[70%]">
                             <h4 className="font-display font-bold text-sm sm:text-base">{pkg.name}</h4>
-                            <p className="text-[10px] text-gray-500 leading-relaxed">{pkg.desc}</p>
+                            <p className="text-[10px] text-text-body/80 leading-relaxed">{pkg.desc}</p>
                           </div>
-                          <span className="font-display font-black text-xs sm:text-sm text-gold-soft text-right shrink-0">{pkg.priceStr}</span>
+                          <span className="font-display font-bold text-xs sm:text-sm text-gold-soft text-right shrink-0">{pkg.priceStr}</span>
                         </button>
                       );
                     })}
@@ -302,35 +302,35 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col gap-5 text-left"
                 >
-                  <h3 className="font-display font-black text-xl sm:text-2xl text-white">Schedule details</h3>
-                  <p className="text-gray-400 text-xs sm:text-sm">Specify the date and location where the setup or service is required.</p>
+                  <h3 className="font-display font-bold text-xl sm:text-2xl text-text-heading">Schedule details</h3>
+                  <p className="text-text-body text-xs sm:text-sm">Specify the date and location where the setup or service is required.</p>
                   
                   <div className="grid grid-cols-1 gap-5 mt-2">
                     <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-sans">Required Date</label>
+                      <label className="text-[10px] font-bold text-text-body/60 uppercase tracking-widest font-sans">Required Date</label>
                       <div className="relative">
-                        <CalendarIcon className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" />
+                        <CalendarIcon className="absolute left-4 top-3.5 w-4 h-4 text-text-body/60" />
                         <input
                           type="date"
                           required
                           value={formData.date}
                           onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                          className="w-full bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl pl-11 pr-4 py-3 text-xs sm:text-sm focus:outline-none text-white font-sans transition-all"
+                          className="w-full bg-navy-medium border border-card-border focus:border-gold-soft/50 rounded-lg pl-11 pr-4 py-3 text-xs sm:text-sm focus:outline-none text-text-heading font-sans transition-all"
                         />
                       </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-sans">Event Location / Venue</label>
+                      <label className="text-[10px] font-bold text-text-body/60 uppercase tracking-widest font-sans">Event Location / Venue</label>
                       <div className="relative">
-                        <MapPin className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" />
+                        <MapPin className="absolute left-4 top-3.5 w-4 h-4 text-text-body/60" />
                         <input
                           type="text"
                           required
                           placeholder="e.g. Cinnamon Grand Colombo, Galle, BIA Airport"
                           value={formData.location}
                           onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                          className="w-full bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl pl-11 pr-4 py-3 text-xs sm:text-sm focus:outline-none text-white font-sans transition-all"
+                          className="w-full bg-navy-medium border border-card-border focus:border-gold-soft/50 rounded-lg pl-11 pr-4 py-3 text-xs sm:text-sm focus:outline-none text-text-heading font-sans transition-all"
                         />
                       </div>
                     </div>
@@ -345,54 +345,54 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col gap-5 text-left"
                 >
-                  <h3 className="font-display font-black text-xl sm:text-2xl text-white">Client details</h3>
-                  <p className="text-gray-400 text-xs sm:text-sm">Provide your communication details. Confirmation alerts will be sent here.</p>
+                  <h3 className="font-display font-bold text-xl sm:text-2xl text-text-heading">Client details</h3>
+                  <p className="text-text-body text-xs sm:text-sm">Provide your communication details. Confirmation alerts will be sent here.</p>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
                     <div className="flex flex-col gap-2 sm:col-span-3">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-sans">Your Full Name</label>
+                      <label className="text-[10px] font-bold text-text-body/60 uppercase tracking-widest font-sans">Your Full Name</label>
                       <input
                         type="text"
                         required
                         placeholder="John Doe"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none text-white font-sans transition-all"
+                        className="bg-navy-medium border border-card-border focus:border-gold-soft/50 rounded-lg px-4 py-3 text-xs sm:text-sm focus:outline-none text-text-heading font-sans transition-all"
                       />
                     </div>
 
                     <div className="flex flex-col gap-2 sm:col-span-2">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-sans">Email Address</label>
+                      <label className="text-[10px] font-bold text-text-body/60 uppercase tracking-widest font-sans">Email Address</label>
                       <input
                         type="email"
                         required
                         placeholder="john@example.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none text-white font-sans transition-all"
+                        className="bg-navy-medium border border-card-border focus:border-gold-soft/50 rounded-lg px-4 py-3 text-xs sm:text-sm focus:outline-none text-text-heading font-sans transition-all"
                       />
                     </div>
 
                     <div className="flex flex-col gap-2 sm:col-span-1">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-sans">Phone Number</label>
+                      <label className="text-[10px] font-bold text-text-body/60 uppercase tracking-widest font-sans">Phone Number</label>
                       <input
                         type="tel"
                         required
                         placeholder="+94 7XXXXXXXX"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none text-white font-sans transition-all"
+                        className="bg-navy-medium border border-card-border focus:border-gold-soft/50 rounded-lg px-4 py-3 text-xs sm:text-sm focus:outline-none text-text-heading font-sans transition-all"
                       />
                     </div>
 
                     <div className="flex flex-col gap-2 sm:col-span-3">
-                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-sans">Special Requests / Themes</label>
+                      <label className="text-[10px] font-bold text-text-body/60 uppercase tracking-widest font-sans">Special Requests / Themes</label>
                       <textarea
                         rows={2}
                         placeholder="E.g., Pastel pink rose themes, drone requirements, AC sedan details..."
                         value={formData.specialRequests}
                         onChange={(e) => setFormData({ ...formData, specialRequests: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none text-white font-sans transition-all resize-none"
+                        className="bg-navy-medium border border-card-border focus:border-gold-soft/50 rounded-lg px-4 py-3 text-xs sm:text-sm focus:outline-none text-text-heading font-sans transition-all resize-none"
                       />
                     </div>
                   </div>
@@ -406,59 +406,59 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                   animate={{ opacity: 1, x: 0 }}
                   className="flex flex-col gap-5 text-left"
                 >
-                  <h3 className="font-display font-black text-xl sm:text-2xl text-white">Review Reservation</h3>
-                  <p className="text-gray-400 text-xs sm:text-sm">Verify chosen values. Our executives will approve booking details on confirmation.</p>
+                  <h3 className="font-display font-bold text-xl sm:text-2xl text-text-heading">Review Reservation</h3>
+                  <p className="text-text-body text-xs sm:text-sm">Verify chosen values. Our executives will approve booking details on confirmation.</p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 font-sans text-xs">
                     
                     {/* Selected Summary */}
-                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex flex-col gap-2.5">
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-gray-500 uppercase tracking-wider font-bold">Division</span>
-                        <span className="text-white font-semibold">{currentConfig.name}</span>
+                    <div className="p-4 rounded-lg bg-navy-medium border border-card-border flex flex-col gap-2.5">
+                      <div className="flex justify-between border-b border-card-border pb-2">
+                        <span className="text-text-body/60 uppercase tracking-wider font-bold">Division</span>
+                        <span className="text-text-heading font-semibold">{currentConfig.name}</span>
                       </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-gray-500 uppercase tracking-wider font-bold">Package</span>
-                        <span className="text-white font-semibold truncate max-w-[140px]" title={formData.packageName}>{formData.packageName}</span>
+                      <div className="flex justify-between border-b border-card-border pb-2">
+                        <span className="text-text-body/60 uppercase tracking-wider font-bold">Package</span>
+                        <span className="text-text-heading font-semibold truncate max-w-[140px]" title={formData.packageName}>{formData.packageName}</span>
                       </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-gray-500 uppercase tracking-wider font-bold">Date</span>
-                        <span className="text-white font-semibold">{formData.date}</span>
+                      <div className="flex justify-between border-b border-card-border pb-2">
+                        <span className="text-text-body/60 uppercase tracking-wider font-bold">Date</span>
+                        <span className="text-text-heading font-semibold">{formData.date}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500 uppercase tracking-wider font-bold">Location</span>
-                        <span className="text-white font-semibold truncate max-w-[140px]">{formData.location}</span>
+                        <span className="text-text-body/60 uppercase tracking-wider font-bold">Location</span>
+                        <span className="text-text-heading font-semibold truncate max-w-[140px]">{formData.location}</span>
                       </div>
                     </div>
 
                     {/* Contact Summary */}
-                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex flex-col gap-2.5">
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-gray-500 uppercase tracking-wider font-bold">Client</span>
-                        <span className="text-white font-semibold">{formData.name}</span>
+                    <div className="p-4 rounded-lg bg-navy-medium border border-card-border flex flex-col gap-2.5">
+                      <div className="flex justify-between border-b border-card-border pb-2">
+                        <span className="text-text-body/60 uppercase tracking-wider font-bold">Client</span>
+                        <span className="text-text-heading font-semibold">{formData.name}</span>
                       </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-gray-500 uppercase tracking-wider font-bold">Phone</span>
-                        <span className="text-white font-semibold">{formData.phone}</span>
+                      <div className="flex justify-between border-b border-card-border pb-2">
+                        <span className="text-text-body/60 uppercase tracking-wider font-bold">Phone</span>
+                        <span className="text-text-heading font-semibold">{formData.phone}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500 uppercase tracking-wider font-bold">Email</span>
-                        <span className="text-white font-semibold truncate max-w-[140px]">{formData.email}</span>
+                        <span className="text-text-body/60 uppercase tracking-wider font-bold">Email</span>
+                        <span className="text-text-heading font-semibold truncate max-w-[140px]">{formData.email}</span>
                       </div>
                     </div>
 
                   </div>
 
                   {/* Calculated Price Alert */}
-                  <div className="p-4 rounded-2xl bg-gold-accent/10 border border-gold-accent/25 flex items-center justify-between mt-1">
+                  <div className="p-4 rounded-lg bg-navy-medium border border-card-border flex items-center justify-between mt-1">
                     <div className="flex items-center gap-3">
                       <DollarSign className="w-5 h-5 text-gold-soft shrink-0" />
                       <div>
-                        <span className="text-[9px] uppercase tracking-wider text-gray-500 block font-bold">Estimated Cost</span>
-                        <span className="text-white font-bold text-sm sm:text-base font-display">{priceDisplay}</span>
+                        <span className="text-[9px] uppercase tracking-wider text-text-body/60 block font-bold">Estimated Cost</span>
+                        <span className="text-text-heading font-bold text-sm sm:text-base font-display">{priceDisplay}</span>
                       </div>
                     </div>
-                    <div className="px-3 py-1 rounded bg-white/5 text-[9px] text-gold-soft uppercase tracking-wider font-bold">
+                    <div className="px-3 py-1 rounded bg-navy-dark text-[9px] text-gold-soft uppercase tracking-wider font-bold border border-card-border">
                       Dynamic Quote
                     </div>
                   </div>
@@ -468,12 +468,12 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
             </div>
 
             {/* NAVIGATION BUTTONS */}
-            <div className="flex justify-between items-center gap-4 mt-8 pt-6 border-t border-white/5">
+            <div className="flex justify-between items-center gap-4 mt-8 pt-6 border-t border-card-border">
               {step > 1 ? (
                 <button
                   type="button"
                   onClick={prevStep}
-                  className="px-5 py-3 rounded-xl border border-white/10 hover:bg-white/5 text-white font-sans text-xs font-semibold tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
+                  className="px-5 py-2.5 rounded-lg border border-card-border hover:bg-navy-medium text-text-heading font-sans text-xs font-semibold tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" /> BACK
                 </button>
@@ -485,7 +485,7 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest flex items-center gap-1 transition-all cursor-pointer"
+                  className="px-6 py-2.5 rounded-lg bg-gold-accent text-white font-sans text-xs font-bold tracking-wider flex items-center gap-1 transition-all cursor-pointer hover:bg-gold-accent/90"
                 >
                   CONTINUE <ChevronRight className="w-4 h-4" />
                 </button>
@@ -494,7 +494,7 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-bold tracking-widest disabled:opacity-50 flex items-center gap-1.5 transition-all cursor-pointer"
+                  className="px-8 py-3 rounded-lg bg-gold-accent text-white font-sans text-xs font-bold tracking-wider disabled:opacity-50 flex items-center gap-1.5 transition-all cursor-pointer hover:bg-gold-accent/90"
                 >
                   {loading ? 'LOGGING RESERVATION...' : 'CONFIRM BOOKING'} <CheckCircle className="w-4 h-4" />
                 </button>
@@ -505,41 +505,41 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
         ) : (
           <motion.div
             key="booking-success-wizard"
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="glass-premium rounded-3xl p-8 sm:p-12 border border-green-500/25 shadow-2xl text-center flex flex-col items-center gap-6 relative"
+            className="bg-navy-dark rounded-xl p-8 sm:p-12 border border-green-500/25 shadow-lg text-center flex flex-col items-center gap-6 relative"
           >
-            <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400">
-              <CheckCircle className="w-8 h-8 animate-bounce" />
+            <div className="w-14 h-14 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400">
+              <CheckCircle className="w-7 h-7" />
             </div>
 
             <div className="flex flex-col gap-2">
-              <h3 className="font-display font-black text-2xl text-white">Booking Scheduled Successfully</h3>
-              <p className="text-sm text-gray-400 font-sans max-w-md">Your reservation has been logged under booking reference: <code className="text-gold-soft font-bold">{bookedDetails.id}</code>.</p>
+              <h3 className="font-display font-bold text-2xl text-text-heading">Booking Scheduled</h3>
+              <p className="text-sm text-text-body font-sans max-w-md">Your reservation has been logged under reference: <code className="text-gold-soft font-bold">{bookedDetails.id}</code>.</p>
             </div>
 
             {/* Summary Details */}
-            <div className="w-full max-w-md p-5 rounded-2xl bg-white/5 border border-white/5 text-left font-sans text-xs flex flex-col gap-3">
-              <div className="flex justify-between border-b border-white/5 pb-2">
-                <span className="text-gray-500 uppercase tracking-wider font-bold">Division</span>
-                <span className="text-white font-semibold">{bookedDetails.divisionName}</span>
+            <div className="w-full max-w-md p-5 rounded-lg bg-navy-medium border border-card-border text-left font-sans text-xs flex flex-col gap-3">
+              <div className="flex justify-between border-b border-card-border pb-2">
+                <span className="text-text-body/60 uppercase tracking-wider font-bold">Division</span>
+                <span className="text-text-heading font-semibold">{bookedDetails.divisionName}</span>
               </div>
-              <div className="flex justify-between border-b border-white/5 pb-2">
-                <span className="text-gray-500 uppercase tracking-wider font-bold">Package Chosen</span>
-                <span className="text-white font-semibold">{bookedDetails.packageName}</span>
+              <div className="flex justify-between border-b border-card-border pb-2">
+                <span className="text-text-body/60 uppercase tracking-wider font-bold">Package Chosen</span>
+                <span className="text-text-heading font-semibold">{bookedDetails.packageName}</span>
               </div>
-              <div className="flex justify-between border-b border-white/5 pb-2">
-                <span className="text-gray-500 uppercase tracking-wider font-bold">Date & Location</span>
-                <span className="text-white font-semibold">{bookedDetails.date} @ {bookedDetails.location}</span>
+              <div className="flex justify-between border-b border-card-border pb-2">
+                <span className="text-text-body/60 uppercase tracking-wider font-bold">Date & Location</span>
+                <span className="text-text-heading font-semibold">{bookedDetails.date} @ {bookedDetails.location}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500 uppercase tracking-wider font-bold">Amount Estimated</span>
+                <span className="text-text-body/60 uppercase tracking-wider font-bold">Amount Estimated</span>
                 <span className="text-gold-soft font-bold">{bookedDetails.priceStr}</span>
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-xs text-green-400 font-sans max-w-md leading-relaxed">
-              🔔 **Instant Alerts Sent:** An email has been dispatched to `{bookedDetails.email}` and reservation has been queued to CRM database.
+            <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20 text-xs text-green-400 font-sans max-w-md leading-relaxed">
+              An email has been dispatched to `{bookedDetails.email}` and the reservation is logged in the CRM database.
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4">
@@ -548,7 +548,7 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                   setBookedDetails(null);
                   setStep(1);
                 }}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-full border border-white/10 hover:bg-white/5 text-white font-sans text-xs font-bold tracking-widest transition-all"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-lg border border-card-border hover:bg-navy-medium text-text-heading font-sans text-xs font-bold tracking-wider transition-all cursor-pointer"
               >
                 BOOK ANOTHER SERVICE
               </button>
@@ -556,7 +556,7 @@ export default function BookingSystem({ initialDivision = 'sws-events', onSucces
                 href={`https://wa.me/94768988970?text=Hi%20Mahdev%20Conglomerate,%20I%2527ve%20submitted%20booking%20reference%20${bookedDetails.id}%20for%20${bookedDetails.packageName}%20on%20${bookedDetails.date}%20at%20${bookedDetails.location}.%20Please%20confirm%20availability.`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-green-500 hover:bg-green-600 text-white font-sans text-xs font-bold tracking-widest flex items-center justify-center gap-2 transition-all"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white font-sans text-xs font-bold tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 <MessageSquare className="w-4 h-4" />
                 CONFIRM VIA WHATSAPP

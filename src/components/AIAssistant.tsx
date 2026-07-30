@@ -210,26 +210,26 @@ export default function AIAssistant({ onOpenBooking }: { onOpenBooking: () => vo
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            initial={{ opacity: 0, y: 30, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            className="w-[340px] sm:w-[380px] h-[520px] rounded-3xl glass-premium border border-gold-accent/25 shadow-2xl flex flex-col overflow-hidden mb-4 pointer-events-auto"
+            exit={{ opacity: 0, y: 30, scale: 0.98 }}
+            className="w-[340px] sm:w-[380px] h-[500px] rounded-xl bg-navy-dark border border-card-border shadow-lg flex flex-col overflow-hidden mb-4 pointer-events-auto"
           >
             {/* Header with language selectors */}
-            <div className="p-4 bg-navy-medium/80 border-b border-white/5 flex justify-between items-center text-left">
+            <div className="p-4 bg-navy-medium border-b border-card-border flex justify-between items-center text-left">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gold-accent/10 border border-gold-accent/30 flex items-center justify-center text-gold-soft">
-                  <Bot className="w-5 h-5 animate-pulse" />
+                <div className="w-9 h-9 rounded-lg bg-navy-medium border border-card-border flex items-center justify-center text-gold-soft">
+                  <Bot className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-display font-bold text-sm text-white">Mahdev Concierge</h4>
+                  <h4 className="font-display font-bold text-sm text-text-heading">Mahdev Concierge</h4>
                   <div className="flex gap-1.5 mt-0.5">
                     {['en', 'si', 'ta'].map((l) => (
                       <button
                         key={l}
                         onClick={() => setLang(l as any)}
-                        className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded ${
-                          lang === l ? 'bg-gold-accent text-navy-dark' : 'bg-white/5 text-gray-500'
+                        className={`text-[8px] font-bold uppercase px-1.5 py-0.5 rounded cursor-pointer ${
+                          lang === l ? 'bg-gold-accent text-white' : 'bg-navy-medium border border-card-border text-text-body'
                         }`}
                       >
                         {l}
@@ -243,14 +243,14 @@ export default function AIAssistant({ onOpenBooking }: { onOpenBooking: () => vo
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => setVoiceSynthesisActive(!voiceSynthesisActive)}
-                  className="p-1.5 rounded-full hover:bg-white/5 text-gray-400"
+                  className="p-1.5 rounded-md hover:bg-navy-medium text-text-body cursor-pointer"
                   title={voiceSynthesisActive ? 'Mute Speech' : 'Enable Speech'}
                 >
-                  {voiceSynthesisActive ? <Volume2 className="w-4 h-4 text-gold-accent" /> : <VolumeX className="w-4 h-4 text-gray-600" />}
+                  {voiceSynthesisActive ? <Volume2 className="w-4 h-4 text-gold-soft" /> : <VolumeX className="w-4 h-4 text-text-body/60" />}
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 rounded-full hover:bg-white/5 text-gray-400"
+                  className="p-1.5 rounded-md hover:bg-navy-medium text-text-body cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -262,26 +262,26 @@ export default function AIAssistant({ onOpenBooking }: { onOpenBooking: () => vo
               {messages.map((msg, idx) => (
                 <div
                   key={idx}
-                  className={`flex flex-col max-w-[80%] ${
+                  className={`flex flex-col max-w-[85%] ${
                     msg.sender === 'user' ? 'ml-auto items-end text-right' : 'mr-auto items-start text-left'
                   }`}
                 >
                   <div
-                    className={`p-3 rounded-2xl text-xs leading-relaxed font-sans ${
+                    className={`p-3 rounded-lg text-xs leading-relaxed font-sans ${
                       msg.sender === 'user'
-                        ? 'bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-semibold rounded-br-none'
-                        : 'bg-white/5 border border-white/5 text-gray-200 rounded-bl-none'
+                        ? 'bg-gold-accent text-white font-medium rounded-tr-none'
+                        : 'bg-navy-medium border border-card-border text-text-heading rounded-tl-none'
                     } whitespace-pre-line`}
                   >
                     {msg.text}
                   </div>
                   {msg.actions && (
-                    <div className="mt-2 flex flex-wrap gap-2">
+                    <div className="mt-2 flex flex-wrap gap-1.5">
                       {msg.actions.map((act, aIdx) => (
                         <button
                           key={aIdx}
                           onClick={() => handleAction(act.action)}
-                          className="px-3 py-1.5 rounded-lg bg-gold-accent/10 border border-gold-accent/30 text-gold-soft text-[10px] font-bold uppercase hover:bg-gold-accent hover:text-navy-dark transition-all"
+                          className="px-2.5 py-1 rounded bg-navy-medium border border-card-border text-gold-soft text-[9px] font-semibold uppercase hover:bg-gold-accent hover:text-white transition-all cursor-pointer"
                         >
                           {act.label}
                         </button>
@@ -292,46 +292,46 @@ export default function AIAssistant({ onOpenBooking }: { onOpenBooking: () => vo
               ))}
 
               {isTyping && (
-                <div className="mr-auto flex items-center gap-1.5 p-3 rounded-2xl bg-white/5 text-gray-400 text-xs">
-                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                  <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" />
+                <div className="mr-auto flex items-center gap-1.5 p-3 rounded-lg bg-navy-medium border border-card-border text-text-body text-xs">
+                  <span className="w-1.5 h-1.5 bg-text-body rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <span className="w-1.5 h-1.5 bg-text-body rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <span className="w-1.5 h-1.5 bg-text-body rounded-full animate-bounce" />
                 </div>
               )}
               <div ref={feedEndRef} />
             </div>
 
-            {/* Form inputs & microphone mic togglers */}
+            {/* Form inputs */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSend(inputText);
               }}
-              className="p-3 border-t border-white/5 bg-navy-dark/95 flex gap-2 items-center"
+              className="p-3 border-t border-card-border bg-navy-dark flex gap-2 items-center"
             >
               <button
                 type="button"
                 onClick={handleMicToggle}
-                className={`p-2.5 rounded-xl border transition-all flex items-center justify-center ${
+                className={`p-2 rounded-lg border transition-all flex items-center justify-center cursor-pointer ${
                   voiceInputActive 
                     ? 'bg-red-500/20 border-red-500 text-red-500 animate-pulse' 
-                    : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'
+                    : 'bg-navy-medium border-card-border text-text-body hover:text-gold-soft'
                 }`}
-                title="Dictate message (Speech to Text)"
+                title="Dictate message"
               >
                 {voiceInputActive ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </button>
               <input
                 type="text"
-                placeholder={voiceInputActive ? "Listening..." : "Ask prices, schedules, consults..."}
+                placeholder={voiceInputActive ? "Listening..." : "Ask prices, consults..."}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 disabled={voiceInputActive}
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-gold-accent/50 text-white placeholder-gray-500 font-sans"
+                className="flex-1 bg-navy-medium border border-card-border rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-gold-soft/50 text-text-heading placeholder-gray-500 font-sans"
               />
               <button
                 type="submit"
-                className="p-2.5 rounded-xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark hover:brightness-110 transition-all flex items-center justify-center"
+                className="p-2 rounded-lg bg-gold-accent text-white hover:bg-gold-accent/90 transition-all flex items-center justify-center cursor-pointer"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>
@@ -343,14 +343,14 @@ export default function AIAssistant({ onOpenBooking }: { onOpenBooking: () => vo
       {/* Floating assistant trigger */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="w-14 h-14 rounded-full bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark flex items-center justify-center shadow-xl shadow-gold-accent/25 cursor-pointer pointer-events-auto border border-gold-soft/20 relative"
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="w-12 h-12 rounded-full bg-gold-accent text-white flex items-center justify-center shadow-md cursor-pointer pointer-events-auto border border-card-border relative"
       >
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-purple-500 rounded-full border border-navy-dark text-[8px] font-bold text-white flex items-center justify-center">
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-gold-soft rounded-full border border-card-border text-[8px] font-bold text-white flex items-center justify-center">
           AI
         </span>
-        <MessageSquare className="w-6 h-6" />
+        <MessageSquare className="w-5 h-5" />
       </motion.button>
     </div>
   );

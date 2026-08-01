@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
@@ -16,26 +17,25 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, onSnapshot, serverTimestamp, doc } from 'firebase/firestore';
 import { getMediaType, getYouTubeId } from '@/lib/media';
 
-// Core Custom Components
+// Core Custom Components (Statically loaded)
 import Navbar from '@/components/Navbar';
 import InteractiveHero from '@/components/InteractiveHero';
-import TechCloud from '@/components/TechCloud';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
-import AIAssistant from '@/components/AIAssistant';
-import GlobalSearch from '@/components/GlobalSearch';
-import BookingSystem from '@/components/BookingSystem';
 
-// Premium Features Component
-import { 
-  BeforeAfterSlider, 
-  EventCostEstimator, 
-  Venue360Viewer, 
-  InteractiveTimeline, 
-  ClientLoginPortal, 
-  ProjectInquiryWizard 
-} from '@/components/PremiumFeatures';
+// Dynamic / Lazy Loaded Components
+const TechCloud = dynamic(() => import('@/components/TechCloud'), { ssr: false });
+const AIAssistant = dynamic(() => import('@/components/AIAssistant'), { ssr: false });
+const GlobalSearch = dynamic(() => import('@/components/GlobalSearch'), { ssr: false });
+const BookingSystem = dynamic(() => import('@/components/BookingSystem'), { ssr: false });
+
+// Premium Features (Lazy loaded)
+const BeforeAfterSlider = dynamic(() => import('@/components/PremiumFeatures').then(m => m.BeforeAfterSlider), { ssr: false });
+const Venue360Viewer = dynamic(() => import('@/components/PremiumFeatures').then(m => m.Venue360Viewer), { ssr: false });
+const InteractiveTimeline = dynamic(() => import('@/components/PremiumFeatures').then(m => m.InteractiveTimeline), { ssr: false });
+const ClientLoginPortal = dynamic(() => import('@/components/PremiumFeatures').then(m => m.ClientLoginPortal), { ssr: false });
+const ProjectInquiryWizard = dynamic(() => import('@/components/PremiumFeatures').then(m => m.ProjectInquiryWizard), { ssr: false });
 
 // Number counter animation component
 function CounterNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -367,20 +367,20 @@ export default function Home() {
           <section className="section-premium-padding bg-[#050816] relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
               
-              <div className="flex flex-col gap-3.5 mb-16 text-center max-w-xl mx-auto">
+              <div className="flex flex-col gap-2.5 mb-10 text-center max-w-xl mx-auto">
                 <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
                   OUR CONGLOMERATE STRUCTURE
                 </span>
-                <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-white leading-tight">
+                <h2 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-white leading-tight">
                   Premium Services
                 </h2>
-                <p className="text-sm text-[#BFC8E6]/80 leading-relaxed font-sans">
+                <p className="text-xs text-[#BFC8E6]/80 leading-relaxed font-sans">
                   We bridge physical luxury experience designs and digital system architectures to deliver uncompromised quality.
                 </p>
               </div>
 
               {/* Service Cards Layout */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
                   { title: 'SWS Event Planning', desc: 'Curating royal backdrops, glasshouse wedding canopies, traditional oil lamps, and floral altar layouts.', href: '/divisions/sws-events', icon: Sparkles, color: 'text-purple-400', border: 'hover:border-purple-500/30' },
                   { title: 'Studio U1 Cinematography', desc: 'Capturing candidates pre-wedding portraits and high-altitude drone clips with custom color-graded edits.', href: '/divisions/u1-studio', icon: Camera, color: 'text-cyan-400', border: 'hover:border-cyan-500/30' },
@@ -393,15 +393,15 @@ export default function Home() {
                     <Link
                       key={sIdx}
                       href={serv.href}
-                      className={`glass p-8 sm:p-9.5 rounded-xl border border-white/5 hover:border-gold-accent/30 hover:-translate-y-2.5 transition-all duration-500 flex flex-col justify-between group shadow-lg ${serv.border}`}
+                      className={`glass p-6 sm:p-7 rounded-xl border border-white/5 hover:border-gold-accent/30 hover:-translate-y-1.5 transition-all duration-500 flex flex-col justify-between group shadow-lg ${serv.border}`}
                     >
-                      <div className="flex flex-col gap-6 text-left">
+                      <div className="flex flex-col gap-4 text-left">
                         {/* Icon rotates on card hover */}
-                        <div className="w-13 h-13 rounded-2xl bg-white/3 flex items-center justify-center border border-white/5 group-hover:border-gold-accent/20 group-hover:bg-white/5 transition-all duration-300 shrink-0">
-                          <Icon className={`w-6.5 h-6.5 ${serv.color} group-hover:rotate-12 transition-transform duration-500`} />
+                        <div className="w-11 h-11 rounded-xl bg-white/3 flex items-center justify-center border border-white/5 group-hover:border-gold-accent/20 group-hover:bg-white/5 transition-all duration-300 shrink-0">
+                          <Icon className={`w-5.5 h-5.5 ${serv.color} group-hover:rotate-12 transition-transform duration-500`} />
                         </div>
-                        <div className="flex flex-col gap-3">
-                          <h3 className="font-display font-black text-xl text-white group-hover:text-gold-soft transition-colors duration-300">
+                        <div className="flex flex-col gap-2">
+                          <h3 className="font-display font-bold text-lg text-white group-hover:text-gold-soft transition-colors duration-300">
                             {serv.title}
                           </h3>
                           <p className="text-xs text-[#BFC8E6]/80 leading-relaxed font-sans">
@@ -411,7 +411,7 @@ export default function Home() {
                       </div>
                       
                       {/* Arrow moves on hover */}
-                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-gold-soft uppercase tracking-wider mt-6 group-hover:text-white transition-colors duration-300">
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-gold-soft uppercase tracking-wider mt-5 group-hover:text-white transition-colors duration-300">
                         Learn More 
                         <span className="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                       </div>
@@ -934,17 +934,6 @@ export default function Home() {
 
       {/* WhatsApp Floating Sticky Button */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-2.5 items-end pointer-events-auto">
-        {/* Cost Estimator Drawer */}
-        <button
-          onClick={() => {
-            const contactSec = document.getElementById('contact');
-            if (contactSec) contactSec.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className="p-3.5 rounded-full bg-navy-light text-gold-soft shadow-[0_4px_20px_rgba(0,0,0,0.4)] border border-gold-accent/25 hover:border-gold-accent hover:scale-105 transition-all select-none cursor-pointer flex items-center justify-center"
-          title="Open Cost Estimator"
-        >
-          <Calculator className="w-5 h-5" />
-        </button>
 
         {/* WhatsApp Icon */}
         <a

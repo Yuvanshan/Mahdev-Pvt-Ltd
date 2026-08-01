@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cpu, Terminal, Layers, CheckCircle, X, ChevronRight, Play, Database, FileText, Settings, ShieldAlert } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import BookingSystem from '@/components/BookingSystem';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
+
+const BookingSystem = dynamic(() => import('@/components/BookingSystem'), { ssr: false });
 
 const erpModules = [
   { icon: Layers, title: 'Double-Entry Ledgers', desc: 'Standard auditing trails, balancing sheets, and asset flow reports synced in real-time.' },

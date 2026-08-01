@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, Film, Compass, User, Palette, Sparkles, X, CheckCircle, MessageSquare, Star, Eye } from 'lucide-react';
@@ -8,7 +9,8 @@ import { db } from '@/lib/firebase';
 import { onSnapshot, doc } from 'firebase/firestore';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import BookingSystem from '@/components/BookingSystem';
+
+const BookingSystem = dynamic(() => import('@/components/BookingSystem'), { ssr: false });
 
 const u1PricingList = [
   {

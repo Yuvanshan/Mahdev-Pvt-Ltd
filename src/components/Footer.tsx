@@ -48,7 +48,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative bg-navy-dark pt-24 pb-28 md:pb-12 border-t border-white/5 overflow-hidden">
+    <footer className="relative bg-navy-dark pt-16 pb-28 md:pb-12 border-t border-white/5 overflow-hidden">
       
       {/* Premium Animated Wave Separator */}
       <div className="wave-container">

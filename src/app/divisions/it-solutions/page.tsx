@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal as TerminalIcon, Cpu, Globe, Server, Database, Code, BookOpen, Shield, Check, X, ArrowUpRight, MessageSquare, Play, Layers, Laptop } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import BookingSystem from '@/components/BookingSystem';
 import { db } from '@/lib/firebase';
 import { onSnapshot, doc } from 'firebase/firestore';
+
+const BookingSystem = dynamic(() => import('@/components/BookingSystem'), { ssr: false });
 
 const terminalLogs = [
   'Initializing Mahdev IT Cloud Server Deployment...',

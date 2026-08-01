@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +10,8 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { Sparkles, Calendar, CheckCircle, ArrowLeft, Heart, Church, Gift, Briefcase, Flower, Sun, Camera, Film, Compass, User, Palette, Cpu, Terminal, Globe, Shield, Layers, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import BookingSystem from '@/components/BookingSystem';
+
+const BookingSystem = dynamic(() => import('@/components/BookingSystem'), { ssr: false });
 
 const iconMap: Record<string, any> = {
   Heart, Church, Gift, Briefcase, Flower, Sun, Camera, Film, Compass, User, Palette, Cpu, Terminal, Globe, Shield, Layers, Sparkles

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -14,10 +14,23 @@ import {
   Clock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { db } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [logoUrl, setLogoUrl] = useState('/images/logo.png');
+
+  useEffect(() => {
+    const unsubBranding = onSnapshot(doc(db, 'settings', 'branding'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.logoUrl) setLogoUrl(d.logoUrl);
+      }
+    });
+    return () => unsubBranding();
+  }, []);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +69,7 @@ export default function Footer() {
             <Link href="/" className="flex items-center gap-3">
               <div className="relative w-11 h-11 rounded-xl overflow-hidden border border-gold-accent/20">
                 <Image 
-                  src="/images/logo.png" 
+                  src={logoUrl} 
                   alt="Mahdev Logo" 
                   fill 
                   className="object-cover"

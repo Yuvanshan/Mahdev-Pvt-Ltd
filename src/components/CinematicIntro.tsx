@@ -181,24 +181,24 @@ export default function CinematicIntro({ onComplete }: { onComplete: () => void 
     };
   }, [soundEnabled]);
 
-  // Hollywood timing sequence for 8 scenes (0s - 17s)
+  // Sped-up timing sequence for cinematic scenes (approx 10s total)
   useEffect(() => {
-    // If returning user, skip long cinematic timeline
+    // If returning user, fade out intro almost instantly (800ms) to maximize performance
     if (typeof window !== 'undefined' && localStorage.getItem('mahdev_returning_user') === 'true') {
-      const timer = setTimeout(() => setPhase(9), 3000);
+      const timer = setTimeout(() => setPhase(9), 800);
       return () => clearTimeout(timer);
     }
 
     const timers = [
-      setTimeout(() => { setPhase(1); triggerThunder(); }, 2200),  // Scene 2: Trishul Forge
-      setTimeout(() => { setPhase(2); }, 4500),  // Scene 3A: Flight Space
-      setTimeout(() => { setPhase(3); }, 5800),  // Scene 3B: Flight Mountain
-      setTimeout(() => { setPhase(4); }, 7000),  // Scene 3C: Flight Ocean
-      setTimeout(() => { setPhase(5); }, 8200),  // Scene 3D: Flight Fire
-      setTimeout(() => { setPhase(6); }, 9500),  // Scene 4/5: Shiva Silhouette
-      setTimeout(() => { setPhase(7); triggerThunder(); }, 12000), // Scene 6: Palm Landing & Shockwave
-      setTimeout(() => { setPhase(8); }, 14500), // Scene 7: Logo Morph
-      setTimeout(() => { setPhase(9); }, 17500), // Scene 8: Seamless Fadeout
+      setTimeout(() => { setPhase(1); triggerThunder(); }, 1200),  // Scene 2: Trishul Forge
+      setTimeout(() => { setPhase(2); }, 2500),  // Scene 3A: Flight Space
+      setTimeout(() => { setPhase(3); }, 3300),  // Scene 3B: Flight Mountain
+      setTimeout(() => { setPhase(4); }, 4000),  // Scene 3C: Flight Ocean
+      setTimeout(() => { setPhase(5); }, 4700),  // Scene 3D: Flight Fire
+      setTimeout(() => { setPhase(6); }, 5500),  // Scene 4/5: Shiva Silhouette
+      setTimeout(() => { setPhase(7); triggerThunder(); }, 7000), // Scene 6: Palm Landing & Shockwave
+      setTimeout(() => { setPhase(8); }, 8500),  // Scene 7: Logo Morph
+      setTimeout(() => { setPhase(9); }, 10000), // Scene 8: Seamless Fadeout
     ];
 
     return () => timers.forEach(clearTimeout);

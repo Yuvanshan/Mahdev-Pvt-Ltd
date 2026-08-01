@@ -113,6 +113,31 @@ export default function Home() {
   const [galleryList, setGalleryList] = useState<any[]>([]);
   const [faqList, setFaqList] = useState<any[]>([]);
 
+  // Dynamic hardcoded section states
+  const [featuredData, setFeaturedData] = useState({
+    bannerImg: '/images/wedding_decoration_1782729925686.jpg',
+    title: 'Featured Event Showcase',
+    bannerCategory: 'ROYAL WEDDING CATEGORY',
+    bannerTitle: 'The Mughal Imperial Stage Setup',
+    bannerDesc: 'Custom 60-foot luxury wedding backdrop featuring real gold drapes, cascading hand-picked wisterias, stabilizer drone cinematography, and BIA transport coordinates.',
+    bannerVideo: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4',
+    samples: [
+      { title: 'Hilton Keynotes Convoy', desc: 'Corporate Stage Decor', img: '/images/sws_robot_decor_1783346269673.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-beautiful-wedding-venue-decorations-40003-large.mp4' },
+      { title: 'Pre-Wedding Candle Path', desc: 'Candlelight Canopies', img: '/images/wedding_decoration_1782729925686.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4' },
+      { title: 'Church Floral Altar', desc: 'Cathedral Arch Decor', img: '/images/church_decor.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-beautiful-wedding-venue-decorations-40003-large.mp4' },
+      { title: 'Ella Greenery Tour conv', desc: 'Mercedes Travels fleet', img: '/images/van_tour.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4' }
+    ]
+  });
+
+  const [instagramFeed, setInstagramFeed] = useState([
+    '/images/wedding_decoration_1782729925686.jpg',
+    '/images/sws_robot_decor_1783346269673.jpg',
+    '/images/birthday_decor.jpg',
+    '/images/church_decor.jpg',
+    '/images/drone_photography.jpg',
+    '/images/portrait_shoot.jpg'
+  ]);
+
   // Fetch stats and posters from Firestore in real-time
   useEffect(() => {
     const unsubStats = onSnapshot(collection(db, 'stats'), (snap) => {
@@ -157,11 +182,42 @@ export default function Home() {
       }
     });
 
+    const unsubFeatured = onSnapshot(doc(db, 'settings', 'featured'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        setFeaturedData({
+          bannerImg: d.bannerImg || '/images/wedding_decoration_1782729925686.jpg',
+          title: d.title || 'Featured Event Showcase',
+          bannerCategory: d.bannerCategory || 'ROYAL WEDDING CATEGORY',
+          bannerTitle: d.bannerTitle || 'The Mughal Imperial Stage Setup',
+          bannerDesc: d.bannerDesc || 'Custom 60-foot luxury wedding backdrop featuring real gold drapes, cascading hand-picked wisterias, stabilizer drone cinematography, and BIA transport coordinates.',
+          bannerVideo: d.bannerVideo || 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4',
+          samples: d.samples || [
+            { title: 'Hilton Keynotes Convoy', desc: 'Corporate Stage Decor', img: '/images/sws_robot_decor_1783346269673.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-beautiful-wedding-venue-decorations-40003-large.mp4' },
+            { title: 'Pre-Wedding Candle Path', desc: 'Candlelight Canopies', img: '/images/wedding_decoration_1782729925686.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4' },
+            { title: 'Church Floral Altar', desc: 'Cathedral Arch Decor', img: '/images/church_decor.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-beautiful-wedding-venue-decorations-40003-large.mp4' },
+            { title: 'Ella Greenery Tour conv', desc: 'Mercedes Travels fleet', img: '/images/van_tour.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4' }
+          ]
+        });
+      }
+    });
+
+    const unsubInstagram = onSnapshot(doc(db, 'settings', 'instagram'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.items && d.items.length === 6) {
+          setInstagramFeed(d.items);
+        }
+      }
+    });
+
     return () => {
       unsubStats();
       unsubPosters();
       unsubGallery();
       unsubFaq();
+      unsubFeatured();
+      unsubInstagram();
     };
   }, []);
 
@@ -385,14 +441,14 @@ export default function Home() {
                   <Award className="w-4 h-4 text-gold-accent" /> CINEMATIC ARCHIVES
                 </span>
                 <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-white">
-                  Featured Event Showcase
+                  {featuredData.title}
                 </h2>
               </div>
 
               {/* Large Netflix Style Featured Backdrop Banner */}
               <div className="relative w-full h-[400px] sm:h-[500px] rounded-2xl overflow-hidden border border-white/8 shadow-[0_20px_80px_rgba(0,0,0,0.55)] group mb-12">
                 <Image 
-                  src="/images/wedding_decoration_1782729925686.jpg" 
+                  src={featuredData.bannerImg} 
                   alt="Featured Mughal Wedding Backdrop" 
                   fill
                   className="object-cover group-hover:scale-103 transition-transform duration-1000 brightness-75"
@@ -405,20 +461,20 @@ export default function Home() {
                 <div className="absolute bottom-10 left-6 sm:left-10 right-6 sm:right-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6 text-left">
                   <div className="flex flex-col gap-3">
                     <span className="px-3.5 py-1 rounded-full bg-gold-accent/25 border border-gold-accent/35 text-[9px] text-gold-soft font-bold uppercase tracking-widest max-w-fit">
-                      ROYAL WEDDING CATEGORY
+                      {featuredData.bannerCategory}
                     </span>
                     <h3 className="font-display font-black text-2xl sm:text-4xl text-white">
-                      The Mughal Imperial Stage Setup
+                      {featuredData.bannerTitle}
                     </h3>
                     <p className="text-xs text-[#BFC8E6]/85 max-w-lg font-sans leading-relaxed">
-                      Custom 60-foot luxury wedding backdrop featuring real gold drapes, cascading hand-picked wisterias, stabilizer drone cinematography, and BIA transport coordinates.
+                      {featuredData.bannerDesc}
                     </p>
                   </div>
                   
                   {/* Action buttons */}
                   <div className="flex items-center gap-4 shrink-0 select-none">
                     <button
-                      onClick={() => setActiveVideo('https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4')}
+                      onClick={() => setActiveVideo(featuredData.bannerVideo)}
                       className="px-6.5 py-4 rounded-2xl bg-white text-navy-dark text-xs font-black tracking-wider uppercase flex items-center gap-2 hover:bg-gold-soft transition-colors duration-300"
                     >
                       <Play className="w-4 h-4 fill-current" />
@@ -441,12 +497,7 @@ export default function Home() {
                 </span>
                 
                 <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none snap-x select-none">
-                  {[
-                    { title: 'Hilton Keynotes Convoy', desc: 'Corporate Stage Decor', img: '/images/sws_robot_decor_1783346269673.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-beautiful-wedding-venue-decorations-40003-large.mp4' },
-                    { title: 'Pre-Wedding Candle Path', desc: 'Candlelight Canopies', img: '/images/wedding_decoration_1782729925686.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4' },
-                    { title: 'Church Floral Altar', desc: 'Cathedral Arch Decor', img: '/images/church_decor.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-beautiful-wedding-venue-decorations-40003-large.mp4' },
-                    { title: 'Ella Greenery Tour conv', desc: 'Mercedes Travels fleet', img: '/images/van_tour.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4' }
-                  ].map((proj, pIdx) => (
+                  {featuredData.samples.map((proj, pIdx) => (
                     <div 
                       key={pIdx}
                       onClick={() => setActiveVideo(proj.video)}
@@ -686,14 +737,7 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                {[
-                  '/images/wedding_decoration_1782729925686.jpg',
-                  '/images/sws_robot_decor_1783346269673.jpg',
-                  '/images/birthday_decor.jpg',
-                  '/images/church_decor.jpg',
-                  '/images/drone_photography.jpg',
-                  '/images/portrait_shoot.jpg'
-                ].map((img, idx) => (
+                {instagramFeed.map((img, idx) => (
                   <div 
                     key={idx} 
                     onClick={() => setSelectedGalleryImage(img)}
@@ -1011,11 +1055,11 @@ export default function Home() {
       {/* Global Booking System Modal Overlay */}
       <AnimatePresence>
         {bookingOpen && (
-          <div className="fixed inset-0 bg-black/95 z-[99999] flex items-center justify-center p-4 backdrop-blur-md overflow-y-auto">
-            <div className="w-full max-w-3xl relative">
+          <div className="fixed inset-0 bg-black/80 z-[99999] flex items-end md:items-center justify-center p-0 md:p-4 backdrop-blur-md overflow-y-auto">
+            <div className="w-full max-w-3xl relative mobile-bottom-sheet">
               <button
                 onClick={() => setBookingOpen(false)}
-                className="absolute -top-12 right-0 p-2 text-gray-400 hover:text-white"
+                className="absolute top-4 right-4 md:-top-12 md:right-0 p-2 text-gray-400 hover:text-white z-50"
               >
                 <X className="w-6 h-6" />
               </button>

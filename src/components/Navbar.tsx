@@ -24,7 +24,7 @@ import {
   Menu
 } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc } from 'firebase/firestore';
 import GlobalSearch from './GlobalSearch';
 
 const defaultDivisions = [
@@ -43,9 +43,30 @@ export default function Navbar() {
   const [divisions, setDivisions] = useState<any[]>(defaultDivisions);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [logoUrl, setLogoUrl] = useState('/images/logo.png');
   
   // Theme and Language simulation
   const [language, setLanguage] = useState<'EN' | 'SI' | 'TA'>('EN');
+
+  // Dynamic branding loader (logo and favicon updates)
+  useEffect(() => {
+    const unsubBranding = onSnapshot(doc(db, 'settings', 'branding'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.logoUrl) setLogoUrl(d.logoUrl);
+        if (d.faviconUrl) {
+          let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+          if (!link) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.head.appendChild(link);
+          }
+          link.href = d.faviconUrl;
+        }
+      }
+    });
+    return () => unsubBranding();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -132,7 +153,7 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-3.5 group select-none">
             <div className="relative w-11 h-11 rounded-xl overflow-hidden border border-white/10 group-hover:border-gold-accent/50 group-hover:scale-105 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
               <Image 
-                src="/images/logo.png" 
+                src={logoUrl} 
                 alt="Mahdev Logo" 
                 fill 
                 className="object-cover group-hover:rotate-12 transition-transform duration-700"
@@ -325,7 +346,7 @@ export default function Navbar() {
             >
               <div className="flex items-center justify-between mb-8 pb-3 border-b border-white/5 text-left">
                 <div className="flex items-center gap-2.5">
-                  <Image src="/images/logo.png" alt="Logo" width={32} height={32} className="rounded-lg" />
+                  <Image src={logoUrl} alt="Logo" width={32} height={32} className="rounded-lg" />
                   <span className="font-display font-black text-base text-white tracking-wider">MAHDEV</span>
                 </div>
                 <button 

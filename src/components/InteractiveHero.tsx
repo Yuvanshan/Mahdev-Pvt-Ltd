@@ -381,12 +381,13 @@ export default function InteractiveHero() {
                   } else {
                     return (
                       <video 
-                        key={`${heroData.videoUrl}_${isMuted}`}
+                        key={heroData.videoUrl}
                         src={heroData.videoUrl}
                         autoPlay
                         loop
                         muted={isMuted}
                         playsInline
+                        preload="auto"
                         className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700"
                       />
                     );

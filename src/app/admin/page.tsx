@@ -21,7 +21,7 @@ import confetti from 'canvas-confetti';
 
 export default function AdminPortal() {
   const [activeTab, setActiveTab] = useState<'seeder' | 'bookings' | 'divisions' | 'leads' | 'cms' | 'applications' | 'inquiries'>('bookings');
-  const [cmsSubTab, setCmsSubTab] = useState<'homepage' | 'stats' | 'seo' | 'announcements' | 'faqs' | 'testimonials' | 'gallery' | 'posters'>('homepage');
+  const [cmsSubTab, setCmsSubTab] = useState<'branding' | 'homepage' | 'featured' | 'instagram' | 'stats' | 'seo' | 'announcements' | 'faqs' | 'testimonials' | 'gallery' | 'posters'>('branding');
   const [saving, setSaving] = useState(false);
   
   // Authentication states
@@ -124,7 +124,26 @@ export default function AdminPortal() {
       setImageUploading(false);
       return downloadUrl;
     } catch (err) {
-      console.warn("Firebase Storage upload failed. Falling back to local Base64 URL...", err);
+      console.warn("Firebase Storage upload failed. Attempting local API upload backup...", err);
+      try {
+        const formData = new FormData();
+        formData.append('file', processedFile);
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.url) {
+            setUploadProgress('');
+            setImageUploading(false);
+            return data.url;
+          }
+        }
+      } catch (apiErr) {
+        console.warn("Local upload API fallback failed. Reverting to base64 conversion...", apiErr);
+      }
+
       setUploadProgress('Processing image file...');
       // 2. Fallback to converting image to Base64 data URL
       return new Promise<string>((resolve, reject) => {
@@ -217,6 +236,128 @@ export default function AdminPortal() {
     serviceTitle2: '', serviceDesc2: '',
     serviceTitle3: '', serviceDesc3: ''
   });
+
+  // Branding, Featured and Instagram states
+  const [brandingData, setBrandingData] = useState({
+    logoUrl: '',
+    faviconUrl: ''
+  });
+
+  const [featuredCmsData, setFeaturedCmsData] = useState({
+    title: 'Featured Showcase Highlight',
+    bannerImg: '',
+    bannerCategory: 'CONCERT',
+    bannerTitle: 'SWS ROBOT DECOR & LIGHTING',
+    bannerDesc: 'Sri Lanka\'s premium robotic lighting truss architectures.',
+    bannerVideo: '',
+    samples: [
+      { title: '', desc: '', img: '', video: '' },
+      { title: '', desc: '', img: '', video: '' },
+      { title: '', desc: '', img: '', video: '' },
+      { title: '', desc: '', img: '', video: '' }
+    ]
+  });
+
+  const [instagramCmsFeed, setInstagramCmsFeed] = useState<string[]>([
+    '/images/ig-1.jpg',
+    '/images/ig-2.jpg',
+    '/images/ig-3.jpg',
+    '/images/ig-4.jpg',
+    '/images/ig-5.jpg',
+    '/images/ig-6.jpg'
+  ]);
+  const [divisionsList, setDivisionsList] = useState<any[]>([]);
+  const [selectedDivisionId, setSelectedDivisionId] = useState<string>('new');
+
+  // Listen to branding config in Firestore
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'branding'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        setBrandingData({
+          logoUrl: d.logoUrl || '',
+          faviconUrl: d.faviconUrl || ''
+        });
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Listen to featured showcase settings
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'featured'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        setFeaturedCmsData({
+          title: d.title || 'Featured Showcase Highlight',
+          bannerImg: d.bannerImg || '',
+          bannerCategory: d.bannerCategory || 'CONCERT',
+          bannerTitle: d.bannerTitle || 'SWS ROBOT DECOR & LIGHTING',
+          bannerDesc: d.bannerDesc || '',
+          bannerVideo: d.bannerVideo || '',
+          samples: d.samples || [
+            { title: '', desc: '', img: '', video: '' },
+            { title: '', desc: '', img: '', video: '' },
+            { title: '', desc: '', img: '', video: '' },
+            { title: '', desc: '', img: '', video: '' }
+          ]
+        });
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Listen to Instagram feed configurations
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'instagram'), (snap) => {
+      if (snap.exists()) {
+        setInstagramCmsFeed(snap.data().items || []);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Listen to divisions collection
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'divisions'), (snap) => {
+      const list = snap.docs.map(docDoc => ({ id: docDoc.id, ...docDoc.data() }));
+      setDivisionsList(list);
+    });
+    return () => unsub();
+  }, []);
+
+  // Sync selected division with form values
+  useEffect(() => {
+    if (selectedDivisionId === 'new') {
+      setDivForm({
+        id: '', name: '', slug: '', tagline: '', description: '', accentColor: '#10b981',
+        bgImage: '/images/sws_robot_decor_1783346269673.jpg',
+        serviceTitle1: '', serviceDesc1: '',
+        serviceTitle2: '', serviceDesc2: '',
+        serviceTitle3: '', serviceDesc3: ''
+      });
+    } else {
+      const found = divisionsList.find(d => d.id === selectedDivisionId);
+      if (found) {
+        setDivForm({
+          id: found.id || '',
+          name: found.name || '',
+          slug: found.slug || '',
+          tagline: found.tagline || '',
+          description: found.description || '',
+          accentColor: found.accentColor || '#10b981',
+          bgImage: found.bgImage || '',
+          serviceTitle1: found.serviceTitle1 || '',
+          serviceDesc1: found.serviceDesc1 || '',
+          serviceTitle2: found.serviceTitle2 || '',
+          serviceDesc2: found.serviceDesc2 || '',
+          serviceTitle3: found.serviceTitle3 || '',
+          serviceDesc3: found.serviceDesc3 || ''
+        });
+      }
+    }
+  }, [selectedDivisionId, divisionsList]);
+
 
   // Check login state on mount
   useEffect(() => {
@@ -604,6 +745,60 @@ export default function AdminPortal() {
     }
   };
 
+  // Submit branding updates
+  const handleSaveBranding = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await setDoc(doc(db, 'settings', 'branding'), {
+        ...brandingData,
+        updatedAt: serverTimestamp()
+      });
+      confetti({ particleCount: 50 });
+      alert("Branding logo & favicon saved back to Firestore!");
+    } catch (err) {
+      alertWriteError("Saving Branding Settings", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Submit featured showcase updates
+  const handleSaveFeatured = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await setDoc(doc(db, 'settings', 'featured'), {
+        ...featuredCmsData,
+        updatedAt: serverTimestamp()
+      });
+      confetti({ particleCount: 50 });
+      alert("Featured showcase settings saved back to Firestore!");
+    } catch (err) {
+      alertWriteError("Saving Featured Showcase", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Submit Instagram feed updates
+  const handleSaveInstagram = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await setDoc(doc(db, 'settings', 'instagram'), {
+        items: instagramCmsFeed,
+        updatedAt: serverTimestamp()
+      });
+      confetti({ particleCount: 50 });
+      alert("Instagram Feed configurations saved back to Firestore!");
+    } catch (err) {
+      alertWriteError("Saving Instagram Feed", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Add Dynamic Custom FAQ
   const handleAddFaq = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -749,13 +944,15 @@ export default function AdminPortal() {
       await setDoc(doc(db, 'divisions', divForm.id), payload);
       
       confetti({ particleCount: 100, spread: 70 });
-      alert(`Success! Division "${divForm.name}" has been dynamic created. Visit /divisions/${divForm.slug} to view it instantly!`);
+      alert(`Success! Division "${divForm.name}" has been successfully saved. Visit /divisions/${divForm.slug} to view it instantly!`);
       
-      setDivForm({
-        id: '', name: '', slug: '', tagline: '', description: '',
-        accentColor: '#10b981', bgImage: '/images/sws_robot_decor_1783346269673.jpg',
-        serviceTitle1: '', serviceDesc1: '', serviceTitle2: '', serviceDesc2: '', serviceTitle3: '', serviceDesc3: ''
-      });
+      if (selectedDivisionId === 'new') {
+        setDivForm({
+          id: '', name: '', slug: '', tagline: '', description: '',
+          accentColor: '#10b981', bgImage: '/images/sws_robot_decor_1783346269673.jpg',
+          serviceTitle1: '', serviceDesc1: '', serviceTitle2: '', serviceDesc2: '', serviceTitle3: '', serviceDesc3: ''
+        });
+      }
     } catch (err) {
       alertWriteError("Creating Dynamic Division", err);
     } finally {
@@ -980,7 +1177,10 @@ export default function AdminPortal() {
                 <div className="lg:col-span-3 flex flex-col gap-2.5">
                   <span className="text-[9px] uppercase tracking-wider text-gray-500 font-bold block pl-3 mb-1">CMS MODULES</span>
                   {[
+                    { id: 'branding', label: 'Branding Configuration', icon: Sparkles },
                     { id: 'homepage', label: 'Homepage Header', icon: Sliders },
+                    { id: 'featured', label: 'Featured Showcase', icon: Star },
+                    { id: 'instagram', label: 'Instagram Social Feed', icon: ImageIcon },
                     { id: 'stats', label: 'Achievements Counters', icon: Sliders },
                     { id: 'seo', label: 'SEO Metadata Manager', icon: Globe },
                     { id: 'announcements', label: 'Promotions & Themes', icon: Tag },
@@ -1009,8 +1209,76 @@ export default function AdminPortal() {
                 </div>
 
                 {/* CMS Sub-tab form */}
-                <div className="lg:col-span-9">
-                  <AnimatePresence mode="wait">
+                <div className="lg:col-span-9 grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+                  
+                  {/* Form inputs (Left) */}
+                  <div className="xl:col-span-7 flex flex-col gap-6">
+                    <AnimatePresence mode="wait">
+
+                      {/* Branding Configuration */}
+                      {cmsSubTab === 'branding' && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5 text-left font-sans"
+                        >
+                          <div className="border-b border-white/5 pb-4 mb-6">
+                            <h3 className="font-display font-black text-xl text-white">Conglomerate branding</h3>
+                            <p className="text-gray-400 text-xs mt-1">Upload files to update the global conglomerate logo and browser tab favicon.</p>
+                          </div>
+
+                          <form onSubmit={handleSaveBranding} className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-2.5">
+                              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Conglomerate Logo</label>
+                              <div className="flex items-center gap-4">
+                                {brandingData.logoUrl && (
+                                  <div className="h-10 border border-white/10 rounded overflow-hidden p-1 bg-white/5 flex items-center">
+                                    <img src={brandingData.logoUrl} alt="Logo" className="h-full object-contain" />
+                                  </div>
+                                )}
+                                <input 
+                                  type="file" accept="image/*"
+                                  className="text-xs text-gray-400 font-sans"
+                                  onChange={async (e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                      const url = await handleImageUpload(e.target.files[0], 'branding');
+                                      setBrandingData({ ...brandingData, logoUrl: url });
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col gap-2.5">
+                              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Browser Favicon Icon</label>
+                              <div className="flex items-center gap-4">
+                                {brandingData.faviconUrl && (
+                                  <div className="w-10 h-10 border border-white/10 rounded overflow-hidden p-1 bg-white/5 flex items-center justify-center">
+                                    <img src={brandingData.faviconUrl} alt="Favicon" className="w-6 h-6 object-cover" />
+                                  </div>
+                                )}
+                                <input 
+                                  type="file" accept="image/*"
+                                  className="text-xs text-gray-400 font-sans"
+                                  onChange={async (e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                      const url = await handleImageUpload(e.target.files[0], 'branding');
+                                      setBrandingData({ ...brandingData, faviconUrl: url });
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            <button 
+                              type="submit" disabled={saving || imageUploading}
+                              className="mt-4 px-6.5 py-4.5 rounded-2xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark text-xs font-black tracking-widest uppercase transition-all shadow-md shadow-gold-accent/15 cursor-pointer disabled:opacity-50 font-sans"
+                            >
+                              {saving ? 'SAVING CHANGES...' : 'SAVE BRANDING DETAILS'}
+                            </button>
+                          </form>
+                        </motion.div>
+                      )}
                     
                     {/* Homepage Header editor */}
                     {cmsSubTab === 'homepage' && (
@@ -1745,151 +2013,660 @@ export default function AdminPortal() {
                       </motion.div>
                     )}
 
+                    {/* Featured Showcase Editor */}
+                    {cmsSubTab === 'featured' && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5 text-left font-sans"
+                      >
+                        <div className="border-b border-white/5 pb-4 mb-6">
+                          <h3 className="font-display font-black text-xl text-white">Featured Showcase configurations</h3>
+                          <p className="text-gray-400 text-xs mt-1 font-sans">Configure showcase highlights and more cinematic work samples.</p>
+                        </div>
+
+                        <form onSubmit={handleSaveFeatured} className="flex flex-col gap-5">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider font-sans">Showcase Section Title</label>
+                            <input 
+                              type="text" required
+                              value={featuredCmsData.title}
+                              onChange={(e) => setFeaturedCmsData({ ...featuredCmsData, title: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
+                            />
+                          </div>
+
+                          <div className="border-t border-white/5 pt-4 my-2">
+                            <h4 className="text-xs font-bold text-gold-soft uppercase tracking-wider mb-3">Netflix-Style Big Banner</h4>
+                          </div>
+
+                          <div className="flex flex-col gap-2.5">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Banner Cover Image</label>
+                            <div className="flex items-center gap-4">
+                              {featuredCmsData.bannerImg && (
+                                <div className="w-16 h-10 rounded border border-white/10 overflow-hidden bg-white/5">
+                                  <img src={featuredCmsData.bannerImg} alt="Banner" className="object-cover w-full h-full" />
+                                </div>
+                              )}
+                              <input 
+                                type="file" accept="image/*"
+                                className="text-xs font-sans text-gray-400"
+                                onChange={async (e) => {
+                                  if (e.target.files && e.target.files[0]) {
+                                    const url = await handleImageUpload(e.target.files[0], 'featured');
+                                    setFeaturedCmsData({ ...featuredCmsData, bannerImg: url });
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Banner Category</label>
+                              <input 
+                                type="text" required
+                                value={featuredCmsData.bannerCategory}
+                                onChange={(e) => setFeaturedCmsData({ ...featuredCmsData, bannerCategory: e.target.value })}
+                                className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Banner Title</label>
+                              <input 
+                                type="text" required
+                                value={featuredCmsData.bannerTitle}
+                                onChange={(e) => setFeaturedCmsData({ ...featuredCmsData, bannerTitle: e.target.value })}
+                                className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Banner Description</label>
+                            <textarea 
+                              rows={2} required
+                              value={featuredCmsData.bannerDesc}
+                              onChange={(e) => setFeaturedCmsData({ ...featuredCmsData, bannerDesc: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans resize-none"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Banner Video Stream URL</label>
+                            <input 
+                              type="text" required
+                              value={featuredCmsData.bannerVideo}
+                              onChange={(e) => setFeaturedCmsData({ ...featuredCmsData, bannerVideo: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans"
+                            />
+                          </div>
+
+                          <div className="border-t border-white/5 pt-4 my-2">
+                            <h4 className="text-xs font-bold text-gold-soft uppercase tracking-wider mb-3">More Cinematic Work Samples</h4>
+                          </div>
+
+                          {featuredCmsData.samples.map((sample, idx) => (
+                            <div key={idx} className="glass p-4 rounded-2xl border border-white/5 flex flex-col gap-3.5 mb-2 text-left">
+                              <span className="text-[9px] text-gold-accent font-bold uppercase">Sample Piece #{idx + 1}</span>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-[9px] font-semibold text-gray-400">Title</label>
+                                  <input 
+                                    type="text" required
+                                    value={sample.title}
+                                    onChange={(e) => {
+                                      const newS = [...featuredCmsData.samples];
+                                      newS[idx].title = e.target.value;
+                                      setFeaturedCmsData({ ...featuredCmsData, samples: newS });
+                                    }}
+                                    className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-lg px-3 py-2 text-xs focus:outline-none text-white font-sans"
+                                  />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                  <label className="text-[9px] font-semibold text-gray-400">Description</label>
+                                  <input 
+                                    type="text" required
+                                    value={sample.desc}
+                                    onChange={(e) => {
+                                      const newS = [...featuredCmsData.samples];
+                                      newS[idx].desc = e.target.value;
+                                      setFeaturedCmsData({ ...featuredCmsData, samples: newS });
+                                    }}
+                                    className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-lg px-3 py-2 text-xs focus:outline-none text-white font-sans"
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                <label className="text-[9px] font-semibold text-gray-400">Cover Image</label>
+                                <div className="flex items-center gap-3">
+                                  {sample.img && (
+                                    <div className="w-10 h-10 rounded border border-white/10 overflow-hidden bg-white/5">
+                                      <img src={sample.img} alt="" className="object-cover w-full h-full" />
+                                    </div>
+                                  )}
+                                  <input 
+                                    type="file" accept="image/*"
+                                    className="text-xs text-gray-400 font-sans"
+                                    onChange={async (e) => {
+                                      if (e.target.files && e.target.files[0]) {
+                                        const url = await handleImageUpload(e.target.files[0], `featured_sample_${idx}`);
+                                        const newS = [...featuredCmsData.samples];
+                                        newS[idx].img = url;
+                                        setFeaturedCmsData({ ...featuredCmsData, samples: newS });
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                <label className="text-[9px] font-semibold text-gray-400">Video URL</label>
+                                  <input 
+                                    type="text" required
+                                    value={sample.video}
+                                    onChange={(e) => {
+                                      const newS = [...featuredCmsData.samples];
+                                      newS[idx].video = e.target.value;
+                                      setFeaturedCmsData({ ...featuredCmsData, samples: newS });
+                                    }}
+                                    className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-lg px-3 py-2 text-xs focus:outline-none text-white font-sans"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+
+                            <button 
+                              type="submit" disabled={saving || imageUploading}
+                              className="mt-4 px-6.5 py-4.5 rounded-2xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark text-xs font-black tracking-widest uppercase transition-all shadow-md shadow-gold-accent/15 cursor-pointer disabled:opacity-50 font-sans"
+                            >
+                              {saving ? 'SAVING CHANGES...' : 'SAVE FEATURED DETAILS'}
+                            </button>
+                          </form>
+                        </motion.div>
+                      )}
+
+                      {/* Instagram Feed Editor */}
+                      {cmsSubTab === 'instagram' && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5 text-left font-sans"
+                        >
+                          <div className="border-b border-white/5 pb-4 mb-6">
+                            <h3 className="font-display font-black text-xl text-white font-display">Instagram Feed Configurations</h3>
+                            <p className="text-gray-400 text-xs mt-1 font-sans">Replace individual posts rendered in the Instagram grid on the homepage.</p>
+                          </div>
+
+                          <form onSubmit={handleSaveInstagram} className="flex flex-col gap-5">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {instagramCmsFeed.map((img, idx) => (
+                                <div key={idx} className="glass p-4.5 rounded-2xl border border-white/5 flex flex-col gap-3">
+                                  <span className="text-[9px] font-bold text-gold-accent uppercase font-sans">Post Grid Position #{idx + 1}</span>
+                                  <div className="flex items-center gap-4">
+                                    {img && (
+                                      <div className="w-16 h-16 rounded-xl border border-white/10 overflow-hidden bg-white/5">
+                                        <img src={img} alt="Post" className="object-cover w-full h-full" />
+                                      </div>
+                                    )}
+                                    <input 
+                                      type="file" accept="image/*"
+                                      className="text-xs text-gray-400 font-sans"
+                                      onChange={async (e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                          const url = await handleImageUpload(e.target.files[0], `instagram_feed_${idx}`);
+                                          const newFeed = [...instagramCmsFeed];
+                                          newFeed[idx] = url;
+                                          setInstagramCmsFeed(newFeed);
+                                        }
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <button 
+                              type="submit" disabled={saving || imageUploading}
+                              className="mt-4 px-6.5 py-4.5 rounded-2xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark text-xs font-black tracking-widest uppercase transition-all shadow-md shadow-gold-accent/15 cursor-pointer disabled:opacity-50 font-sans"
+                            >
+                              {saving ? 'SAVING CHANGES...' : 'SAVE INSTAGRAM GRID'}
+                            </button>
+                          </form>
+                        </motion.div>
+                      )}
+
                   </AnimatePresence>
                 </div>
 
-              </div>
-            )}
-
-            {/* Tab: Create Division */}
-            {activeTab === 'divisions' && (
-              <div className="glass-premium rounded-3xl p-8 border border-white/5 text-left max-w-3xl">
-                <h3 className="font-display font-black text-2xl text-white mb-2">Create Business Division</h3>
-                <p className="text-gray-400 text-xs font-sans mb-8">Enter configuration variables to instantly deploy a new premium business division landing subpage.</p>
-
-                <form onSubmit={handleAddDivision} className="flex flex-col gap-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Division ID (Unique Key)</label>
-                      <input 
-                        type="text" required placeholder="e.g. healthcare"
-                        value={divForm.id} onChange={(e) => setDivForm({ ...divForm, id: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Display Name</label>
-                      <input 
-                        type="text" required placeholder="e.g. Mahdev Healthcare"
-                        value={divForm.name} onChange={(e) => setDivForm({ ...divForm, name: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">URL Route Slug</label>
-                      <input 
-                        type="text" required placeholder="e.g. healthcare"
-                        value={divForm.slug} onChange={(e) => setDivForm({ ...divForm, slug: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
-                      />
-                    </div>
+                {/* Live Mockup Preview Column */}
+                <div className="xl:col-span-5 sticky top-36 flex flex-col gap-5 glass-premium rounded-3xl p-6 border border-white/8 shadow-2xl">
+                  <div className="border-b border-white/5 pb-3">
+                    <span className="text-[9px] uppercase tracking-wider text-gold-accent font-bold font-sans">Live Mini Preview</span>
+                    <h4 className="font-display font-black text-sm text-white mt-0.5">Real-time Mockup</h4>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Tagline</label>
-                      <input 
-                        type="text" required placeholder="e.g. Providing Superior Clinical Care"
-                        value={divForm.tagline} onChange={(e) => setDivForm({ ...divForm, tagline: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Accent Theme Color (Hex)</label>
-                      <input 
-                        type="text" required placeholder="#10b981"
-                        value={divForm.accentColor} onChange={(e) => setDivForm({ ...divForm, accentColor: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Background Cover Image</label>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                      <div className="flex-1">
-                        <input 
-                          type="text" required
-                          value={divForm.bgImage} onChange={(e) => setDivForm({ ...divForm, bgImage: e.target.value })}
-                          className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white w-full"
-                        />
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <input 
-                          type="file" accept="image/*"
-                          disabled={imageUploading}
-                          onChange={async (e) => {
-                            if (e.target.files?.[0]) {
-                              const url = await handleImageUpload(e.target.files[0], 'divisions');
-                              setDivForm(prev => ({ ...prev, bgImage: url }));
-                            }
-                          }}
-                          className="hidden" id="upload-div-bg"
-                        />
-                        <label 
-                          htmlFor="upload-div-bg"
-                          className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-gold-accent/30 hover:text-gold-soft text-[10px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-2"
-                        >
-                          <ImageIcon className="w-3.5 h-3.5" /> UPLOAD IMAGE
-                        </label>
-                        {divForm.bgImage && (
-                          <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-white/10 shrink-0">
-                            <img src={divForm.bgImage} alt="Cover Preview" className="w-full h-full object-cover" />
+                  <div className="w-full bg-[#050816] rounded-2xl border border-white/5 overflow-hidden shadow-inner flex flex-col min-h-[300px]">
+                    {cmsSubTab === 'branding' && (
+                      <div className="p-4 flex flex-col gap-4 flex-1 justify-center items-center text-center font-sans text-xs">
+                        {/* Browser Mockup */}
+                        <div className="w-full bg-white/5 rounded-xl border border-white/10 p-2.5 flex items-center gap-2">
+                          {brandingData.faviconUrl ? (
+                            <img src={brandingData.faviconUrl} alt="Favicon" className="w-4 h-4 rounded-sm object-cover" />
+                          ) : (
+                            <div className="w-4 h-4 bg-gray-600 rounded-sm" />
+                          )}
+                          <span className="text-[10px] text-gray-400 font-semibold truncate">Mahdev Pvt Ltd | Portal</span>
+                        </div>
+                        {/* Header Mockup */}
+                        <div className="w-full bg-[#0c152b] rounded-xl border border-white/10 p-3 flex justify-between items-center">
+                          {brandingData.logoUrl ? (
+                            <img src={brandingData.logoUrl} alt="Logo" className="h-6 object-contain" />
+                          ) : (
+                            <div className="h-6 w-12 bg-gray-700 rounded-md" />
+                          )}
+                          <div className="flex gap-2">
+                            <div className="w-6 h-2 bg-white/20 rounded-sm" />
+                            <div className="w-6 h-2 bg-white/20 rounded-sm" />
                           </div>
+                        </div>
+                        <span className="text-[10px] text-gray-500 font-sans">Live Branding Sync (Navbar & Favicon)</span>
+                      </div>
+                    )}
+
+                    {cmsSubTab === 'homepage' && (
+                      <div className="relative h-60 w-full flex items-center justify-center text-center p-4">
+                        {homepageData.heroVideoUrl ? (
+                          <video src={homepageData.heroVideoUrl} muted autoPlay loop className="absolute inset-0 w-full h-full object-cover opacity-30" />
+                        ) : (
+                          <div className="absolute inset-0 bg-[#0c152b] opacity-35" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-transparent to-transparent" />
+                        <div className="relative z-10 flex flex-col gap-2 max-w-xs text-left">
+                          <span className="px-2 py-0.5 rounded-full bg-gold-accent/20 border border-gold-accent/30 text-[7px] text-gold-soft font-bold uppercase tracking-wider max-w-fit font-sans">MAHDEV CONGLOMERATE</span>
+                          <h4 className="font-display font-black text-sm text-white leading-tight">
+                            {homepageData.heroTitleLine1} <span className="text-gold-soft">{homepageData.heroTitleLine2}</span>
+                          </h4>
+                          <p className="text-[8px] text-gray-400 font-sans line-clamp-2 leading-relaxed">{homepageData.heroDescription}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {cmsSubTab === 'featured' && (
+                      <div className="p-4 flex flex-col gap-3 flex-1 justify-center text-left">
+                        <span className="text-[7px] uppercase font-bold tracking-widest text-gold-accent font-sans">CINEMATIC ARCHIVES</span>
+                        <h4 className="font-display font-black text-xs text-white leading-tight">{featuredCmsData.title}</h4>
+                        <div className="relative w-full h-24 rounded-lg overflow-hidden border border-white/10 mt-1">
+                          <img src={featuredCmsData.bannerImg} alt="Banner" className="w-full h-full object-cover opacity-80" />
+                          <div className="absolute bottom-2 left-2 right-2 text-left">
+                            <span className="text-[6px] px-1 py-0.2 rounded bg-gold-accent/30 text-gold-soft uppercase tracking-widest font-sans">{featuredCmsData.bannerCategory}</span>
+                            <h5 className="font-display font-bold text-[9px] text-white truncate mt-0.5">{featuredCmsData.bannerTitle}</h5>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 mt-1">
+                          {featuredCmsData.samples.slice(0, 4).map((s, idx) => (
+                            <div key={idx} className="flex flex-col gap-1">
+                              <div className="h-8 rounded bg-white/5 overflow-hidden border border-white/5">
+                                <img src={s.img} alt="" className="w-full h-full object-cover" />
+                              </div>
+                              <span className="text-[6px] text-white truncate font-sans font-medium">{s.title}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {cmsSubTab === 'instagram' && (
+                      <div className="p-4 flex flex-col gap-3 flex-1 justify-center">
+                        <span className="text-[8px] uppercase tracking-wider text-gray-500 font-sans font-bold">@MAHDEV_PVT_LTD Instagram Feed</span>
+                        <div className="grid grid-cols-3 gap-2">
+                          {instagramCmsFeed.slice(0, 6).map((img, idx) => (
+                            <div key={idx} className="aspect-square bg-white/5 rounded-lg overflow-hidden border border-white/10">
+                              <img src={img} alt="Post" className="w-full h-full object-cover" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {cmsSubTab === 'stats' && (
+                      <div className="p-4 flex flex-col gap-4 flex-1 justify-center items-center font-sans text-xs">
+                        <div className="grid grid-cols-2 gap-3 w-full">
+                          <div className="glass p-3 rounded-xl border border-white/5 text-center">
+                            <span className="text-sm font-black text-white">{statsData.happyClients}+</span>
+                            <p className="text-[8px] text-gray-500 font-bold uppercase tracking-wider mt-0.5 font-sans">Happy Clients</p>
+                          </div>
+                          <div className="glass p-3 rounded-xl border border-white/5 text-center">
+                            <span className="text-sm font-black text-white">{statsData.eventsCompleted}+</span>
+                            <p className="text-[8px] text-gray-500 font-bold uppercase tracking-wider mt-0.5 font-sans">Projects Done</p>
+                          </div>
+                        </div>
+                        <span className="text-[9px] text-gray-500 font-bold uppercase font-sans">Dynamic Counter Badges</span>
+                      </div>
+                    )}
+
+                    {cmsSubTab === 'seo' && (
+                      <div className="p-4 flex flex-col gap-2.5 flex-1 justify-center text-left font-sans text-xs">
+                        <div className="bg-white rounded-xl p-3 text-black flex flex-col gap-1 shadow-md">
+                          <span className="text-[9px] text-gray-500 font-sans">Google Search Result</span>
+                          <span className="text-blue-800 hover:underline font-medium text-xs leading-snug cursor-pointer line-clamp-1">{seoData.title}</span>
+                          <span className="text-green-800 text-[9px] truncate">https://mahdev.lk/{seoData.pageKey}</span>
+                          <p className="text-gray-600 text-[10px] line-clamp-2 leading-relaxed font-sans">{seoData.description}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {cmsSubTab === 'announcements' && (
+                      <div className="p-4 flex flex-col gap-4 flex-1 justify-center items-center text-center font-sans text-xs">
+                        <div className="w-full bg-[#dfba73]/15 text-[#dfba73] border border-[#dfba73]/25 px-3 py-2 rounded-lg text-[9px] font-bold tracking-wide font-sans">
+                          📢 {promoData.announcement}
+                        </div>
+                        <div className="flex gap-3">
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="w-6 h-6 rounded-full border border-white/10" style={{ backgroundColor: promoData.primaryColor }} />
+                            <span className="text-[8px] text-gray-400 font-sans">Primary</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="w-6 h-6 rounded-full border border-white/10" style={{ backgroundColor: promoData.secondaryColor }} />
+                            <span className="text-[8px] text-gray-400 font-sans">Secondary</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="w-6 h-6 rounded-full border border-white/10" style={{ backgroundColor: promoData.accentColor }} />
+                            <span className="text-[8px] text-gray-400 font-sans">Accent</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {cmsSubTab === 'posters' && (
+                      <div className="p-4 flex flex-col gap-3 flex-1 justify-center">
+                        <span className="text-[8px] text-gray-400 uppercase tracking-widest font-sans font-bold">Division Cover Mockups</span>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(posters).map(([key, val]) => (
+                            <div key={key} className="relative h-14 rounded-lg overflow-hidden border border-white/5">
+                              <img src={val} className="w-full h-full object-cover opacity-80" />
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <span className="text-[8px] text-white font-bold uppercase tracking-wider font-sans">{key}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {cmsSubTab === 'faqs' && (
+                      <div className="p-4 flex flex-col gap-2 flex-1 justify-center text-left">
+                        <span className="text-[8px] text-gray-500 uppercase font-bold pl-1 font-sans">Accordion Preview</span>
+                        {faqList.slice(0, 3).map((f, i) => (
+                          <div key={i} className="glass p-2.5 rounded-lg border border-white/5 flex flex-col gap-1">
+                            <h5 className="text-[9px] font-bold text-white leading-snug">{f.q}</h5>
+                            <p className="text-[8px] text-gray-400 font-sans line-clamp-1">{f.a}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {cmsSubTab === 'testimonials' && (
+                      <div className="p-4 flex flex-col gap-3 flex-1 justify-center items-center text-center font-sans">
+                        {testimonialList.length > 0 ? (
+                          <div className="glass p-4 rounded-xl border border-white/5 max-w-xs flex flex-col items-center gap-2">
+                            <span className="text-yellow-400 text-xs font-black">★★★★★</span>
+                            <p className="text-[9px] text-gray-300 font-sans italic">"{testimonialList[0].comment}"</p>
+                            <h5 className="text-[9px] font-bold text-white mt-1 font-sans">{testimonialList[0].name} ({testimonialList[0].role})</h5>
+                          </div>
+                        ) : (
+                          <span className="text-gray-500 text-[10px] font-sans">No testimonials registered</span>
                         )}
                       </div>
+                    )}
+
+                    {cmsSubTab === 'gallery' && (
+                      <div className="p-4 flex flex-col gap-2 flex-1 justify-center">
+                        <span className="text-[8px] text-gray-400 uppercase tracking-widest font-sans font-bold">Gallery Showcase</span>
+                        <div className="grid grid-cols-2 gap-2">
+                          {galleryList.slice(0, 2).map((item, idx) => (
+                            <div key={idx} className="relative h-16 rounded-xl overflow-hidden border border-white/5">
+                              <img src={item.img} className="w-full h-full object-cover" />
+                              <div className="absolute bottom-1.5 left-2">
+                                <span className="text-[7px] text-gold-accent font-bold uppercase tracking-wider font-sans">{item.category}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+            {/* Tab: Create / Edit Division */}
+            {activeTab === 'divisions' && (
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+                
+                {/* Form inputs (Left) */}
+                <div className="xl:col-span-7 flex flex-col gap-6 text-left">
+                  <div className="glass-premium rounded-3xl p-6 sm:p-8 border border-white/5">
+                    <h3 className="font-display font-black text-2xl text-white mb-2">Divisions Manager</h3>
+                    <p className="text-gray-400 text-xs font-sans mb-8">Select, update, or deploy a dynamic conglomerate business division subpage.</p>
+
+                    <div className="flex flex-col gap-2 mb-6">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider font-sans">Select Division to Edit or Create New</label>
+                      <select 
+                        value={selectedDivisionId}
+                        onChange={(e) => setSelectedDivisionId(e.target.value)}
+                        className="bg-[#050816] border border-white/8 rounded-xl px-4 py-3 text-xs focus:outline-none text-white font-sans [&>option]:bg-navy-dark max-w-sm"
+                      >
+                        <option value="new">Create New Division</option>
+                        {divisionsList.map((d) => (
+                          <option key={d.id} value={d.id}>Edit: {d.name} ({d.id})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <form onSubmit={handleAddDivision} className="flex flex-col gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Division ID (Unique Key)</label>
+                          <input 
+                            type="text" required placeholder="e.g. healthcare"
+                            disabled={selectedDivisionId !== 'new'}
+                            value={divForm.id} onChange={(e) => setDivForm({ ...divForm, id: e.target.value })}
+                            className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Display Name</label>
+                          <input 
+                            type="text" required placeholder="e.g. Mahdev Healthcare"
+                            value={divForm.name} onChange={(e) => setDivForm({ ...divForm, name: e.target.value })}
+                            className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">URL Route Slug</label>
+                          <input 
+                            type="text" required placeholder="e.g. healthcare"
+                            value={divForm.slug} onChange={(e) => setDivForm({ ...divForm, slug: e.target.value })}
+                            className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Tagline</label>
+                          <input 
+                            type="text" required placeholder="e.g. Providing Superior Clinical Care"
+                            value={divForm.tagline} onChange={(e) => setDivForm({ ...divForm, tagline: e.target.value })}
+                            className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                          />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Accent Theme Color (Hex)</label>
+                          <input 
+                            type="text" required placeholder="#10b981"
+                            value={divForm.accentColor} onChange={(e) => setDivForm({ ...divForm, accentColor: e.target.value })}
+                            className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Background Cover Image</label>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                          <div className="flex-1">
+                            <input 
+                              type="text" required
+                              value={divForm.bgImage} onChange={(e) => setDivForm({ ...divForm, bgImage: e.target.value })}
+                              className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white w-full"
+                            />
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <input 
+                              type="file" accept="image/*"
+                              disabled={imageUploading}
+                              onChange={async (e) => {
+                                if (e.target.files?.[0]) {
+                                  const url = await handleImageUpload(e.target.files[0], 'divisions');
+                                  setDivForm(prev => ({ ...prev, bgImage: url }));
+                                }
+                              }}
+                              className="hidden" id="upload-div-bg"
+                            />
+                            <label 
+                              htmlFor="upload-div-bg"
+                              className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-gold-accent/30 hover:text-gold-soft text-[10px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-2"
+                            >
+                              <ImageIcon className="w-3.5 h-3.5" /> UPLOAD IMAGE
+                            </label>
+                            {divForm.bgImage && (
+                              <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                                <img src={divForm.bgImage} alt="Cover Preview" className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Description</label>
+                        <textarea 
+                          rows={3} required placeholder="Detailed corporate definition of operations..."
+                          value={divForm.description} onChange={(e) => setDivForm({ ...divForm, description: e.target.value })}
+                          className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white resize-none font-sans"
+                        />
+                      </div>
+
+                      <div className="border-t border-white/5 pt-6 flex flex-col gap-4">
+                        <span className="text-[10px] font-bold text-gold-accent tracking-wider uppercase">Configure Services Level 1:</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                          <input 
+                            type="text" placeholder="Service Title (e.g. Cardiological Screening)"
+                            value={divForm.serviceTitle1} onChange={(e) => setDivForm({ ...divForm, serviceTitle1: e.target.value })}
+                            className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                          />
+                          <input 
+                            type="text" placeholder="Service Description"
+                            value={divForm.serviceDesc1} onChange={(e) => setDivForm({ ...divForm, serviceDesc1: e.target.value })}
+                            className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-4">
+                        <span className="text-[10px] font-bold text-gold-accent tracking-wider uppercase">Configure Services Level 2:</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                          <input 
+                            type="text" placeholder="Service Title (e.g. Neural Diagnostics)"
+                            value={divForm.serviceTitle2} onChange={(e) => setDivForm({ ...divForm, serviceTitle2: e.target.value })}
+                            className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                          />
+                          <input 
+                            type="text" placeholder="Service Description"
+                            value={divForm.serviceDesc2} onChange={(e) => setDivForm({ ...divForm, serviceDesc2: e.target.value })}
+                            className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full py-4 rounded-xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans font-bold text-sm tracking-wider hover:brightness-110 transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-gold-accent/15 cursor-pointer"
+                      >
+                        {selectedDivisionId === 'new' ? 'DEPLOY DYNAMIC DIVISION' : 'SAVE DIVISION CHANGES'}
+                        <ArrowUpRight className="w-4 h-4" />
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
+                {/* Live Mockup Preview Column (Right) */}
+                <div className="xl:col-span-5 sticky top-36 flex flex-col gap-5 glass-premium rounded-3xl p-6 border border-white/8 shadow-2xl">
+                  <div className="border-b border-white/5 pb-3 text-left">
+                    <span className="text-[9px] uppercase tracking-wider text-gold-accent font-bold font-sans">Live Division Preview</span>
+                    <h4 className="font-display font-black text-sm text-white mt-0.5">Real-time Mockup</h4>
+                  </div>
+
+                  <div className="w-full bg-[#050816] rounded-2xl border border-white/5 overflow-hidden shadow-inner flex flex-col min-h-[300px]">
+                    {/* Mockup subdivision banner */}
+                    <div className="relative h-32 w-full flex items-center justify-center text-center p-4">
+                      {divForm.bgImage ? (
+                        <img src={divForm.bgImage} className="absolute inset-0 w-full h-full object-cover opacity-40 animate-fadeIn" />
+                      ) : (
+                        <div className="absolute inset-0 bg-[#0c152b] opacity-35" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-[#050816]/30 to-transparent" />
+                      <div className="relative z-10 flex flex-col gap-1 max-w-xs mx-auto">
+                        <span className="px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-[6px] text-white font-bold uppercase tracking-wider max-w-fit mx-auto font-sans">
+                          {divForm.name || 'NEW DIVISION'}
+                        </span>
+                        <h4 className="font-display font-black text-xs text-white leading-tight mt-1">
+                          {divForm.tagline || 'Division Tagline Statement'}
+                        </h4>
+                      </div>
+                    </div>
+
+                    {/* Mockup description & services */}
+                    <div className="p-4 flex flex-col gap-3.5 text-left font-sans text-xs">
+                      <p className="text-[9px] text-gray-400 leading-relaxed font-sans line-clamp-2">{divForm.description || 'Division operations description...'}</p>
+                      
+                      <div className="flex flex-col gap-2 mt-1">
+                        <span className="text-[8px] uppercase tracking-wider text-gray-500 font-sans font-bold">Services Provided</span>
+                        <div className="flex flex-col gap-1.5">
+                          {divForm.serviceTitle1 && (
+                            <div className="p-2 rounded bg-white/5 border border-white/5 flex flex-col gap-0.5">
+                              <span className="font-bold text-[9px] text-white font-sans">{divForm.serviceTitle1}</span>
+                              <span className="text-[8px] text-gray-400 font-sans line-clamp-1">{divForm.serviceDesc1}</span>
+                            </div>
+                          )}
+                          {divForm.serviceTitle2 && (
+                            <div className="p-2 rounded bg-white/5 border border-white/5 flex flex-col gap-0.5">
+                              <span className="font-bold text-[9px] text-white font-sans">{divForm.serviceTitle2}</span>
+                              <span className="text-[8px] text-gray-400 font-sans line-clamp-1">{divForm.serviceDesc2}</span>
+                            </div>
+                          )}
+                          {divForm.serviceTitle3 && (
+                            <div className="p-2 rounded bg-white/5 border border-white/5 flex flex-col gap-0.5">
+                              <span className="font-bold text-[9px] text-white font-sans">{divForm.serviceTitle3}</span>
+                              <span className="text-[8px] text-gray-400 font-sans line-clamp-1">{divForm.serviceDesc3}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <button 
+                        disabled
+                        className="mt-2 w-full py-2 rounded-lg text-navy-dark text-[10px] font-black uppercase tracking-wider text-center"
+                        style={{ backgroundColor: divForm.accentColor || '#D4AF37' }}
+                      >
+                        Book Appointment
+                      </button>
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex flex-col gap-2">
-                    <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Description</label>
-                    <textarea 
-                      rows={3} required placeholder="Detailed corporate definition of operations..."
-                      value={divForm.description} onChange={(e) => setDivForm({ ...divForm, description: e.target.value })}
-                      className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white resize-none font-sans"
-                    />
-                  </div>
-
-                  <div className="border-t border-white/5 pt-6 flex flex-col gap-4">
-                    <span className="text-[10px] font-bold text-gold-accent tracking-wider uppercase">Configure Services Level 1:</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <input 
-                        type="text" placeholder="Service Title (e.g. Cardiological Screening)"
-                        value={divForm.serviceTitle1} onChange={(e) => setDivForm({ ...divForm, serviceTitle1: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
-                      />
-                      <input 
-                        type="text" placeholder="Service Description"
-                        value={divForm.serviceDesc1} onChange={(e) => setDivForm({ ...divForm, serviceDesc1: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-4">
-                    <span className="text-[10px] font-bold text-gold-accent tracking-wider uppercase">Configure Services Level 2:</span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <input 
-                        type="text" placeholder="Service Title (e.g. Neural Diagnostics)"
-                        value={divForm.serviceTitle2} onChange={(e) => setDivForm({ ...divForm, serviceTitle2: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
-                      />
-                      <input 
-                        type="text" placeholder="Service Description"
-                        value={divForm.serviceDesc2} onChange={(e) => setDivForm({ ...divForm, serviceDesc2: e.target.value })}
-                        className="bg-white/5 border border-white/10 focus:border-gold-accent/50 rounded-xl px-4 py-3 text-xs focus:outline-none text-white"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-4 rounded-xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans font-bold text-sm tracking-wider hover:brightness-110 transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-gold-accent/15 cursor-pointer"
-                  >
-                    DEPLOY DYNAMIC DIVISION
-                    <ArrowUpRight className="w-4 h-4" />
-                  </button>
-                </form>
               </div>
             )}
 

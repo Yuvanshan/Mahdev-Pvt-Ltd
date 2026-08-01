@@ -171,15 +171,15 @@ export default function DynamicDivision() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowBooking(false)}
-              className="fixed inset-0 bg-black/95 z-[99999] flex items-center justify-center p-4 backdrop-blur-md overflow-y-auto"
+              className="fixed inset-0 bg-black/80 z-[99999] flex items-end md:items-center justify-center p-0 md:p-4 backdrop-blur-md overflow-y-auto"
             >
               <div 
                 onClick={(e) => e.stopPropagation()} 
-                className="w-full max-w-3xl relative"
+                className="w-full max-w-3xl relative mobile-bottom-sheet"
               >
                 <button
                   onClick={() => setShowBooking(false)}
-                  className="absolute -top-12 right-0 p-2 text-gray-400 hover:text-white"
+                  className="absolute top-4 right-4 md:-top-12 md:right-0 p-2 text-gray-400 hover:text-white z-50"
                 >
                   <X className="w-6 h-6" />
                 </button>

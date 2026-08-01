@@ -518,6 +518,14 @@ export function ClientLoginPortal({ isOpen, onClose }: { isOpen: boolean; onClos
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -554,11 +562,11 @@ export function ClientLoginPortal({ isOpen, onClose }: { isOpen: boolean; onClos
           />
           {/* Slider Panel */}
           <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
+            initial={isMobile ? { y: '100%' } : { x: '100%' }}
+            animate={isMobile ? { y: 0 } : { x: 0 }}
+            exit={isMobile ? { y: '100%' } : { x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            className="fixed top-0 right-0 h-full w-96 max-w-full glass-premium border-l border-gold-accent/20 z-[10000] p-8 flex flex-col justify-between"
+            className="fixed top-0 right-0 h-full w-96 max-w-full glass-premium border-l border-gold-accent/20 z-[10000] p-8 flex flex-col justify-between mobile-bottom-sheet"
           >
             <div className="flex flex-col gap-6 text-left">
               <div className="flex justify-between items-start">

@@ -118,7 +118,7 @@ export default function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onC
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] px-4 pointer-events-auto">
+        <div className="fixed inset-0 z-[9999] flex items-end md:items-start justify-center pt-0 md:pt-[10vh] px-0 md:px-4 pointer-events-auto">
           {/* Backdrop overlay */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -130,11 +130,11 @@ export default function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onC
 
           {/* Search Card Container */}
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.97 }}
+            initial={{ opacity: 0, y: 20, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.97 }}
+            exit={{ opacity: 0, y: 20, scale: 0.97 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-full max-w-2xl rounded-3xl glass-premium border border-gold-accent/25 overflow-hidden shadow-2xl relative z-10 flex flex-col max-h-[75vh]"
+            className="w-full max-w-2xl rounded-3xl glass-premium border border-gold-accent/25 overflow-hidden shadow-2xl relative z-10 flex flex-col max-h-[75vh] mobile-bottom-sheet"
           >
             {/* Input Header */}
             <div className="p-5 border-b border-white/5 bg-navy-medium/60 flex items-center gap-4">

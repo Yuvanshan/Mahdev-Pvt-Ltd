@@ -90,6 +90,8 @@ export default function ItSolutions() {
   const [logs, setLogs] = useState<string[]>([]);
   const [showBooking, setShowBooking] = useState(false);
   const [coverImg, setCoverImg] = useState('/images/it_robot_developer_1783346302442.jpg');
+  const [tagline, setTagline] = useState('Delivering Cloud-Scale Tech');
+  const [description, setDescription] = useState('We design double-entry inventory ERP systems, real-time POS checkouts, high-load cloud integrations, and bespoke corporate web platforms.');
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -99,7 +101,20 @@ export default function ItSolutions() {
         if (d.it) setCoverImg(d.it);
       }
     });
-    return () => unsub();
+
+    const unsubDiv = onSnapshot(doc(db, 'divisions', 'it-solutions'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.tagline) setTagline(d.tagline);
+        if (d.description) setDescription(d.description);
+        if (d.bgImage) setCoverImg(d.bgImage);
+      }
+    });
+
+    return () => {
+      unsub();
+      unsubDiv();
+    };
   }, []);
 
   // Terminal logging simulator
@@ -254,10 +269,10 @@ export default function ItSolutions() {
               MAHDEV IT SOLUTIONS
             </span>
             <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-7xl text-white tracking-tight leading-tight">
-              Delivering <span className="text-gradient-purple-blue">Cloud-Scale Tech</span>
+              {tagline}
             </h1>
             <p className="font-sans text-gray-300 text-sm sm:text-base max-w-xl leading-relaxed">
-              We design double-entry inventory ERP systems, real-time POS checkouts, high-load cloud integrations, and bespoke corporate web platforms.
+              {description}
             </p>
           </div>
         </section>
@@ -408,15 +423,15 @@ export default function ItSolutions() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowBooking(false)}
-              className="fixed inset-0 bg-black/95 z-[99999] flex items-center justify-center p-4 backdrop-blur-md overflow-y-auto"
+              className="fixed inset-0 bg-black/80 z-[99999] flex items-end md:items-center justify-center p-0 md:p-4 backdrop-blur-md overflow-y-auto"
             >
               <div 
                 onClick={(e) => e.stopPropagation()} 
-                className="w-full max-w-3xl relative"
+                className="w-full max-w-3xl relative mobile-bottom-sheet"
               >
                 <button
                   onClick={() => setShowBooking(false)}
-                  className="absolute -top-12 right-0 p-2 text-gray-400 hover:text-white"
+                  className="absolute top-4 right-4 md:-top-12 md:right-0 p-2 text-gray-400 hover:text-white z-50"
                 >
                   <X className="w-6 h-6" />
                 </button>

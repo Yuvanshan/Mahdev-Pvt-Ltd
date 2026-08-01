@@ -173,6 +173,8 @@ export default function SwsEvents() {
   const [isResizing, setIsResizing] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [coverImg, setCoverImg] = useState('/images/wedding_decoration_1782729925686.jpg');
+  const [tagline, setTagline] = useState('Designing Luxury Environments');
+  const [description, setDescription] = useState('We design and construct breathtaking environments. From grand glasshouse wedding canopy constructs to themed birthdays, corporate stages, and traditional oil lamp mandaps.');
 
   const sliderRef = useRef<HTMLDivElement>(null);
   const activeCat = swsCategories.find(c => c.id === activeTab) || swsCategories[0];
@@ -184,7 +186,20 @@ export default function SwsEvents() {
         if (d.sws) setCoverImg(d.sws);
       }
     });
-    return () => unsub();
+
+    const unsubDiv = onSnapshot(doc(db, 'divisions', 'sws-events'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.tagline) setTagline(d.tagline);
+        if (d.description) setDescription(d.description);
+        if (d.bgImage) setCoverImg(d.bgImage);
+      }
+    });
+
+    return () => {
+      unsub();
+      unsubDiv();
+    };
   }, []);
 
   const handleMove = (clientX: number) => {
@@ -252,7 +267,7 @@ export default function SwsEvents() {
               transition={{ delay: 0.1 }}
               className="font-display font-black text-4xl sm:text-5xl lg:text-7xl text-white tracking-tight leading-tight"
             >
-              Designing <span className="text-gradient-purple-blue">Luxury Environments</span>
+              {tagline}
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 15 }}
@@ -260,7 +275,7 @@ export default function SwsEvents() {
               transition={{ delay: 0.2 }}
               className="font-sans text-gray-300 text-sm sm:text-base max-w-xl leading-relaxed"
             >
-              We design and construct breathtaking environments. From grand glasshouse wedding canopy constructs to themed birthdays, corporate stages, and traditional oil lamp mandaps.
+              {description}
             </motion.p>
           </div>
         </section>
@@ -474,15 +489,15 @@ export default function SwsEvents() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setBookingOpen(false)}
-              className="fixed inset-0 bg-black/95 z-[99999] flex items-center justify-center p-4 backdrop-blur-md overflow-y-auto"
+              className="fixed inset-0 bg-black/80 z-[99999] flex items-end md:items-center justify-center p-0 md:p-4 backdrop-blur-md overflow-y-auto"
             >
               <div 
                 onClick={(e) => e.stopPropagation()} 
-                className="w-full max-w-3xl relative"
+                className="w-full max-w-3xl relative mobile-bottom-sheet"
               >
                 <button
                   onClick={() => setBookingOpen(false)}
-                  className="absolute -top-12 right-0 p-2 text-gray-400 hover:text-white"
+                  className="absolute top-4 right-4 md:-top-12 md:right-0 p-2 text-gray-400 hover:text-white z-50"
                 >
                   <X className="w-6 h-6" />
                 </button>

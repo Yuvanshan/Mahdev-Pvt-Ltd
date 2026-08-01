@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cpu, Terminal, Layers, CheckCircle, X, ChevronRight, Play, Database, FileText, Settings, ShieldAlert } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingSystem from '@/components/BookingSystem';
+import { db } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 const erpModules = [
   { icon: Layers, title: 'Double-Entry Ledgers', desc: 'Standard auditing trails, balancing sheets, and asset flow reports synced in real-time.' },
@@ -18,6 +20,34 @@ const erpModules = [
 
 export default function ErpPage() {
   const [showBooking, setShowBooking] = useState(false);
+  const [coverImg, setCoverImg] = useState('/images/it_robot_developer_1783346302442.jpg');
+  const [tagline, setTagline] = useState('Enterprise Resource Planners');
+  const [description, setDescription] = useState('We design specialized offline-first POS ledgers and inventory software modules optimized for schools, corporate syndicates, hotels, and retail.');
+
+  useEffect(() => {
+    // 1. Fetch posters settings
+    const unsubPosters = onSnapshot(doc(db, 'settings', 'division_posters'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        // Fallback or override
+      }
+    });
+
+    // 2. Fetch specific division details
+    const unsubDiv = onSnapshot(doc(db, 'divisions', 'erp'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.tagline) setTagline(d.tagline);
+        if (d.description) setDescription(d.description);
+        if (d.bgImage) setCoverImg(d.bgImage);
+      }
+    });
+
+    return () => {
+      unsubPosters();
+      unsubDiv();
+    };
+  }, []);
 
   return (
     <>
@@ -27,7 +57,7 @@ export default function ErpPage() {
         {/* Banner Section */}
         <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
           <Image 
-            src="/images/it_robot_developer_1783346302442.jpg" 
+            src={coverImg} 
             alt="ERP Banner" 
             fill
             priority
@@ -39,10 +69,10 @@ export default function ErpPage() {
               MAHDEV ERP SOLUTIONS
             </span>
             <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-7xl text-white tracking-tight leading-tight">
-              Enterprise <span className="text-gradient-gold">Resource Planners</span>
+              {tagline}
             </h1>
             <p className="font-sans text-gray-300 text-base sm:text-lg max-w-xl leading-relaxed">
-              We design specialized offline-first POS ledgers and inventory software modules optimized for schools, corporate syndicates, hotels, and retail.
+              {description}
             </p>
             <button
               onClick={() => setShowBooking(true)}
@@ -150,15 +180,15 @@ export default function ErpPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowBooking(false)}
-              className="fixed inset-0 bg-black/95 z-[99999] flex items-center justify-center p-4 backdrop-blur-md overflow-y-auto"
+              className="fixed inset-0 bg-black/80 z-[99999] flex items-end md:items-center justify-center p-0 md:p-4 backdrop-blur-md overflow-y-auto"
             >
               <div 
                 onClick={(e) => e.stopPropagation()} 
-                className="w-full max-w-3xl relative"
+                className="w-full max-w-3xl relative mobile-bottom-sheet"
               >
                 <button
                   onClick={() => setShowBooking(false)}
-                  className="absolute -top-12 right-0 p-2 text-gray-400 hover:text-white"
+                  className="absolute top-4 right-4 md:-top-12 md:right-0 p-2 text-gray-400 hover:text-white z-50"
                 >
                   <X className="w-6 h-6" />
                 </button>

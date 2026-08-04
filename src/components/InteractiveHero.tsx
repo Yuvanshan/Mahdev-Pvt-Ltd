@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import { ArrowRight, Sparkles, Play, Calendar, MapPin, PlayCircle, Volume2, VolumeX } from 'lucide-react';
 import * as THREE from 'three';
@@ -10,6 +11,49 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { getMediaType, getYouTubeId } from '@/lib/media';
 
 const heroBulletTags = ['Events', 'Software', 'Media', 'Travels'];
+
+const defaultHeroCards = [
+  {
+    id: 'sws-events',
+    label: 'LIVE PREVIEW',
+    title: 'Royal Canopy Build',
+    subtitle: 'Visual decoration rendering',
+    mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4',
+    location: 'Shangri-La Hall',
+    resolution: '1080p Ultra HD',
+    link: '/divisions/sws-events'
+  },
+  {
+    id: 'u1-studio',
+    label: 'PORTRAIT SHOOT',
+    title: 'Golden Hour Union',
+    subtitle: 'Cinematic film edit',
+    mediaUrl: '/images/u1_robot_camera_1783346286743.jpg',
+    location: 'Grand Palace Altar',
+    resolution: '4K Cinematic',
+    link: '/divisions/u1-studio'
+  },
+  {
+    id: 'erp',
+    label: 'SaaS PORTALS',
+    title: 'Omnichannel POS',
+    subtitle: 'Cloud ledger inventory',
+    mediaUrl: '/images/saas_dashboard.jpg',
+    location: 'Colombo Office',
+    resolution: 'Active Sync',
+    link: '/divisions/erp'
+  },
+  {
+    id: 'travels',
+    label: 'VIP TRANSIT',
+    title: 'Mercedes Luxury Hire',
+    subtitle: 'Airport transfers convoy',
+    mediaUrl: '/images/travels_robot_car_1783346316762.jpg',
+    location: 'BIA Airport Dispatch',
+    resolution: '5-Star Service',
+    link: '/divisions/travels'
+  }
+];
 
 export default function InteractiveHero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -31,6 +75,9 @@ export default function InteractiveHero() {
     videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4'
   });
 
+  const [heroCards, setHeroCards] = useState<any[]>(defaultHeroCards);
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
+
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'settings', 'homepage'), (snap) => {
       if (snap.exists()) {
@@ -41,9 +88,20 @@ export default function InteractiveHero() {
           desc: d.heroDescription || 'We deploy logical, enterprise-grade cloud software while choreographing breath-taking wedding, corporate, and travel events that live in memory.',
           videoUrl: d.heroVideoUrl || 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4'
         });
+        if (d.heroCards && Array.isArray(d.heroCards) && d.heroCards.length === 4) {
+          setHeroCards(d.heroCards);
+        }
       }
     });
     return () => unsub();
+  }, []);
+
+  // 5-second automatic rotation
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveCardIndex((prev) => (prev + 1) % 4);
+    }, 5000);
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -318,89 +376,188 @@ export default function InteractiveHero() {
           </motion.div>
         </div>
 
-        {/* Right Side Video Showcase (3D Glass Card) */}
-        <div className="lg:col-span-5 relative w-full h-[450px] sm:h-[500px] flex items-center justify-center select-none z-10" style={{ transform: `translateY(${parallaxY * 0.1}px)` }}>
-          <div 
-            className="absolute w-full max-w-[380px] h-[480px] rounded-[32px] cursor-pointer"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{ perspective: 1000 }}
-          >
-            <motion.div
-              ref={cardRef}
-              animate={{
-                rotateY: tilt.x,
-                rotateX: tilt.y,
-                z: 20
-              }}
-              transition={{ type: 'spring', damping: 22, stiffness: 120 }}
-              className="w-full h-full glass-premium rounded-[32px] p-4.5 border border-white/10 relative overflow-hidden flex flex-col justify-between shadow-[0_30px_100px_rgba(0,0,0,0.6)]"
-            >
-              {/* Radial glow focus follows cursor */}
-              <div 
-                className="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-30 group-hover:opacity-100"
-                style={{
-                  background: `radial-gradient(350px circle at ${glowPos.x}px ${glowPos.y}px, rgba(212, 175, 55, 0.18), transparent 80%)`
-                }}
-              />
+        {/* Right Side Video Showcase (3D Glass Cards Stack) */}
+        <div className="lg:col-span-5 relative w-full h-[520px] flex items-center justify-center select-none z-10" style={{ transform: `translateY(${parallaxY * 0.1}px)`, perspective: 1000 }}>
+          <div className="relative w-full max-w-[380px] h-[480px]">
+            {heroCards.map((card, idx) => {
+              const diff = (idx - activeCardIndex + 4) % 4;
+              
+              // 3D positioning styles based on sequence offset
+              const getCardStyles = () => {
+                if (diff === 0) {
+                  // Front / active
+                  return {
+                    x: 0,
+                    y: 0,
+                    scale: 1.0,
+                    rotateY: tilt.x,
+                    rotateX: tilt.y,
+                    z: 20,
+                    zIndex: 30,
+                    opacity: 1.0,
+                    filter: 'blur(0px)',
+                    pointerEvents: 'auto' as const
+                  };
+                }
+                if (diff === 1) {
+                  // Back right
+                  return {
+                    x: 90,
+                    y: -15,
+                    scale: 0.85,
+                    rotateY: -20,
+                    rotateX: 0,
+                    z: -50,
+                    zIndex: 20,
+                    opacity: 0.65,
+                    filter: 'blur(1px)',
+                    pointerEvents: 'none' as const
+                  };
+                }
+                if (diff === 2) {
+                  // Furthest back
+                  return {
+                    x: 0,
+                    y: -30,
+                    scale: 0.75,
+                    rotateY: 0,
+                    rotateX: 0,
+                    z: -100,
+                    zIndex: 10,
+                    opacity: 0.35,
+                    filter: 'blur(3px)',
+                    pointerEvents: 'none' as const
+                  };
+                }
+                // Back left (diff === 3)
+                return {
+                  x: -90,
+                  y: -15,
+                  scale: 0.85,
+                  rotateY: 20,
+                  rotateX: 0,
+                  z: -50,
+                  zIndex: 20,
+                  opacity: 0.65,
+                  filter: 'blur(1px)',
+                  pointerEvents: 'none' as const
+                };
+              };
 
-              {/* Card Header details */}
-              <div className="flex justify-between items-center z-10">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] uppercase font-black text-emerald-400 tracking-wider font-sans">LIVE PREVIEW</span>
-                </div>
-                <div className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] text-white/60 font-semibold font-sans">
-                  Colombo backdrops
-                </div>
-              </div>
+              const styles = getCardStyles();
+              const isFront = diff === 0;
 
-              {/* Video Preview Loop Container */}
-              <div className="relative flex-1 my-4.5 rounded-2xl overflow-hidden border border-white/8 group shadow-inner z-10 flex items-center justify-center bg-black">
-                {(() => {
-                  const mediaType = getMediaType(heroData.videoUrl);
-                  if (mediaType === 'youtube') {
-                    const ytId = getYouTubeId(heroData.videoUrl);
-                    return (
-                      <iframe
-                        src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
-                        className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700 pointer-events-none"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        style={{ border: 'none' }}
-                      />
-                    );
-                  } else if (mediaType === 'image') {
-                    return (
-                      <img
-                        src={heroData.videoUrl}
-                        alt="Hero Media"
-                        className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700"
-                      />
-                    );
-                  } else {
-                    return (
-                      <video 
-                        key={heroData.videoUrl}
-                        src={heroData.videoUrl}
-                        autoPlay
-                        loop
-                        muted={isMuted}
-                        playsInline
-                        preload="auto"
-                        className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700"
-                      />
-                    );
-                  }
-                })()}
+              // Helper to resolve card preview image if background card
+              const getCardPreviewImage = (url: string) => {
+                const type = getMediaType(url);
+                if (type === 'youtube') {
+                  const ytId = getYouTubeId(url);
+                  return `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+                }
+                if (type === 'video') {
+                  return '/images/wedding_decoration_1782729925686.jpg'; // Fallback backdrop
+                }
+                return url;
+              };
 
-                {/* Sound control button overlay */}
-                {(() => {
-                  const mediaType = getMediaType(heroData.videoUrl);
-                  if (mediaType === 'youtube' || mediaType === 'video') {
-                    return (
+              return (
+                <motion.div
+                  key={card.id}
+                  ref={isFront ? cardRef : undefined}
+                  animate={styles}
+                  transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+                  onMouseMove={isFront ? handleMouseMove : undefined}
+                  onMouseLeave={isFront ? handleMouseLeave : undefined}
+                  onClick={() => {
+                    if (!isFront) {
+                      setActiveCardIndex(idx);
+                    }
+                  }}
+                  className={`absolute top-0 left-0 w-full h-full glass-premium rounded-[32px] p-4.5 border border-white/10 overflow-hidden flex flex-col justify-between shadow-[0_30px_100px_rgba(0,0,0,0.65)] ${
+                    !isFront ? 'cursor-pointer hover:border-gold-accent/40' : ''
+                  }`}
+                  style={{ transformStyle: 'preserve-3d', backfaceVisibility: 'hidden' }}
+                >
+                  {/* Spotlight glow follows pointer on active card */}
+                  {isFront && (
+                    <div 
+                      className="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-30 group-hover:opacity-100"
+                      style={{
+                        background: `radial-gradient(350px circle at ${glowPos.x}px ${glowPos.y}px, rgba(212, 175, 55, 0.18), transparent 80%)`
+                      }}
+                    />
+                  )}
+
+                  {/* Card Header details */}
+                  <div className="flex justify-between items-center z-10">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2.5 h-2.5 rounded-full ${isFront ? 'bg-emerald-500 animate-pulse' : 'bg-white/30'}`} />
+                      <span className={`text-[10px] uppercase font-black tracking-wider font-sans ${isFront ? 'text-emerald-400' : 'text-white/40'}`}>
+                        {card.label || 'DIVISION'}
+                      </span>
+                    </div>
+                    {card.subtitle && (
+                      <div className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] text-white/60 font-semibold font-sans">
+                        {card.subtitle}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Media Content - Plays on Front Card, Static cover on Background Cards */}
+                  <div className="relative flex-1 my-4.5 rounded-2xl overflow-hidden border border-white/8 group shadow-inner z-10 flex items-center justify-center bg-black">
+                    {(() => {
+                      if (!isFront) {
+                        return (
+                          <img 
+                            src={getCardPreviewImage(card.mediaUrl)} 
+                            alt={card.title} 
+                            className="w-full h-full object-cover filter brightness-[0.7] contrast-[1.05]" 
+                          />
+                        );
+                      }
+
+                      // Active front card plays the video
+                      const mediaType = getMediaType(card.mediaUrl);
+                      if (mediaType === 'youtube') {
+                        const ytId = getYouTubeId(card.mediaUrl);
+                        return (
+                          <iframe
+                            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=${isMuted ? 1 : 0}&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                            className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700 pointer-events-none"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            style={{ border: 'none' }}
+                          />
+                        );
+                      } else if (mediaType === 'image') {
+                        return (
+                          <img
+                            src={card.mediaUrl}
+                            alt={card.title}
+                            className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05]"
+                          />
+                        );
+                      } else {
+                        return (
+                          <video 
+                            key={card.mediaUrl}
+                            src={card.mediaUrl}
+                            autoPlay
+                            loop
+                            muted={isMuted}
+                            playsInline
+                            preload="auto"
+                            className="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] group-hover:scale-105 transition-transform duration-700"
+                          />
+                        );
+                      }
+                    })()}
+
+                    {/* Mute buttons for active card video */}
+                    {isFront && (getMediaType(card.mediaUrl) === 'youtube' || getMediaType(card.mediaUrl) === 'video') && (
                       <button
                         onClick={(e) => {
+                          e.stopPropagation();
                           e.preventDefault();
                           setIsMuted(!isMuted);
                         }}
@@ -413,34 +570,43 @@ export default function InteractiveHero() {
                           <Volume2 className="w-3.5 h-3.5 text-gold-accent animate-pulse" />
                         )}
                       </button>
-                    );
-                  }
-                  return null;
-                })()}
-                
-                {/* Simulated playback controls */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050816]/75 via-transparent to-transparent flex items-end p-4 pointer-events-none">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-full bg-gold-accent text-navy-dark shadow-md animate-pulse">
-                      <Play className="w-3.5 h-3.5 fill-current translate-x-0.5" />
-                    </div>
-                    <div className="text-left">
-                      <h4 className="text-white text-xs font-bold font-display">Royal Canopy Build</h4>
-                      <p className="text-[9px] text-[#BFC8E6]/75 font-sans">Visual decoration rendering</p>
+                    )}
+
+                    {/* Card play overlay decoration */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050816]/75 via-transparent to-transparent flex items-end p-4 pointer-events-none">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2.5 rounded-full text-navy-dark shadow-md ${isFront ? 'bg-gold-accent animate-pulse' : 'bg-white/20'}`}>
+                          <Play className="w-3.5 h-3.5 fill-current translate-x-0.5" />
+                        </div>
+                        <div className="text-left">
+                          <h4 className="text-white text-xs font-bold font-display">{card.title}</h4>
+                          <p className="text-[9px] text-[#BFC8E6]/75 font-sans">Click to discover division</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Card Footer details */}
-              <div className="flex justify-between items-center text-[10px] font-sans text-[#BFC8E6]/60 border-t border-white/5 pt-3 z-10">
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-gold-accent" />
-                  <span>Shangri-La Hall</span>
-                </div>
-                <span className="text-gold-soft font-bold">1080p Ultra HD</span>
-              </div>
-            </motion.div>
+                  {/* Card Footer details */}
+                  <div className="flex justify-between items-center text-[10px] font-sans text-[#BFC8E6]/60 border-t border-white/5 pt-3 z-10">
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-gold-accent" />
+                      <span>{card.location || 'Colombo Venue'}</span>
+                    </div>
+                    {isFront ? (
+                      <Link 
+                        href={card.link || '#'} 
+                        className="text-gold-soft font-bold tracking-wider hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        ENTER DIV →
+                      </Link>
+                    ) : (
+                      <span className="text-white/40 font-semibold">{card.resolution || '1080p HD'}</span>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
 

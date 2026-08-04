@@ -9,23 +9,6 @@ import Footer from '@/components/Footer';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 
-const portfolioItems = [
-  { id: 'p1', title: 'The Imperial Marigold Haven', category: 'SWS Events', img: '/images/sws_robot_decor_1783346269673.jpg' },
-  { id: 'p2', title: 'Vibrant Alice in Balloonland', category: 'SWS Events', img: '/images/birthday_decor.jpg' },
-  { id: 'p3', title: 'Modern Keynote Tech Summit', category: 'SWS Events', img: '/images/sws_robot_decor_1783346269673.jpg' },
-  { id: 'p4', title: 'St. Peter\'s Holy Orchid Union', category: 'SWS Events', img: '/images/church_decor.jpg' },
-  
-  { id: 'p5', title: 'Eternal Golden Hour Union', category: 'Studio U1', img: '/images/u1_robot_camera_1783346286743.jpg' },
-  { id: 'p6', title: 'Cinematic Cinematic Teaser Reel', category: 'Studio U1', img: '/images/portrait_shoot.jpg' },
-  { id: 'p7', title: 'Grand Palace Aerial Horizon', category: 'Studio U1', img: '/images/drone_photography.jpg' },
-  { id: 'p8', title: 'Prism Light Studio Portrait', category: 'Studio U1', img: '/images/portrait_shoot.jpg' },
-
-  { id: 'p9', title: 'Vastra Luxury Silk Store', category: 'IT Solutions', img: '/images/saas_dashboard.jpg' },
-  { id: 'p10', title: 'Apex Global Logistics Portal', category: 'IT Solutions', img: '/images/saas_dashboard.jpg' },
-  { id: 'p11', title: 'Oakwood International School Hub', category: 'IT Solutions', img: '/images/saas_dashboard.jpg' },
-  { id: 'p12', title: 'HealPath Clinics Hub App', category: 'IT Solutions', img: '/images/it_robot_developer_1783346302442.jpg' },
-];
-
 export default function Portfolio() {
   const [filter, setFilter] = useState('All');
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
@@ -39,7 +22,7 @@ export default function Portfolio() {
     return () => unsub();
   }, []);
 
-  const activeItems = galleryList.length > 0 ? galleryList : portfolioItems;
+  const activeItems = galleryList;
 
   const categories = ['All', ...Array.from(new Set(activeItems.map(item => item.category)))];
 

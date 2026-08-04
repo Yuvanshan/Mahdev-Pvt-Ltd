@@ -21,7 +21,9 @@ import {
   Search,
   BookOpen,
   Languages,
-  Menu
+  Menu,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, doc } from 'firebase/firestore';
@@ -47,6 +49,27 @@ export default function Navbar() {
   
   // Theme and Language simulation
   const [language, setLanguage] = useState<'EN' | 'SI' | 'TA'>('EN');
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      const initialTheme = prefersLight ? 'light' : 'dark';
+      setTheme(initialTheme);
+      document.documentElement.setAttribute('data-theme', initialTheme);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+  };
 
   // Dynamic branding loader (logo and favicon updates)
   useEffect(() => {
@@ -260,12 +283,21 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Right Side Options (Search, Language, Action Button) */}
+          {/* Right Side Options (Theme, Search, Language, Action Button) */}
           <div className="hidden lg:flex items-center gap-5">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-3.5 rounded-2xl bg-white/3 border border-white/8 hover:border-gold-accent/40 text-white/70 hover:text-gold-soft transition-all duration-300 shadow-sm cursor-pointer"
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
             {/* Search Trigger */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-3.5 rounded-2xl bg-white/3 border border-white/8 hover:border-gold-accent/40 text-white/70 hover:text-gold-soft transition-all duration-300 shadow-sm"
+              className="p-3.5 rounded-2xl bg-white/3 border border-white/8 hover:border-gold-accent/40 text-white/70 hover:text-gold-soft transition-all duration-300 shadow-sm cursor-pointer"
               title="Search Directory (Press '/')"
             >
               <Search className="w-4 h-4" />
@@ -308,6 +340,15 @@ export default function Navbar() {
 
           {/* Mobile Actions Header */}
           <div className="lg:hidden flex items-center gap-3">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl glass border border-white/8 text-white/85"
+              title="Toggle Theme"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
             <button
               onClick={() => setSearchOpen(true)}
               className="p-2.5 rounded-xl glass border border-white/8 text-white/80"

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import * as THREE from 'three';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, onSnapshot, doc } from 'firebase/firestore';
 import confetti from 'canvas-confetti';
 
 // ----------------------------------------------------------------------
@@ -20,6 +20,23 @@ import confetti from 'canvas-confetti';
 export function BeforeAfterSlider() {
   const [sliderPos, setSliderPos] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [images, setImages] = useState({
+    before: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1000',
+    after: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000'
+  });
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'visual_media'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        setImages({
+          before: d.beforeImage || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1000',
+          after: d.afterImage || 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000'
+        });
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const handleMove = (clientX: number) => {
     if (!containerRef.current) return;
@@ -56,7 +73,7 @@ export function BeforeAfterSlider() {
         {/* BEFORE IMAGE (Full size) */}
         <div className="absolute inset-0 w-full h-full bg-navy-light">
           <Image 
-            src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=1000" 
+            src={images.before} 
             alt="Venue Before Decor" 
             fill
             className="object-cover pointer-events-none filter brightness-50"
@@ -72,7 +89,7 @@ export function BeforeAfterSlider() {
           style={{ clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)` }}
         >
           <Image 
-            src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000" 
+            src={images.after} 
             alt="Venue After Decor" 
             fill
             className="object-cover pointer-events-none"
@@ -276,6 +293,19 @@ export function EventCostEstimator() {
 export function Venue360Viewer() {
   const mountRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
+  const [panoramaUrl, setPanoramaUrl] = useState('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200');
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'visual_media'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.panoramaImage) {
+          setPanoramaUrl(d.panoramaImage);
+        }
+      }
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -303,7 +333,7 @@ export function Venue360Viewer() {
     // Load static luxury hall panorama texture (using a high-quality interior ballroom stock URL)
     const loader = new THREE.TextureLoader();
     loader.load(
-      'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200', // Beautiful luxury ballroom decor image
+      panoramaUrl,
       (texture) => {
         const material = new THREE.MeshBasicMaterial({ map: texture });
         const mesh = new THREE.Mesh(geometry, material);
@@ -397,7 +427,7 @@ export function Venue360Viewer() {
       geometry.dispose();
       renderer.dispose();
     };
-  }, []);
+  }, [panoramaUrl]);
 
   return (
     <div className="w-full max-w-4xl mx-auto py-6 text-left flex flex-col gap-6">

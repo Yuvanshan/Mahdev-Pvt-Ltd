@@ -138,6 +138,10 @@ export default function Home() {
     '/images/portrait_shoot.jpg'
   ]);
 
+  const [portfolioTab, setPortfolioTab] = useState<'gallery' | 'facebook'>('gallery');
+  const [brands, setBrands] = useState<string[]>(['Royal Palms Resort', 'Hilton Colombo', 'BIA Air Transports', 'Vastra Silks', 'Ceylon Cloud Engine']);
+  const [facebookFeed, setFacebookFeed] = useState<any[]>([]);
+
   // Fetch stats and posters from Firestore in real-time
   useEffect(() => {
     const unsubStats = onSnapshot(collection(db, 'stats'), (snap) => {
@@ -211,6 +215,24 @@ export default function Home() {
       }
     });
 
+    const unsubBrands = onSnapshot(doc(db, 'settings', 'brands'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.items && Array.isArray(d.items)) {
+          setBrands(d.items);
+        }
+      }
+    });
+
+    const unsubFacebook = onSnapshot(doc(db, 'settings', 'facebook'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.items && Array.isArray(d.items)) {
+          setFacebookFeed(d.items);
+        }
+      }
+    });
+
     return () => {
       unsubStats();
       unsubPosters();
@@ -218,6 +240,8 @@ export default function Home() {
       unsubFaq();
       unsubFeatured();
       unsubInstagram();
+      unsubBrands();
+      unsubFacebook();
     };
   }, []);
 
@@ -288,18 +312,7 @@ export default function Home() {
   };
 
   // Gallery Masonry dataset
-  const galleryItems = [
-    { id: '1', title: 'Mughal Imperial Canopy', category: 'Wedding', img: '/images/wedding_decoration_1782729925686.jpg' },
-    { id: '2', title: 'Studio U1 Drone Footage', category: 'Cinema', img: '/images/drone_photography.jpg' },
-    { id: '3', title: 'VIP Wedding Mercedes', category: 'Travel', img: '/images/wedding_decoration_1782729925686.jpg' },
-    { id: '4', title: 'Hilton Keynote Backdrop', category: 'Corporate', img: '/images/sws_robot_decor_1783346269673.jpg' },
-    { id: '5', title: 'Fairy Light Arch Lanes', category: 'Lighting', img: '/images/sws_robot_decor_1783346269673.jpg' },
-    { id: '6', title: 'Ella Greenery Escape Van', category: 'Travel', img: '/images/van_tour.jpg' },
-    { id: '7', title: 'Church Canopy Pew Flowers', category: 'Wedding', img: '/images/church_decor.jpg' },
-    { id: '8', title: 'Cinematic Newborn Shoot', category: 'Cinema', img: '/images/newborn_shoot.jpg' }
-  ];
-
-  const activeGalleryItems = galleryList.length > 0 ? galleryList : galleryItems;
+  const activeGalleryItems = galleryList;
 
   const filteredGallery = activeFilter === 'All' 
     ? activeGalleryItems 
@@ -337,7 +350,7 @@ export default function Home() {
               </span>
               <div className="marquee-container">
                 <div className="marquee-content flex gap-12 sm:gap-20 items-center">
-                  {['Royal Palms Resort', 'Hilton Colombo', 'BIA Air Transports', 'Vastra Silks', 'Ceylon Cloud Engine'].map((partner, idx) => (
+                  {brands.map((partner, idx) => (
                     <span 
                       key={idx} 
                       className="font-display font-black text-base sm:text-xl text-white tracking-widest cursor-pointer grayscale-hover"
@@ -348,7 +361,7 @@ export default function Home() {
                 </div>
                 {/* Duplicate content for seamless loop */}
                 <div className="marquee-content flex gap-12 sm:gap-20 items-center" aria-hidden="true">
-                  {['Royal Palms Resort', 'Hilton Colombo', 'BIA Air Transports', 'Vastra Silks', 'Ceylon Cloud Engine'].map((partner, idx) => (
+                  {brands.map((partner, idx) => (
                     <span 
                       key={idx} 
                       className="font-display font-black text-base sm:text-xl text-white tracking-widest cursor-pointer grayscale-hover"
@@ -538,52 +551,135 @@ export default function Home() {
               
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                 <div className="flex flex-col gap-3.5 text-left">
-                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">PREMIUM EVENT PORTFOLIO</span>
-                  <h2 className="font-display font-black text-3xl sm:text-4xl text-white">Event Gallery</h2>
-                </div>
-
-                {/* Filters */}
-                <div className="flex flex-wrap gap-2 select-none">
-                  {['All', 'Wedding', 'Corporate', 'Cinema', 'Travel', 'Lighting'].map((filt) => (
+                  <div className="flex gap-4 mb-4 select-none">
                     <button
-                      key={filt}
-                      onClick={() => setActiveFilter(filt)}
-                      className={`px-4.5 py-2.5 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer ${
-                        activeFilter === filt
-                          ? 'bg-gold-accent/15 border-gold-accent text-gold-soft'
-                          : 'bg-white/2 border-white/5 text-white/60 hover:text-white'
+                      onClick={() => setPortfolioTab('gallery')}
+                      className={`px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all cursor-pointer ${
+                        portfolioTab === 'gallery'
+                          ? 'bg-gold-accent text-navy-dark shadow-md'
+                          : 'glass text-[#BFC8E6]/60 hover:text-white'
                       }`}
                     >
-                      {filt}
+                      Event Portfolio
                     </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Pinterest Masonry layout */}
-              <div className="pinterest-masonry">
-                {filteredGallery.map((item) => (
-                  <div 
-                    key={item.id}
-                    onClick={() => setSelectedGalleryImage(item.img)}
-                    className="pinterest-item relative rounded-2xl overflow-hidden border border-white/5 cursor-pointer group shadow-lg"
-                  >
-                    <img 
-                      src={item.img} 
-                      alt={item.title} 
-                      className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-100"
-                    />
-                    <div className="absolute inset-0 bg-[#050816]/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5 text-left">
-                      <span className="text-[8px] uppercase tracking-wider text-gold-soft font-bold mb-1 font-sans">{item.category}</span>
-                      <h4 className="font-display font-bold text-base text-white">{item.title}</h4>
-                      <span className="text-[10px] text-gray-400 mt-2 font-sans flex items-center gap-1 hover:underline">
-                        View Image &rarr;
-                      </span>
-                    </div>
+                    <button
+                      onClick={() => setPortfolioTab('facebook')}
+                      className={`px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all flex items-center gap-2 cursor-pointer ${
+                        portfolioTab === 'facebook'
+                          ? 'bg-[#1877F2] text-white shadow-md'
+                          : 'glass text-[#BFC8E6]/60 hover:text-white'
+                      }`}
+                    >
+                      <FaFacebook className="w-4 h-4" /> Facebook Feed
+                    </button>
                   </div>
-                ))}
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">PREMIUM EVENT PORTFOLIO</span>
+                  <h2 className="font-display font-black text-3xl sm:text-4xl text-white">
+                    {portfolioTab === 'gallery' ? 'Event Gallery' : 'Facebook Page Stream'}
+                  </h2>
+                </div>
+ 
+                {/* Filters */}
+                {portfolioTab === 'gallery' && (
+                  <div className="flex flex-wrap gap-2 select-none">
+                    {['All', 'Wedding', 'Corporate', 'Cinema', 'Travel', 'Lighting'].map((filt) => (
+                      <button
+                        key={filt}
+                        onClick={() => setActiveFilter(filt)}
+                        className={`px-4.5 py-2.5 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer ${
+                          activeFilter === filt
+                            ? 'bg-gold-accent/15 border-gold-accent text-gold-soft'
+                            : 'bg-white/2 border-white/5 text-white/60 hover:text-white'
+                        }`}
+                      >
+                        {filt}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-
+ 
+              {portfolioTab === 'gallery' ? (
+                /* Pinterest Masonry layout */
+                <div className="pinterest-masonry">
+                  {filteredGallery.length === 0 ? (
+                    <div className="col-span-full py-16 text-center text-gray-500 text-xs font-sans uppercase font-bold tracking-widest">
+                      No works uploaded in the portfolio database.
+                    </div>
+                  ) : (
+                    filteredGallery.map((item) => (
+                      <div 
+                        key={item.id}
+                        onClick={() => setSelectedGalleryImage(item.img)}
+                        className="pinterest-item relative rounded-2xl overflow-hidden border border-white/5 cursor-pointer group shadow-lg"
+                      >
+                        <img 
+                          src={item.img} 
+                          alt={item.title} 
+                          className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-100"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5 text-left">
+                          <span className="text-[8px] uppercase tracking-wider text-gold-soft font-bold mb-1 font-sans">{item.category}</span>
+                          <h4 className="font-display font-bold text-base text-white">{item.title}</h4>
+                          <span className="text-[10px] text-gray-400 mt-2 font-sans flex items-center gap-1 hover:underline">
+                            View Image &rarr;
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              ) : (
+                /* Facebook Stream layout */
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+                  {facebookFeed.length === 0 ? (
+                    <div className="col-span-full py-16 text-center text-gray-500 text-xs font-sans uppercase font-bold tracking-widest">
+                      No Facebook posts synchronized yet. Connect Facebook in Admin Settings to load.
+                    </div>
+                  ) : (
+                    facebookFeed.map((post: any, idx: number) => (
+                      <div key={idx} className="glass rounded-3xl p-5 border border-white/5 flex flex-col gap-4 shadow-lg hover:border-[#1877F2]/40 hover:-translate-y-1 transition-all duration-300">
+                        {/* Header */}
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-[#1877F2]/10 border border-[#1877F2]/20 flex items-center justify-center text-[#1877F2]">
+                            <FaFacebook className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <span className="block font-display font-bold text-xs text-white">Mahdev Pvt Ltd</span>
+                            <span className="block text-[8px] text-gray-500 font-sans">{post.date || 'Just now'}</span>
+                          </div>
+                        </div>
+                        {/* Message / Caption */}
+                        {post.message && (
+                          <p className="text-xs text-[#BFC8E6]/85 font-sans leading-relaxed line-clamp-3">
+                            {post.message}
+                          </p>
+                        )}
+                        {/* Image */}
+                        {post.image && (
+                          <div className="relative h-48 rounded-2xl overflow-hidden border border-white/5">
+                            <img src={post.image} alt="Facebook Post Media" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                        {/* Footer stats */}
+                        <div className="flex justify-between items-center text-[10px] font-sans text-gray-500 mt-2 border-t border-white/5 pt-3">
+                          <span>👍 {post.likes || 0} Likes</span>
+                          <a 
+                            href="https://facebook.com/mahdev" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-[#1877F2] font-bold hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            View on Facebook →
+                          </a>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+ 
             </div>
           </section>
         </FadeUpSection>

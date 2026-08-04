@@ -66,6 +66,57 @@
   --foreground: #1F2937;
 }
 
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 {
+  color: #111827 !important;
+}
+
+[data-theme="light"] p {
+  color: #374151 !important;
+}
+
+/* Map the hardcoded arbitrary tailwind text color to a readable dark text in light mode */
+[data-theme="light"] .text-\[\#BFC8E6\],
+[data-theme="light"] .text-\[\#BFC8E6\]\/90,
+[data-theme="light"] .text-\[\#BFC8E6\]\/85,
+[data-theme="light"] .text-\[\#BFC8E6\]\/80,
+[data-theme="light"] .text-\[\#BFC8E6\]\/75,
+[data-theme="light"] .text-\[\#BFC8E6\]\/60,
+[data-theme="light"] .text-\[\#BFC8E6\]\/50 {
+  color: #374151 !important;
+}
+
+[data-theme="light"] .text-white {
+  color: #111827 !important;
+}
+
+[data-theme="light"] .text-white\/90,
+[data-theme="light"] .text-white\/80,
+[data-theme="light"] .text-white\/70,
+[data-theme="light"] .text-white\/60,
+[data-theme="light"] .text-white\/50,
+[data-theme="light"] .text-white\/40,
+[data-theme="light"] .text-\[\#BFC8E6\] {
+  color: #374151 !important;
+}
+
+/* Allow dynamic elements to keep custom colorings */
+[data-theme="light"] .luxury-btn-gold,
+[data-theme="light"] .luxury-btn-gold * {
+  color: #050816 !important;
+}
+
+[data-theme="light"] .text-gold-soft,
+[data-theme="light"] .text-gold-accent,
+[data-theme="light"] .text-\[\#D4AF37\],
+[data-theme="light"] .text-\[\#FFD978\] {
+  color: #A37E2C !important;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -365,12 +416,12 @@ body {
   height: 40px;
 }
 .wave-container .shape-fill {
-  fill: #0B1023; /* matches contact section background */
+  fill: var(--navy-medium); /* matches contact section background */
 }
 
 /* Background animated layers */
 .premium-bg-gradient {
-  background: radial-gradient(circle at 50% -20%, #0c122b 0%, #050816 80%);
+  background: radial-gradient(circle at 50% -20%, var(--navy-medium) 0%, var(--navy-dark) 80%);
 }
 
 .mesh-gradient-glow {

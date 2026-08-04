@@ -1,13 +1,13 @@
 [
   {
     "route": "/",
-    "firstLoadUncompressedJsBytes": 2028438,
+    "firstLoadUncompressedJsBytes": 2028801,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0ny9yi5s2vsu6.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
       "dist\\static\\chunks\\33tmm0izexquw.js",
       "dist\\static\\chunks\\294bm0n38uanc.js",
-      "dist\\static\\chunks\\06arqnlqwb90e.js",
+      "dist\\static\\chunks\\3d6k23he99bzw.js",
       "dist\\static\\chunks\\3p5dvbtwyxhv3.js",
       "dist\\static\\chunks\\0fosqvxttoi9o.js",
       "dist\\static\\chunks\\0tsy8y77lal0w.js",
@@ -58,7 +58,7 @@
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0ny9yi5s2vsu6.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
-      "dist\\static\\chunks\\1nf28iva73yj0.js",
+      "dist\\static\\chunks\\1m8sz3dfo_0gx.js",
       "dist\\static\\chunks\\0w2px9mujlu91.js",
       "dist\\static\\chunks\\0tsy8y77lal0w.js",
       "dist\\static\\chunks\\3p5dvbtwyxhv3.js",
@@ -88,11 +88,11 @@
   },
   {
     "route": "/careers",
-    "firstLoadUncompressedJsBytes": 1434357,
+    "firstLoadUncompressedJsBytes": 1435023,
     "firstLoadChunkPaths": [
       "dist\\static\\chunks\\0ny9yi5s2vsu6.js",
       "dist\\static\\chunks\\14mrh2-p_w84d.js",
-      "dist\\static\\chunks\\35vb3g_laxy6d.js",
+      "dist\\static\\chunks\\2q85s9-kv_sjr.js",
       "dist\\static\\chunks\\3c15eru9xewb5.js",
       "dist\\static\\chunks\\0tsy8y77lal0w.js",
       "dist\\static\\chunks\\23c87mhcbg1v9.js",

@@ -331,7 +331,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="relative min-h-screen bg-[#050816] text-[#BFC8E6] font-sans overflow-x-hidden text-left pb-10">
+      <div className="relative min-h-screen bg-navy-dark text-[#BFC8E6] font-sans overflow-x-hidden text-left pb-10">
         
         {/* Scroll indicator overlay */}
         <Navbar />
@@ -343,7 +343,7 @@ export default function Home() {
 
         {/* 2. Trusted Companies Marquee (Pause on hover, Grayscale to color) */}
         <FadeUpSection>
-          <section className="py-12 bg-[#050816] border-b border-white/5 overflow-hidden">
+          <section className="py-12 bg-navy-dark border-b border-white/5 overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 text-center">
               <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gray-500 block mb-8">
                 ENDORSED BY SOUTH ASIA'S ELITE BRANDS
@@ -377,7 +377,7 @@ export default function Home() {
 
         {/* 3. Featured Services (Upgraded luxury glass cards with 32px padding, glow borders) */}
         <FadeUpSection id="divisions">
-          <section className="section-premium-padding bg-[#050816] relative overflow-hidden">
+          <section className="section-premium-padding bg-navy-dark relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
               
               <div className="flex flex-col gap-2.5 mb-10 text-center max-w-xl mx-auto">
@@ -444,7 +444,7 @@ export default function Home() {
 
         {/* 5. Featured Projects & Video Showcase (Netflix style featured layout) */}
         <FadeUpSection id="featured-projects">
-          <section className="section-premium-padding bg-[#0B1023] relative overflow-hidden border-t border-b border-white/5">
+          <section className="section-premium-padding bg-navy-medium relative overflow-hidden border-t border-b border-white/5">
             <div className="glow-ball glow-ball-gold w-96 h-96 top-20 -left-10 opacity-10" />
             
             <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -546,7 +546,7 @@ export default function Home() {
 
         {/* 6. Premium Event Gallery (Pinterest Masonry with category filter & overlay zooms) */}
         <FadeUpSection>
-          <section className="section-premium-padding bg-[#050816] relative overflow-hidden">
+          <section className="section-premium-padding bg-navy-dark relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
               
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
@@ -665,7 +665,7 @@ export default function Home() {
                         <div className="flex justify-between items-center text-[10px] font-sans text-gray-500 mt-2 border-t border-white/5 pt-3">
                           <span>👍 {post.likes || 0} Likes</span>
                           <a 
-                            href="https://facebook.com/mahdev" 
+                            href={post.link || 'https://facebook.com/mahdev'} 
                             target="_blank" 
                             rel="noopener noreferrer" 
                             className="text-[#1877F2] font-bold hover:underline"
@@ -686,7 +686,7 @@ export default function Home() {
 
         {/* Custom Premium Features: Before/After Slider & 360° Venue Viewer */}
         <FadeUpSection>
-          <section className="py-12 bg-[#0B1023] border-t border-b border-white/5">
+          <section className="py-12 bg-navy-medium border-t border-b border-white/5">
             <div className="max-w-7xl mx-auto px-6 flex flex-col gap-16">
               <BeforeAfterSlider />
               <Venue360Viewer />
@@ -696,7 +696,7 @@ export default function Home() {
 
         {/* 7. Software Solutions & Travel Experiences Section */}
         <FadeUpSection>
-          <section className="section-premium-padding bg-[#050816] relative overflow-hidden">
+          <section className="section-premium-padding bg-navy-dark relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -755,7 +755,7 @@ export default function Home() {
 
         {/* 8. Interactive Case Studies */}
         <FadeUpSection>
-          <section className="section-premium-padding bg-[#0B1023] border-t border-b border-white/5 relative overflow-hidden">
+          <section className="section-premium-padding bg-navy-medium border-t border-b border-white/5 relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
               
               <div className="flex flex-col gap-3.5 mb-14 text-center max-w-lg mx-auto">
@@ -787,7 +787,7 @@ export default function Home() {
 
         {/* 9. Awards & Achievements */}
         <FadeUpSection>
-          <section className="py-20 bg-[#050816]">
+          <section className="py-20 bg-navy-dark">
             <div className="max-w-7xl mx-auto px-6">
               
               <div className="flex flex-col gap-3.5 mb-12 text-center max-w-sm mx-auto">
@@ -823,7 +823,7 @@ export default function Home() {
 
         {/* 11. Instagram Feed Grid (Simulated live feed) */}
         <FadeUpSection>
-          <section className="section-premium-padding bg-[#050816] relative overflow-hidden border-t border-white/5">
+          <section className="section-premium-padding bg-navy-dark relative overflow-hidden border-t border-white/5">
             <div className="max-w-7xl mx-auto px-6 text-center">
               
               <div className="flex flex-col gap-3.5 mb-14">
@@ -833,23 +833,29 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                {instagramFeed.map((img, idx) => (
-                  <div 
-                    key={idx} 
-                    onClick={() => setSelectedGalleryImage(img)}
-                    className="relative h-36 rounded-2xl overflow-hidden border border-white/10 shadow-sm cursor-pointer group"
-                  >
-                    <Image 
-                      src={img} 
-                      alt="Instagram Post" 
-                      fill 
-                      className="object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-90 group-hover:brightness-100" 
-                    />
-                    <div className="absolute inset-0 bg-gold-accent/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white pointer-events-none">
-                      <span className="text-[9px] font-black font-sans uppercase tracking-wider bg-[#050816]/80 px-2.5 py-1.5 rounded-xl border border-white/10">VIEW POST</span>
-                    </div>
-                  </div>
-                ))}
+                {instagramFeed.map((img, idx) => {
+                  const imageUrl = typeof img === 'string' ? img : ((img as any).url || (img as any).media_url || '');
+                  const postLink = typeof img === 'string' ? 'https://instagram.com/mahdev_pvt_ltd' : ((img as any).link || (img as any).permalink || 'https://instagram.com/mahdev_pvt_ltd');
+                  return (
+                    <a 
+                      key={idx} 
+                      href={postLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative h-36 rounded-2xl overflow-hidden border border-white/10 shadow-sm cursor-pointer group block"
+                    >
+                      <Image 
+                        src={imageUrl} 
+                        alt="Instagram Post" 
+                        fill 
+                        className="object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-90 group-hover:brightness-100" 
+                      />
+                      <div className="absolute inset-0 bg-gold-accent/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                        <span className="text-[9px] font-black font-sans uppercase tracking-wider bg-navy-dark/80 px-2.5 py-1.5 rounded-xl border border-white/10">VIEW POST</span>
+                      </div>
+                    </a>
+                  );
+                })}
               </div>
 
             </div>
@@ -858,7 +864,7 @@ export default function Home() {
 
         {/* 12. Statistics (Animated number counters) */}
         <FadeUpSection>
-          <section className="py-20 bg-[#0B1023] border-t border-b border-white/5 relative overflow-hidden">
+          <section className="py-20 bg-navy-medium border-t border-b border-white/5 relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-6">
               
               <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center select-none">
@@ -886,7 +892,7 @@ export default function Home() {
 
         {/* Interactive Group History Timeline */}
         <FadeUpSection>
-          <section className="section-premium-padding bg-[#050816]">
+          <section className="section-premium-padding bg-navy-dark">
             <div className="max-w-7xl mx-auto px-6">
               <InteractiveTimeline />
             </div>
@@ -895,7 +901,7 @@ export default function Home() {
 
         {/* 13. FAQ Accordion (Modern glass accordion) */}
         <FadeUpSection>
-          <section className="section-premium-padding bg-[#050816] relative overflow-hidden border-t border-white/5">
+          <section className="section-premium-padding bg-navy-dark relative overflow-hidden border-t border-white/5">
             <div className="max-w-4xl mx-auto px-6">
               
               <div className="flex flex-col gap-3.5 mb-14 text-center max-w-sm mx-auto">
@@ -941,7 +947,7 @@ export default function Home() {
 
         {/* 14. Contact Split Layout with Multi-Step Inquiry Wizard Form */}
         <FadeUpSection id="contact">
-          <section className="section-premium-padding bg-[#0B1023] relative overflow-hidden border-t border-white/5">
+          <section className="section-premium-padding bg-navy-medium relative overflow-hidden border-t border-white/5">
             <div className="max-w-7xl mx-auto px-6 relative z-10">
               
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">

@@ -48,8 +48,8 @@ export default function CareersPortal() {
 
   const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.phone || !formData.jobId) {
-      alert("Please fill out all mandatory fields.");
+    if (!formData.name || !formData.email || !formData.phone) {
+      alert("Please fill out all mandatory fields (Name, Email, and Phone number).");
       return;
     }
     if (!formData.resumeUrl) {
@@ -59,16 +59,17 @@ export default function CareersPortal() {
 
     setSubmitting(true);
     try {
-      const selectedJob = jobs.find(j => j.id === formData.jobId);
+      const appId = formData.jobId || 'general';
+      const selectedJob = jobs.find(j => j.id === appId);
       const appPayload = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        jobId: formData.jobId,
+        jobId: appId,
         resumeName: formData.resumeName,
         resumeUrl: formData.resumeUrl,
         message: formData.message,
-        jobTitle: selectedJob ? selectedJob.title : 'General Internship',
+        jobTitle: selectedJob ? selectedJob.title : (appId === 'general' ? 'General Internship / CV Bank' : 'General Internship'),
         status: 'Pending Review',
         timestamp: serverTimestamp()
       };
@@ -152,7 +153,7 @@ export default function CareersPortal() {
                 ) : (
                   <div className="flex flex-col gap-4">
                     {jobs.map((job) => (
-                      <div key={job.id} className="p-5 rounded-2xl bg-white/5 border border-white/5 flex flex-col gap-3 hover:border-gold-accent/20 transition-all">
+                      <div key={job.id} className="p-5 rounded-2xl bg-white/5 border border-white/5 flex flex-col gap-3 hover:border-gold-accent/20 transition-all text-left">
                         <div className="flex justify-between items-start gap-4">
                           <div>
                             <span className="text-[8px] bg-gold-accent/15 text-gold-soft border border-gold-accent/25 px-2 py-0.5 rounded font-bold uppercase tracking-wider">{job.type}</span>
@@ -161,6 +162,18 @@ export default function CareersPortal() {
                           <span className="text-[10px] text-green-400 font-semibold uppercase">{job.status}</span>
                         </div>
                         <p className="font-sans text-xs text-gray-400 leading-relaxed">{job.description}</p>
+                        {job.salary && (
+                          <div className="text-[11px] font-sans text-gold-soft flex gap-1 mt-1">
+                            <span className="font-bold uppercase tracking-wider">Salary:</span>
+                            <span>{job.salary}</span>
+                          </div>
+                        )}
+                        {job.requirements && (
+                          <div className="mt-2 text-left">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest font-sans">Requirements:</span>
+                            <p className="font-sans text-[11px] text-gray-400/90 whitespace-pre-line mt-1 pl-2 border-l border-white/10">{job.requirements}</p>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

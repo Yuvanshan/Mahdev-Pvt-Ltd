@@ -377,8 +377,8 @@ export default function InteractiveHero() {
         </div>
 
         {/* Right Side Video Showcase (3D Glass Cards Stack) */}
-        <div className="lg:col-span-5 relative w-full h-[520px] flex items-center justify-center select-none z-10" style={{ transform: `translateY(${parallaxY * 0.1}px)`, perspective: 1000 }}>
-          <div className="relative w-full max-w-[380px] h-[480px]">
+        <div className="lg:col-span-5 relative w-full h-[450px] flex items-center justify-center select-none z-10" style={{ transform: `translateY(${parallaxY * 0.1}px)`, perspective: 1000 }}>
+          <div className="relative w-full max-w-[290px] h-[390px]">
             {heroCards.map((card, idx) => {
               const diff = (idx - activeCardIndex + 4) % 4;
               
@@ -402,12 +402,12 @@ export default function InteractiveHero() {
                 if (diff === 1) {
                   // Back right
                   return {
-                    x: 90,
+                    x: 140,
                     y: -15,
-                    scale: 0.85,
-                    rotateY: -20,
+                    scale: 0.75,
+                    rotateY: -25,
                     rotateX: 0,
-                    z: -50,
+                    z: -140,
                     zIndex: 20,
                     opacity: 0.65,
                     filter: 'blur(1px)',
@@ -418,11 +418,11 @@ export default function InteractiveHero() {
                   // Furthest back
                   return {
                     x: 0,
-                    y: -30,
-                    scale: 0.75,
+                    y: -40,
+                    scale: 0.6,
                     rotateY: 0,
                     rotateX: 0,
-                    z: -100,
+                    z: -280,
                     zIndex: 10,
                     opacity: 0.35,
                     filter: 'blur(3px)',
@@ -431,12 +431,12 @@ export default function InteractiveHero() {
                 }
                 // Back left (diff === 3)
                 return {
-                  x: -90,
+                  x: -140,
                   y: -15,
-                  scale: 0.85,
-                  rotateY: 20,
+                  scale: 0.75,
+                  rotateY: 25,
                   rotateX: 0,
-                  z: -50,
+                  z: -140,
                   zIndex: 20,
                   opacity: 0.65,
                   filter: 'blur(1px)',
@@ -468,6 +468,17 @@ export default function InteractiveHero() {
                   transition={{ type: 'spring', damping: 25, stiffness: 120 }}
                   onMouseMove={isFront ? handleMouseMove : undefined}
                   onMouseLeave={isFront ? handleMouseLeave : undefined}
+                  drag={isFront ? "x" : false}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.3}
+                  onDragEnd={isFront ? (e, info) => {
+                    const swipeThreshold = 70;
+                    if (info.offset.x < -swipeThreshold) {
+                      setActiveCardIndex((prev) => (prev + 1) % 4);
+                    } else if (info.offset.x > swipeThreshold) {
+                      setActiveCardIndex((prev) => (prev + 3) % 4);
+                    }
+                  } : undefined}
                   onClick={() => {
                     if (!isFront) {
                       setActiveCardIndex(idx);

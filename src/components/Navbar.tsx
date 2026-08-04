@@ -39,6 +39,16 @@ const defaultDivisions = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  
+  const handleHomeClick = (e: React.MouseEvent) => {
+    if (pathname === '/') {
+      e.preventDefault();
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -173,7 +183,7 @@ export default function Navbar() {
       }`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3.5 group select-none">
+          <Link href="/" onClick={handleHomeClick} className="flex items-center gap-3.5 group select-none">
             <div className="relative w-11 h-11 rounded-xl overflow-hidden border border-white/10 group-hover:border-gold-accent/50 group-hover:scale-105 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.1)]">
               <Image 
                 src={logoUrl} 
@@ -196,6 +206,7 @@ export default function Navbar() {
               <Link 
                 key={link.label}
                 href={link.href} 
+                onClick={link.href === '/' ? handleHomeClick : undefined}
                 className={`relative group py-2 text-[13px] font-semibold tracking-wider uppercase transition-colors duration-300 ${
                   isActive(link.href) ? 'text-gold-soft' : 'text-white/70 hover:text-white'
                 }`}
@@ -412,6 +423,7 @@ export default function Navbar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={item.href === '/' ? handleHomeClick : undefined}
                     className={`py-3.5 px-4 rounded-2xl font-bold text-sm tracking-wide transition-all border border-transparent ${
                       isActive(item.href)
                         ? 'bg-gold-accent/10 border-gold-accent/25 text-gold-soft'

@@ -92,6 +92,17 @@ export default function Home() {
   
   // Real-time states
   const [stats, setStats] = useState({ happyClients: 1500, projects: 1200, software: 120, vehicles: 18, experience: 10 });
+  const [widgetsEnabled, setWidgetsEnabled] = useState({
+    hero: true,
+    divisions: true,
+    brands: true,
+    featured: true,
+    portfolio: true,
+    stats: true,
+    instagram: true,
+    facebook: true,
+    aiConcierge: true
+  });
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
   
   // Contact section form data
@@ -233,6 +244,23 @@ export default function Home() {
       }
     });
 
+    const unsubWidgets = onSnapshot(doc(db, 'settings', 'widgets'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        setWidgetsEnabled({
+          hero: d.hero !== false,
+          divisions: d.divisions !== false,
+          brands: d.brands !== false,
+          featured: d.featured !== false,
+          portfolio: d.portfolio !== false,
+          stats: d.stats !== false,
+          instagram: d.instagram !== false,
+          facebook: d.facebook !== false,
+          aiConcierge: d.aiConcierge !== false
+        });
+      }
+    });
+
     return () => {
       unsubStats();
       unsubPosters();
@@ -242,8 +270,18 @@ export default function Home() {
       unsubInstagram();
       unsubBrands();
       unsubFacebook();
+      unsubWidgets();
     };
   }, []);
+
+  // Dynamic portfolio section tab selector behavior based on switchboard
+  useEffect(() => {
+    if (!widgetsEnabled.portfolio && widgetsEnabled.facebook) {
+      setPortfolioTab('facebook');
+    } else if (widgetsEnabled.portfolio && !widgetsEnabled.facebook) {
+      setPortfolioTab('gallery');
+    }
+  }, [widgetsEnabled.portfolio, widgetsEnabled.facebook]);
 
   // Back to Top scroll listener
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -339,103 +377,107 @@ export default function Home() {
       <main className="flex-1 w-full relative z-10">
         
         {/* 1. Hero Section */}
-        <InteractiveHero />
+        {widgetsEnabled.hero && <InteractiveHero />}
 
         {/* 2. Trusted Companies Marquee (Pause on hover, Grayscale to color) */}
-        <FadeUpSection>
-          <section className="py-12 bg-navy-dark border-b border-white/5 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-6 text-center">
-              <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gray-500 block mb-8">
-                ENDORSED BY SOUTH ASIA'S ELITE BRANDS
-              </span>
-              <div className="marquee-container">
-                <div className="marquee-content flex gap-12 sm:gap-20 items-center">
-                  {brands.map((partner, idx) => (
-                    <span 
-                      key={idx} 
-                      className="font-display font-black text-base sm:text-xl text-white tracking-widest cursor-pointer grayscale-hover"
-                    >
-                      {partner.toUpperCase()}
-                    </span>
-                  ))}
-                </div>
-                {/* Duplicate content for seamless loop */}
-                <div className="marquee-content flex gap-12 sm:gap-20 items-center" aria-hidden="true">
-                  {brands.map((partner, idx) => (
-                    <span 
-                      key={idx} 
-                      className="font-display font-black text-base sm:text-xl text-white tracking-widest cursor-pointer grayscale-hover"
-                    >
-                      {partner.toUpperCase()}
-                    </span>
-                  ))}
+        {widgetsEnabled.brands && (
+          <FadeUpSection>
+            <section className="py-12 bg-navy-dark border-b border-white/5 overflow-hidden">
+              <div className="max-w-7xl mx-auto px-6 text-center">
+                <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gray-500 block mb-8">
+                  ENDORSED BY SOUTH ASIA'S ELITE BRANDS
+                </span>
+                <div className="marquee-container">
+                  <div className="marquee-content flex gap-12 sm:gap-20 items-center">
+                    {brands.map((partner, idx) => (
+                      <span 
+                        key={idx} 
+                        className="font-display font-black text-base sm:text-xl text-white tracking-widest cursor-pointer grayscale-hover"
+                      >
+                        {partner.toUpperCase()}
+                      </span>
+                    ))}
+                  </div>
+                  {/* Duplicate content for seamless loop */}
+                  <div className="marquee-content flex gap-12 sm:gap-20 items-center" aria-hidden="true">
+                    {brands.map((partner, idx) => (
+                      <span 
+                        key={idx} 
+                        className="font-display font-black text-base sm:text-xl text-white tracking-widest cursor-pointer grayscale-hover"
+                      >
+                        {partner.toUpperCase()}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
-        </FadeUpSection>
+            </section>
+          </FadeUpSection>
+        )}
 
         {/* 3. Featured Services (Upgraded luxury glass cards with 32px padding, glow borders) */}
-        <FadeUpSection id="divisions">
-          <section className="section-premium-padding bg-navy-dark relative overflow-hidden">
-            <div className="max-w-7xl mx-auto px-6">
-              
-              <div className="flex flex-col gap-2.5 mb-10 text-center max-w-xl mx-auto">
-                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
-                  OUR CONGLOMERATE STRUCTURE
-                </span>
-                <h2 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-white leading-tight">
-                  Premium Services
-                </h2>
-                <p className="text-xs text-[#BFC8E6]/80 leading-relaxed font-sans">
-                  We bridge physical luxury experience designs and digital system architectures to deliver uncompromised quality.
-                </p>
-              </div>
+        {widgetsEnabled.divisions && (
+          <FadeUpSection id="divisions">
+            <section className="section-premium-padding bg-navy-dark relative overflow-hidden">
+              <div className="max-w-7xl mx-auto px-6">
+                
+                <div className="flex flex-col gap-2.5 mb-10 text-center max-w-xl mx-auto">
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">
+                    OUR CONGLOMERATE STRUCTURE
+                  </span>
+                  <h2 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-white leading-tight">
+                    Premium Services
+                  </h2>
+                  <p className="text-xs text-[#BFC8E6]/80 leading-relaxed font-sans">
+                    We bridge physical luxury experience designs and digital system architectures to deliver uncompromised quality.
+                  </p>
+                </div>
 
-              {/* Service Cards Layout */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[
-                  { title: 'SWS Event Planning', desc: 'Curating royal backdrops, glasshouse wedding canopies, traditional oil lamps, and floral altar layouts.', href: '/divisions/sws-events', icon: Sparkles, color: 'text-purple-400', border: 'hover:border-purple-500/30' },
-                  { title: 'Studio U1 Cinematography', desc: 'Capturing candidates pre-wedding portraits and high-altitude drone clips with custom color-graded edits.', href: '/divisions/u1-studio', icon: Camera, color: 'text-cyan-400', border: 'hover:border-cyan-500/30' },
-                  { title: 'Mahdev ERP Systems', desc: 'Deploying double-entry cloud accounting ledgers, receipt printer POS checkouts, and stock counting modules.', href: '/divisions/erp', icon: Cpu, color: 'text-yellow-400', border: 'hover:border-yellow-500/30' },
-                  { title: 'IT & Cloud Solutions', desc: 'Building secure client databases, custom software developments, and real-time Firebase syncing infrastructures.', href: '/divisions/it-solutions', icon: Globe, color: 'text-blue-400', border: 'hover:border-blue-500/30' },
-                  { title: 'Mahdev Travels', desc: 'Providing VIP Mercedes wedding rentals, BIA airport transfer dispatches, and Ella greenery escapes.', href: '/divisions/travels', icon: Compass, color: 'text-green-400', border: 'hover:border-green-500/30' }
-                ].map((serv, sIdx) => {
-                  const Icon = serv.icon;
-                  return (
-                    <Link
-                      key={sIdx}
-                      href={serv.href}
-                      className={`glass p-6 sm:p-7 rounded-xl border border-white/5 hover:border-gold-accent/30 hover:-translate-y-1.5 transition-all duration-500 flex flex-col justify-between group shadow-lg ${serv.border}`}
-                    >
-                      <div className="flex flex-col gap-4 text-left">
-                        {/* Icon rotates on card hover */}
-                        <div className="w-11 h-11 rounded-xl bg-white/3 flex items-center justify-center border border-white/5 group-hover:border-gold-accent/20 group-hover:bg-white/5 transition-all duration-300 shrink-0">
-                          <Icon className={`w-5.5 h-5.5 ${serv.color} group-hover:rotate-12 transition-transform duration-500`} />
+                {/* Service Cards Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[
+                    { title: 'SWS Event Planning', desc: 'Curating royal backdrops, glasshouse wedding canopies, traditional oil lamps, and floral altar layouts.', href: '/divisions/sws-events', icon: Sparkles, color: 'text-purple-400', border: 'hover:border-purple-500/30' },
+                    { title: 'Studio U1 Cinematography', desc: 'Capturing candidates pre-wedding portraits and high-altitude drone clips with custom color-graded edits.', href: '/divisions/u1-studio', icon: Camera, color: 'text-cyan-400', border: 'hover:border-cyan-500/30' },
+                    { title: 'Mahdev ERP Systems', desc: 'Deploying double-entry cloud accounting ledgers, receipt printer POS checkouts, and stock counting modules.', href: '/divisions/erp', icon: Cpu, color: 'text-yellow-400', border: 'hover:border-yellow-500/30' },
+                    { title: 'IT & Cloud Solutions', desc: 'Building secure client databases, custom software developments, and real-time Firebase syncing infrastructures.', href: '/divisions/it-solutions', icon: Globe, color: 'text-blue-400', border: 'hover:border-blue-500/30' },
+                    { title: 'Mahdev Travels', desc: 'Providing VIP Mercedes wedding rentals, BIA airport transfer dispatches, and Ella greenery escapes.', href: '/divisions/travels', icon: Compass, color: 'text-green-400', border: 'hover:border-green-500/30' }
+                  ].map((serv, sIdx) => {
+                    const Icon = serv.icon;
+                    return (
+                      <Link
+                        key={sIdx}
+                        href={serv.href}
+                        className={`glass p-6 sm:p-7 rounded-xl border border-white/5 hover:border-gold-accent/30 hover:-translate-y-1.5 transition-all duration-500 flex flex-col justify-between group shadow-lg ${serv.border}`}
+                      >
+                        <div className="flex flex-col gap-4 text-left">
+                          {/* Icon rotates on card hover */}
+                          <div className="w-11 h-11 rounded-xl bg-white/3 flex items-center justify-center border border-white/5 group-hover:border-gold-accent/20 group-hover:bg-white/5 transition-all duration-300 shrink-0">
+                            <Icon className={`w-5.5 h-5.5 ${serv.color} group-hover:rotate-12 transition-transform duration-500`} />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <h3 className="font-display font-bold text-lg text-white group-hover:text-gold-soft transition-colors duration-300">
+                              {serv.title}
+                            </h3>
+                            <p className="text-xs text-[#BFC8E6]/80 leading-relaxed font-sans">
+                              {serv.desc}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-2">
-                          <h3 className="font-display font-bold text-lg text-white group-hover:text-gold-soft transition-colors duration-300">
-                            {serv.title}
-                          </h3>
-                          <p className="text-xs text-[#BFC8E6]/80 leading-relaxed font-sans">
-                            {serv.desc}
-                          </p>
+                        
+                        {/* Arrow moves on hover */}
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-gold-soft uppercase tracking-wider mt-5 group-hover:text-white transition-colors duration-300">
+                          Learn More 
+                          <span className="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
                         </div>
-                      </div>
-                      
-                      {/* Arrow moves on hover */}
-                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-gold-soft uppercase tracking-wider mt-5 group-hover:text-white transition-colors duration-300">
-                        Learn More 
-                        <span className="group-hover:translate-x-1.5 transition-transform duration-300">&rarr;</span>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
+                      </Link>
+                    );
+                  })}
+                </div>
 
-            </div>
-          </section>
-        </FadeUpSection>
+              </div>
+            </section>
+          </FadeUpSection>
+        )}
 
         {/* 4. Why Choose Mahdev (WhyChooseUs component) */}
         <FadeUpSection>
@@ -443,246 +485,252 @@ export default function Home() {
         </FadeUpSection>
 
         {/* 5. Featured Projects & Video Showcase (Netflix style featured layout) */}
-        <FadeUpSection id="featured-projects">
-          <section className="section-premium-padding bg-navy-medium relative overflow-hidden border-t border-b border-white/5">
-            <div className="glow-ball glow-ball-gold w-96 h-96 top-20 -left-10 opacity-10" />
-            
-            <div className="max-w-7xl mx-auto px-6 relative z-10">
+        {widgetsEnabled.featured && (
+          <FadeUpSection id="featured-projects">
+            <section className="section-premium-padding bg-navy-medium relative overflow-hidden border-t border-b border-white/5">
+              <div className="glow-ball glow-ball-gold w-96 h-96 top-20 -left-10 opacity-10" />
               
-              <div className="flex flex-col gap-3.5 mb-14 text-left">
-                <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gold-soft flex items-center gap-1.5">
-                  <Award className="w-4 h-4 text-gold-accent" /> CINEMATIC ARCHIVES
-                </span>
-                <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-white">
-                  {featuredData.title}
-                </h2>
-              </div>
-
-              {/* Large Netflix Style Featured Backdrop Banner */}
-              <div className="relative w-full h-[400px] sm:h-[500px] rounded-2xl overflow-hidden border border-white/8 shadow-[0_20px_80px_rgba(0,0,0,0.55)] group mb-12">
-                <Image 
-                  src={featuredData.bannerImg} 
-                  alt="Featured Mughal Wedding Backdrop" 
-                  fill
-                  className="object-cover group-hover:scale-103 transition-transform duration-1000 brightness-75"
-                />
+              <div className="max-w-7xl mx-auto px-6 relative z-10">
                 
-                {/* Dark gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-[#050816]/30 to-transparent" />
-
-                {/* Banner details */}
-                <div className="absolute bottom-10 left-6 sm:left-10 right-6 sm:right-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6 text-left">
-                  <div className="flex flex-col gap-3">
-                    <span className="px-3.5 py-1 rounded-full bg-gold-accent/25 border border-gold-accent/35 text-[9px] text-gold-soft font-bold uppercase tracking-widest max-w-fit">
-                      {featuredData.bannerCategory}
-                    </span>
-                    <h3 className="font-display font-black text-2xl sm:text-4xl text-white">
-                      {featuredData.bannerTitle}
-                    </h3>
-                    <p className="text-xs text-[#BFC8E6]/85 max-w-lg font-sans leading-relaxed">
-                      {featuredData.bannerDesc}
-                    </p>
-                  </div>
-                  
-                  {/* Action buttons */}
-                  <div className="flex items-center gap-4 shrink-0 select-none">
-                    <button
-                      onClick={() => setActiveVideo(featuredData.bannerVideo)}
-                      className="px-6.5 py-4 rounded-2xl bg-white text-navy-dark text-xs font-black tracking-wider uppercase flex items-center gap-2 hover:bg-gold-soft transition-colors duration-300"
-                    >
-                      <Play className="w-4 h-4 fill-current" />
-                      Play Video
-                    </button>
-                    <button 
-                      onClick={() => setBookingOpen(true)}
-                      className="px-6.5 py-4 rounded-2xl glass border border-white/10 hover:border-gold-accent text-white hover:text-gold-soft text-xs font-bold tracking-wider uppercase transition-colors"
-                    >
-                      View Gallery
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Horizontal Scroll Gallery */}
-              <div className="flex flex-col gap-4">
-                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500 text-left">
-                  MORE CINEMATIC WORK SAMPLES
-                </span>
-                
-                <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none snap-x select-none">
-                  {featuredData.samples.map((proj, pIdx) => (
-                    <div 
-                      key={pIdx}
-                      onClick={() => setActiveVideo(proj.video)}
-                      className="w-[260px] sm:w-[320px] h-48 rounded-2xl overflow-hidden relative shrink-0 border border-white/5 cursor-pointer group snap-start shadow-md"
-                    >
-                      <Image 
-                        src={proj.img} 
-                        alt={proj.title} 
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-75"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/95 via-navy-dark/30 to-transparent" />
-                      
-                      {/* Play indicator */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="p-3 rounded-full bg-gold-accent/90 text-navy-dark shadow-lg">
-                          <Play className="w-4 h-4 fill-current translate-x-0.5" />
-                        </div>
-                      </div>
-
-                      <div className="absolute bottom-3 left-4 text-left">
-                        <span className="text-[9px] uppercase tracking-widest text-gold-accent font-bold">{proj.desc}</span>
-                        <h4 className="font-display font-bold text-sm text-white">{proj.title}</h4>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          </section>
-        </FadeUpSection>
-
-        {/* 6. Premium Event Gallery (Pinterest Masonry with category filter & overlay zooms) */}
-        <FadeUpSection>
-          <section className="section-premium-padding bg-navy-dark relative overflow-hidden">
-            <div className="max-w-7xl mx-auto px-6">
-              
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-                <div className="flex flex-col gap-3.5 text-left">
-                  <div className="flex gap-4 mb-4 select-none">
-                    <button
-                      onClick={() => setPortfolioTab('gallery')}
-                      className={`px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all cursor-pointer ${
-                        portfolioTab === 'gallery'
-                          ? 'bg-gold-accent text-navy-dark shadow-md'
-                          : 'glass text-[#BFC8E6]/60 hover:text-white'
-                      }`}
-                    >
-                      Event Portfolio
-                    </button>
-                    <button
-                      onClick={() => setPortfolioTab('facebook')}
-                      className={`px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all flex items-center gap-2 cursor-pointer ${
-                        portfolioTab === 'facebook'
-                          ? 'bg-[#1877F2] text-white shadow-md'
-                          : 'glass text-[#BFC8E6]/60 hover:text-white'
-                      }`}
-                    >
-                      <FaFacebook className="w-4 h-4" /> Facebook Feed
-                    </button>
-                  </div>
-                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">PREMIUM EVENT PORTFOLIO</span>
-                  <h2 className="font-display font-black text-3xl sm:text-4xl text-white">
-                    {portfolioTab === 'gallery' ? 'Event Gallery' : 'Facebook Page Stream'}
+                <div className="flex flex-col gap-3.5 mb-14 text-left">
+                  <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gold-soft flex items-center gap-1.5">
+                    <Award className="w-4 h-4 text-gold-accent" /> CINEMATIC ARCHIVES
+                  </span>
+                  <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-white">
+                    {featuredData.title}
                   </h2>
                 </div>
- 
-                {/* Filters */}
-                {portfolioTab === 'gallery' && (
-                  <div className="flex flex-wrap gap-2 select-none">
-                    {['All', 'Wedding', 'Corporate', 'Cinema', 'Travel', 'Lighting'].map((filt) => (
+
+                {/* Large Netflix Style Featured Backdrop Banner */}
+                <div className="relative w-full h-[400px] sm:h-[500px] rounded-2xl overflow-hidden border border-white/8 shadow-[0_20px_80px_rgba(0,0,0,0.55)] group mb-12">
+                  <Image 
+                    src={featuredData.bannerImg} 
+                    alt="Featured Mughal Wedding Backdrop" 
+                    fill
+                    className="object-cover group-hover:scale-103 transition-transform duration-1000 brightness-75"
+                  />
+                  
+                  {/* Dark gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-[#050816]/30 to-transparent" />
+
+                  {/* Banner details */}
+                  <div className="absolute bottom-10 left-6 sm:left-10 right-6 sm:right-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6 text-left">
+                    <div className="flex flex-col gap-3">
+                      <span className="px-3.5 py-1 rounded-full bg-gold-accent/25 border border-gold-accent/35 text-[9px] text-gold-soft font-bold uppercase tracking-widest max-w-fit">
+                        {featuredData.bannerCategory}
+                      </span>
+                      <h3 className="font-display font-black text-2xl sm:text-4xl text-white">
+                        {featuredData.bannerTitle}
+                      </h3>
+                      <p className="text-xs text-[#BFC8E6]/85 max-w-lg font-sans leading-relaxed">
+                        {featuredData.bannerDesc}
+                      </p>
+                    </div>
+                    
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-4 shrink-0 select-none">
                       <button
-                        key={filt}
-                        onClick={() => setActiveFilter(filt)}
-                        className={`px-4.5 py-2.5 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer ${
-                          activeFilter === filt
-                            ? 'bg-gold-accent/15 border-gold-accent text-gold-soft'
-                            : 'bg-white/2 border-white/5 text-white/60 hover:text-white'
-                        }`}
+                        onClick={() => setActiveVideo(featuredData.bannerVideo)}
+                        className="px-6.5 py-4 rounded-2xl bg-white text-navy-dark text-xs font-black tracking-wider uppercase flex items-center gap-2 hover:bg-gold-soft transition-colors duration-300"
                       >
-                        {filt}
+                        <Play className="w-4 h-4 fill-current" />
+                        Play Video
                       </button>
+                      <button 
+                        onClick={() => setBookingOpen(true)}
+                        className="px-6.5 py-4 rounded-2xl glass border border-white/10 hover:border-gold-accent text-white hover:text-gold-soft text-xs font-bold tracking-wider uppercase transition-colors"
+                      >
+                        View Gallery
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Horizontal Scroll Gallery */}
+                <div className="flex flex-col gap-4">
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gray-500 text-left">
+                    MORE CINEMATIC WORK SAMPLES
+                  </span>
+                  
+                  <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-none snap-x select-none">
+                    {featuredData.samples.map((proj, pIdx) => (
+                      <div 
+                        key={pIdx}
+                        onClick={() => setActiveVideo(proj.video)}
+                        className="w-[260px] sm:w-[320px] h-48 rounded-2xl overflow-hidden relative shrink-0 border border-white/5 cursor-pointer group snap-start shadow-md"
+                      >
+                        <Image 
+                          src={proj.img} 
+                          alt={proj.title} 
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-75"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/95 via-navy-dark/30 to-transparent" />
+                        
+                        {/* Play indicator */}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="p-3 rounded-full bg-gold-accent/90 text-navy-dark shadow-lg">
+                            <Play className="w-4 h-4 fill-current translate-x-0.5" />
+                          </div>
+                        </div>
+
+                        <div className="absolute bottom-3 left-4 text-left">
+                          <span className="text-[9px] uppercase tracking-widest text-gold-accent font-bold">{proj.desc}</span>
+                          <h4 className="font-display font-bold text-sm text-white">{proj.title}</h4>
+                        </div>
+                      </div>
                     ))}
                   </div>
-                )}
+                </div>
+
               </div>
- 
-              {portfolioTab === 'gallery' ? (
-                /* Pinterest Masonry layout */
-                <div className="pinterest-masonry">
-                  {filteredGallery.length === 0 ? (
-                    <div className="col-span-full py-16 text-center text-gray-500 text-xs font-sans uppercase font-bold tracking-widest">
-                      No works uploaded in the portfolio database.
-                    </div>
-                  ) : (
-                    filteredGallery.map((item) => (
-                      <div 
-                        key={item.id}
-                        onClick={() => setSelectedGalleryImage(item.img)}
-                        className="pinterest-item relative rounded-2xl overflow-hidden border border-white/5 cursor-pointer group shadow-lg"
-                      >
-                        <img 
-                          src={item.img} 
-                          alt={item.title} 
-                          className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-100"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5 text-left">
-                          <span className="text-[8px] uppercase tracking-wider text-gold-soft font-bold mb-1 font-sans">{item.category}</span>
-                          <h4 className="font-display font-bold text-base text-white">{item.title}</h4>
-                          <span className="text-[10px] text-gray-400 mt-2 font-sans flex items-center gap-1 hover:underline">
-                            View Image &rarr;
-                          </span>
-                        </div>
+            </section>
+          </FadeUpSection>
+        )}
+
+        {/* 6. Premium Event Gallery (Pinterest Masonry with category filter & overlay zooms) */}
+        {(widgetsEnabled.portfolio || widgetsEnabled.facebook) && (
+          <FadeUpSection>
+            <section className="section-premium-padding bg-navy-dark relative overflow-hidden">
+              <div className="max-w-7xl mx-auto px-6">
+                
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                  <div className="flex flex-col gap-3.5 text-left">
+                    {widgetsEnabled.portfolio && widgetsEnabled.facebook && (
+                      <div className="flex gap-4 mb-4 select-none">
+                        <button
+                          onClick={() => setPortfolioTab('gallery')}
+                          className={`px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all cursor-pointer ${
+                            portfolioTab === 'gallery'
+                              ? 'bg-gold-accent text-navy-dark shadow-md'
+                              : 'glass text-[#BFC8E6]/60 hover:text-white'
+                          }`}
+                        >
+                          Event Portfolio
+                        </button>
+                        <button
+                          onClick={() => setPortfolioTab('facebook')}
+                          className={`px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-all flex items-center gap-2 cursor-pointer ${
+                            portfolioTab === 'facebook'
+                              ? 'bg-[#1877F2] text-white shadow-md'
+                              : 'glass text-[#BFC8E6]/60 hover:text-white'
+                          }`}
+                        >
+                          <FaFacebook className="w-4 h-4" /> Facebook Feed
+                        </button>
                       </div>
-                    ))
+                    )}
+                    <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">PREMIUM EVENT PORTFOLIO</span>
+                    <h2 className="font-display font-black text-3xl sm:text-4xl text-white">
+                      {portfolioTab === 'gallery' ? 'Event Gallery' : 'Facebook Page Stream'}
+                    </h2>
+                  </div>
+   
+                  {/* Filters */}
+                  {portfolioTab === 'gallery' && widgetsEnabled.portfolio && (
+                    <div className="flex flex-wrap gap-2 select-none">
+                      {['All', 'Wedding', 'Corporate', 'Cinema', 'Travel', 'Lighting'].map((filt) => (
+                        <button
+                          key={filt}
+                          onClick={() => setActiveFilter(filt)}
+                          className={`px-4.5 py-2.5 rounded-xl text-xs font-bold border transition-all duration-300 cursor-pointer ${
+                            activeFilter === filt
+                              ? 'bg-gold-accent/15 border-gold-accent text-gold-soft'
+                              : 'bg-white/2 border-white/5 text-white/60 hover:text-white'
+                          }`}
+                        >
+                          {filt}
+                        </button>
+                      ))}
+                    </div>
                   )}
                 </div>
-              ) : (
-                /* Facebook Stream layout */
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-                  {facebookFeed.length === 0 ? (
-                    <div className="col-span-full py-16 text-center text-gray-500 text-xs font-sans uppercase font-bold tracking-widest">
-                      No Facebook posts synchronized yet. Connect Facebook in Admin Settings to load.
-                    </div>
-                  ) : (
-                    facebookFeed.map((post: any, idx: number) => (
-                      <div key={idx} className="glass rounded-3xl p-5 border border-white/5 flex flex-col gap-4 shadow-lg hover:border-[#1877F2]/40 hover:-translate-y-1 transition-all duration-300">
-                        {/* Header */}
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-[#1877F2]/10 border border-[#1877F2]/20 flex items-center justify-center text-[#1877F2]">
-                            <FaFacebook className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <span className="block font-display font-bold text-xs text-white">Mahdev Pvt Ltd</span>
-                            <span className="block text-[8px] text-gray-500 font-sans">{post.date || 'Just now'}</span>
-                          </div>
-                        </div>
-                        {/* Message / Caption */}
-                        {post.message && (
-                          <p className="text-xs text-[#BFC8E6]/85 font-sans leading-relaxed line-clamp-3">
-                            {post.message}
-                          </p>
-                        )}
-                        {/* Image */}
-                        {post.image && (
-                          <div className="relative h-48 rounded-2xl overflow-hidden border border-white/5">
-                            <img src={post.image} alt="Facebook Post Media" className="w-full h-full object-cover" />
-                          </div>
-                        )}
-                        {/* Footer stats */}
-                        <div className="flex justify-between items-center text-[10px] font-sans text-gray-500 mt-2 border-t border-white/5 pt-3">
-                          <span>👍 {post.likes || 0} Likes</span>
-                          <a 
-                            href={post.link || 'https://facebook.com/mahdev'} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-[#1877F2] font-bold hover:underline"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            View on Facebook →
-                          </a>
-                        </div>
+   
+                {portfolioTab === 'gallery' && widgetsEnabled.portfolio ? (
+                  /* Pinterest Masonry layout */
+                  <div className="pinterest-masonry">
+                    {filteredGallery.length === 0 ? (
+                      <div className="col-span-full py-16 text-center text-gray-500 text-xs font-sans uppercase font-bold tracking-widest">
+                        No works uploaded in the portfolio database.
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
- 
-            </div>
-          </section>
-        </FadeUpSection>
+                    ) : (
+                      filteredGallery.map((item) => (
+                        <div 
+                          key={item.id}
+                          onClick={() => setSelectedGalleryImage(item.img)}
+                          className="pinterest-item relative rounded-2xl overflow-hidden border border-white/5 cursor-pointer group shadow-lg"
+                        >
+                          <img 
+                            src={item.img} 
+                            alt={item.title} 
+                            className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-100"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5 text-left">
+                            <span className="text-[8px] uppercase tracking-wider text-gold-soft font-bold mb-1 font-sans">{item.category}</span>
+                            <h4 className="font-display font-bold text-base text-white">{item.title}</h4>
+                            <span className="text-[10px] text-gray-400 mt-2 font-sans flex items-center gap-1 hover:underline">
+                              View Image &rarr;
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                ) : portfolioTab === 'facebook' && widgetsEnabled.facebook ? (
+                  /* Facebook Stream layout */
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+                    {facebookFeed.length === 0 ? (
+                      <div className="col-span-full py-16 text-center text-gray-500 text-xs font-sans uppercase font-bold tracking-widest">
+                        No Facebook posts synchronized yet. Connect Facebook in Admin Settings to load.
+                      </div>
+                    ) : (
+                      facebookFeed.map((post: any, idx: number) => (
+                        <div key={idx} className="glass rounded-3xl p-5 border border-white/5 flex flex-col gap-4 shadow-lg hover:border-[#1877F2]/40 hover:-translate-y-1 transition-all duration-300">
+                          {/* Header */}
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-[#1877F2]/10 border border-[#1877F2]/20 flex items-center justify-center text-[#1877F2]">
+                              <FaFacebook className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <span className="block font-display font-bold text-xs text-white">Mahdev Pvt Ltd</span>
+                              <span className="block text-[8px] text-gray-500 font-sans">{post.date || 'Just now'}</span>
+                            </div>
+                          </div>
+                          {/* Message / Caption */}
+                          {post.message && (
+                            <p className="text-xs text-[#BFC8E6]/85 font-sans leading-relaxed line-clamp-3">
+                              {post.message}
+                            </p>
+                          )}
+                          {/* Image */}
+                          {post.image && (
+                            <div className="relative h-48 rounded-2xl overflow-hidden border border-white/5">
+                              <img src={post.image} alt="Facebook Post Media" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          {/* Footer stats */}
+                          <div className="flex justify-between items-center text-[10px] font-sans text-gray-500 mt-2 border-t border-white/5 pt-3">
+                            <span>👍 {post.likes || 0} Likes</span>
+                            <a 
+                              href={post.link || 'https://facebook.com/mahdev'} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="text-[#1877F2] font-bold hover:underline"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              View on Facebook →
+                            </a>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                ) : null}
+   
+              </div>
+            </section>
+          </FadeUpSection>
+        )}
 
         {/* Custom Premium Features: Before/After Slider & 360° Venue Viewer */}
         <FadeUpSection>
@@ -822,73 +870,77 @@ export default function Home() {
         </FadeUpSection>
 
         {/* 11. Instagram Feed Grid (Simulated live feed) */}
-        <FadeUpSection>
-          <section className="section-premium-padding bg-navy-dark relative overflow-hidden border-t border-white/5">
-            <div className="max-w-7xl mx-auto px-6 text-center">
-              
-              <div className="flex flex-col gap-3.5 mb-14">
-                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">SOCIAL DIARY</span>
-                <h2 className="font-display font-black text-3xl text-white">Instagram Feed</h2>
-                <p className="text-xs text-[#BFC8E6]/80 max-w-sm mx-auto font-sans">Follow our live decoration setups and software deployment runs on social media handles.</p>
-              </div>
+        {widgetsEnabled.instagram && (
+          <FadeUpSection>
+            <section className="section-premium-padding bg-navy-dark relative overflow-hidden border-t border-white/5">
+              <div className="max-w-7xl mx-auto px-6 text-center">
+                
+                <div className="flex flex-col gap-3.5 mb-14">
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">SOCIAL DIARY</span>
+                  <h2 className="font-display font-black text-3xl text-white">Instagram Feed</h2>
+                  <p className="text-xs text-[#BFC8E6]/80 max-w-sm mx-auto font-sans">Follow our live decoration setups and software deployment runs on social media handles.</p>
+                </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                {instagramFeed.map((img, idx) => {
-                  const imageUrl = typeof img === 'string' ? img : ((img as any).url || (img as any).media_url || '');
-                  const postLink = typeof img === 'string' ? 'https://instagram.com/mahdev_pvt_ltd' : ((img as any).link || (img as any).permalink || 'https://instagram.com/mahdev_pvt_ltd');
-                  return (
-                    <a 
-                      key={idx} 
-                      href={postLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="relative h-36 rounded-2xl overflow-hidden border border-white/10 shadow-sm cursor-pointer group block"
-                    >
-                      <Image 
-                        src={imageUrl} 
-                        alt="Instagram Post" 
-                        fill 
-                        className="object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-90 group-hover:brightness-100" 
-                      />
-                      <div className="absolute inset-0 bg-gold-accent/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                        <span className="text-[9px] font-black font-sans uppercase tracking-wider bg-navy-dark/80 px-2.5 py-1.5 rounded-xl border border-white/10">VIEW POST</span>
-                      </div>
-                    </a>
-                  );
-                })}
-              </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {instagramFeed.map((img, idx) => {
+                    const imageUrl = typeof img === 'string' ? img : ((img as any).url || (img as any).media_url || '');
+                    const postLink = typeof img === 'string' ? 'https://instagram.com/mahdev_pvt_ltd' : ((img as any).link || (img as any).permalink || 'https://instagram.com/mahdev_pvt_ltd');
+                    return (
+                      <a 
+                        key={idx} 
+                        href={postLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative h-36 rounded-2xl overflow-hidden border border-white/10 shadow-sm cursor-pointer group block"
+                      >
+                        <Image 
+                          src={imageUrl} 
+                          alt="Instagram Post" 
+                          fill 
+                          className="object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-90 group-hover:brightness-100" 
+                        />
+                        <div className="absolute inset-0 bg-gold-accent/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                          <span className="text-[9px] font-black font-sans uppercase tracking-wider bg-navy-dark/80 px-2.5 py-1.5 rounded-xl border border-white/10">VIEW POST</span>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
 
-            </div>
-          </section>
-        </FadeUpSection>
+              </div>
+            </section>
+          </FadeUpSection>
+        )}
 
         {/* 12. Statistics (Animated number counters) */}
-        <FadeUpSection>
-          <section className="py-20 bg-navy-medium border-t border-b border-white/5 relative overflow-hidden">
-            <div className="max-w-7xl mx-auto px-6">
-              
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center select-none">
-                {[
-                  { label: 'Happy Clients', count: stats.happyClients, suffix: '+' },
-                  { label: 'Events Completed', count: stats.projects, suffix: '+' },
-                  { label: 'Software Projects', count: stats.software, suffix: '+' },
-                  { label: 'Vehicles In Fleet', count: stats.vehicles, suffix: '' },
-                  { label: 'Years Experience', count: stats.experience, suffix: '+' }
-                ].map((st, idx) => (
-                  <div key={idx} className="glass p-6 rounded-xl border border-white/5 flex flex-col gap-2.5 shadow-md hover:border-gold-accent/25 hover:-translate-y-1.5 transition-all duration-300">
-                    <span className="text-3xl sm:text-4xl font-display font-black leading-none">
-                      <CounterNumber value={st.count} suffix={st.suffix} />
-                    </span>
-                    <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider font-sans">
-                      {st.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
+        {widgetsEnabled.stats && (
+          <FadeUpSection>
+            <section className="py-20 bg-navy-medium border-t border-b border-white/5 relative overflow-hidden">
+              <div className="max-w-7xl mx-auto px-6">
+                
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center select-none">
+                  {[
+                    { label: 'Happy Clients', count: stats.happyClients, suffix: '+' },
+                    { label: 'Events Completed', count: stats.projects, suffix: '+' },
+                    { label: 'Software Projects', count: stats.software, suffix: '+' },
+                    { label: 'Vehicles In Fleet', count: stats.vehicles, suffix: '' },
+                    { label: 'Years Experience', count: stats.experience, suffix: '+' }
+                  ].map((st, idx) => (
+                    <div key={idx} className="glass p-6 rounded-xl border border-white/5 flex flex-col gap-2.5 shadow-md hover:border-gold-accent/25 hover:-translate-y-1.5 transition-all duration-300">
+                      <span className="text-3xl sm:text-4xl font-display font-black leading-none">
+                        <CounterNumber value={st.count} suffix={st.suffix} />
+                      </span>
+                      <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider font-sans">
+                        {st.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
 
-            </div>
-          </section>
-        </FadeUpSection>
+              </div>
+            </section>
+          </FadeUpSection>
+        )}
 
         {/* Interactive Group History Timeline */}
         <FadeUpSection>
@@ -1069,7 +1121,9 @@ export default function Home() {
       <GlobalSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
       {/* Floating AI Chat Assistant Support widget */}
-      <AIAssistant onOpenBooking={() => setBookingOpen(true)} />
+      {widgetsEnabled.aiConcierge && (
+        <AIAssistant onOpenBooking={() => setBookingOpen(true)} />
+      )}
 
       {/* Client Portal login panel slide-over */}
       <ClientLoginPortal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />

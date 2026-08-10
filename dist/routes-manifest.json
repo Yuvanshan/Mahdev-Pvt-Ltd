@@ -59,6 +59,12 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/about",
+      "regex": "^/about(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/about(?:/)?$"
+    },
+    {
       "page": "/api/send-email",
       "regex": "^/api/send\\-email(?:/)?$",
       "routeKeys": {},
@@ -89,36 +95,6 @@
       "namedRegex": "^/contact(?:/)?$"
     },
     {
-      "page": "/divisions/erp",
-      "regex": "^/divisions/erp(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/divisions/erp(?:/)?$"
-    },
-    {
-      "page": "/divisions/it-solutions",
-      "regex": "^/divisions/it\\-solutions(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/divisions/it\\-solutions(?:/)?$"
-    },
-    {
-      "page": "/divisions/sws-events",
-      "regex": "^/divisions/sws\\-events(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/divisions/sws\\-events(?:/)?$"
-    },
-    {
-      "page": "/divisions/travels",
-      "regex": "^/divisions/travels(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/divisions/travels(?:/)?$"
-    },
-    {
-      "page": "/divisions/u1-studio",
-      "regex": "^/divisions/u1\\-studio(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/divisions/u1\\-studio(?:/)?$"
-    },
-    {
       "page": "/favicon.ico",
       "regex": "^/favicon\\.ico(?:/)?$",
       "routeKeys": {},
@@ -129,6 +105,18 @@
       "regex": "^/portfolio(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/portfolio(?:/)?$"
+    },
+    {
+      "page": "/privacy",
+      "regex": "^/privacy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/privacy(?:/)?$"
+    },
+    {
+      "page": "/terms",
+      "regex": "^/terms(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terms(?:/)?$"
     }
   ],
   "dataRoutes": [],

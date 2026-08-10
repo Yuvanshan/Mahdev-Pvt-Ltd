@@ -28,6 +28,7 @@ import {
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, doc } from 'firebase/firestore';
 import GlobalSearch from './GlobalSearch';
+import { useLanguage } from '@/context/LanguageContext';
 
 const defaultDivisions = [
   { name: 'SWS Events', href: '/divisions/sws-events', icon: Sparkles, color: 'text-purple-400' },
@@ -57,29 +58,8 @@ export default function Navbar() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [logoUrl, setLogoUrl] = useState('/images/logo.png');
   
-  // Theme and Language simulation
-  const [language, setLanguage] = useState<'EN' | 'SI' | 'TA'>('EN');
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    } else {
-      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-      const initialTheme = prefersLight ? 'light' : 'dark';
-      setTheme(initialTheme);
-      document.documentElement.setAttribute('data-theme', initialTheme);
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    localStorage.setItem('theme', nextTheme);
-    document.documentElement.setAttribute('data-theme', nextTheme);
-  };
+  // Consume language & theme from global context
+  const { language, setLanguage, theme, toggleTheme, t } = useLanguage();
 
   // Dynamic branding loader (logo and favicon updates)
   useEffect(() => {
@@ -123,7 +103,7 @@ export default function Navbar() {
           const d = docDoc.data();
           const href = d.slug === 'erp' ? '/divisions/erp' : `/divisions/${d.slug}`;
           return {
-            name: d.name,
+            name: d.name, // Keep the localized map or dynamic string
             href,
             icon: d.type === 'events' ? Sparkles : d.type === 'photography' ? Camera : d.type === 'it' ? Cpu : Compass,
             color: d.type === 'events' ? 'text-purple-400' : d.type === 'photography' ? 'text-cyan-400' : d.type === 'it' ? 'text-blue-400' : 'text-green-400'
@@ -201,7 +181,7 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8 font-sans">
             {[
-              { label: 'Home', href: '/' },
+              { label: 'home', href: '/' },
             ].map((link) => (
               <Link 
                 key={link.label}
@@ -211,7 +191,7 @@ export default function Navbar() {
                   isActive(link.href) ? 'text-gold-soft' : 'text-white/70 hover:text-white'
                 }`}
               >
-                <span>{link.label}</span>
+                <span>{t(link.label)}</span>
                 <span className={`absolute bottom-0 left-0 h-[2px] bg-gold-accent transition-all duration-300 flex items-center overflow-hidden ${
                   isActive(link.href) ? 'w-full' : 'w-0 group-hover:w-full'
                 }`}>
@@ -232,7 +212,7 @@ export default function Navbar() {
                   isDivisionActive() ? 'text-gold-soft' : 'text-white/70 hover:text-white'
                 }`}
               >
-                Divisions
+                {t('divisions')}
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -250,7 +230,7 @@ export default function Navbar() {
                         const Icon = div.icon;
                         return (
                           <Link
-                            key={div.name}
+                            key={div.href}
                             href={div.href}
                             className={`flex items-center gap-3.5 px-4.5 py-3.5 rounded-2xl transition-all duration-300 border border-transparent ${
                               isActive(div.href) 
@@ -261,7 +241,7 @@ export default function Navbar() {
                             <div className="p-2.5 rounded-xl bg-white/5 group-hover:bg-white/10 transition-colors">
                               <Icon className={`w-5 h-5 ${div.color}`} />
                             </div>
-                            <span className="font-display text-[14px] font-bold tracking-wide">{div.name}</span>
+                            <span className="font-display text-[14px] font-bold tracking-wide">{t(div.name)}</span>
                           </Link>
                         );
                       })}
@@ -272,10 +252,10 @@ export default function Navbar() {
             </div>
 
             {[
-              { label: 'Portfolio', href: '/portfolio' },
-              { label: 'Blog', href: '/blog' },
-              { label: 'Careers', href: '/careers' },
-              { label: 'Contact', href: '/contact' },
+              { label: 'portfolio', href: '/portfolio' },
+              { label: 'blog', href: '/blog' },
+              { label: 'careers', href: '/careers' },
+              { label: 'contact', href: '/contact' },
             ].map((link) => (
               <Link 
                 key={link.label}
@@ -284,7 +264,7 @@ export default function Navbar() {
                   isActive(link.href) ? 'text-gold-soft' : 'text-white/70 hover:text-white'
                 }`}
               >
-                <span>{link.label}</span>
+                <span>{t(link.label)}</span>
                 <span className={`absolute bottom-0 left-0 h-[2px] bg-gold-accent transition-all duration-300 flex items-center overflow-hidden ${
                   isActive(link.href) ? 'w-full' : 'w-0 group-hover:w-full'
                 }`}>
@@ -345,7 +325,7 @@ export default function Navbar() {
               href="/contact"
               className="px-6 py-3 text-[11px] tracking-widest font-black uppercase luxury-btn luxury-btn-gold"
             >
-              Get a Quote
+              {t('get_quote')}
             </Link>
           </div>
 
@@ -411,14 +391,14 @@ export default function Navbar() {
 
               {/* Navigation Links */}
               <div className="flex-1 flex flex-col gap-4 text-left font-sans">
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">Navigation</span>
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1">{t('navigation')}</span>
                 
                 {[
-                  { label: 'Home', href: '/' },
-                  { label: 'Portfolio', href: '/portfolio' },
-                  { label: 'Blog', href: '/blog' },
-                  { label: 'Careers', href: '/careers' },
-                  { label: 'Contact', href: '/contact' }
+                  { label: 'home', href: '/' },
+                  { label: 'portfolio', href: '/portfolio' },
+                  { label: 'blog', href: '/blog' },
+                  { label: 'careers', href: '/careers' },
+                  { label: 'contact', href: '/contact' }
                 ].map((item) => (
                   <Link
                     key={item.href}
@@ -430,23 +410,23 @@ export default function Navbar() {
                         : 'bg-white/2 border border-white/3 text-white/80 hover:text-white'
                     }`}
                   >
-                    {item.label}
+                    {t(item.label)}
                   </Link>
                 ))}
 
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mt-4 mb-1">Conglomerate Divisions</span>
+                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mt-4 mb-1">{t('conglomerate_divisions')}</span>
                 <div className="grid gap-2">
                   {divisions.map((div) => {
                     const Icon = div.icon;
                     return (
                       <Link
-                        key={div.name}
+                        key={div.href}
                         href={div.href}
                         className="flex items-center justify-between p-3.5 rounded-2xl bg-white/2 border border-white/3 hover:border-gold-accent/25 text-white/80 hover:text-white transition-all group"
                       >
                         <div className="flex items-center gap-3">
                           <Icon className={`w-5 h-5 ${div.color}`} />
-                          <span className="font-display text-xs font-bold tracking-wide">{div.name}</span>
+                          <span className="font-display text-xs font-bold tracking-wide">{t(div.name)}</span>
                         </div>
                         <span className="text-[8px] uppercase font-bold text-gold-accent tracking-wider group-hover:translate-x-1 transition-transform">→</span>
                       </Link>
@@ -478,7 +458,7 @@ export default function Navbar() {
                   href="/contact"
                   className="py-4 text-center rounded-2xl bg-gradient-to-r from-gold-accent to-gold-soft text-navy-dark font-sans text-xs font-black tracking-widest uppercase hover:brightness-110 shadow-lg shadow-gold-accent/15 transition-all"
                 >
-                  GET A QUOTE
+                  {t('get_quote')}
                 </Link>
               </div>
             </motion.div>

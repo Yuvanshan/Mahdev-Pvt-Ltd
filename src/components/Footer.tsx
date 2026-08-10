@@ -16,11 +16,27 @@ import {
 import confetti from 'canvas-confetti';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Footer() {
+  const { language, t } = useLanguage();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [logoUrl, setLogoUrl] = useState('/images/logo.png');
+  const [footerData, setFooterData] = useState<any>({
+    description: {
+      en: 'An international elite corporate conglomerate providing enterprise-grade ERP architecture, Studio U1 cinematography, SWS event management, and premium travels.',
+      si: 'ව්‍යවසාය මට්ටමේ ඊආර්පී (ERP) පද්ධති, චිත්‍රපටකරණය, ඉසව් කළමනාකරණය සහ සුඛෝපභෝගී සංචාරක සේවා සපයන ප්‍රමුඛ ජාත්‍යන්තර සමාගමකි.',
+      ta: 'நிறுவன அளவிலான ஈஆர்பி (ERP) மென்பொருள், திரைப்படக் கலை, நிகழ்வு மேலாண்மை மற்றும் சொகுசு போக்குவரத்து வழங்கும் முன்னணி கூட்டு நிறுவனம்.'
+    },
+    businessHours: {
+      en: 'Mon - Fri: 8:30AM - 5:30PM\nSat: 9:00AM - 1:00PM',
+      si: 'සඳුදා - සිකුරාදා: පෙ.ව. 8:30 - ප.ව. 5:30\nසෙනසුරාදා: පෙ.ව. 9:00 - ප.ව. 1:00',
+      ta: 'திங்கள் - வெள்ளி: மு.ப. 8:30 - பி.ப. 5:30\nசனி: மு.ப. 9:00 - பி.ப. 1:00'
+    },
+    phone: '076 898 8970',
+    email: 'info.mahdev.lk@gmail.com'
+  });
 
   useEffect(() => {
     const unsubBranding = onSnapshot(doc(db, 'settings', 'branding'), (snap) => {
@@ -29,7 +45,21 @@ export default function Footer() {
         if (d.logoUrl) setLogoUrl(d.logoUrl);
       }
     });
-    return () => unsubBranding();
+
+    const unsubFooter = onSnapshot(doc(db, 'settings', 'footer'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        setFooterData((prev: any) => ({
+          ...prev,
+          ...d
+        }));
+      }
+    });
+
+    return () => {
+      unsubBranding();
+      unsubFooter();
+    };
   }, []);
 
   const handleSubscribe = (e: React.FormEvent) => {
@@ -82,7 +112,7 @@ export default function Footer() {
             </Link>
 
             <p className="text-gray-400 font-sans text-xs sm:text-sm leading-relaxed max-w-sm text-left">
-              An international elite corporate conglomerate providing enterprise-grade ERP architecture, Studio U1 cinematography, SWS event management, and premium travels.
+              {t(footerData.description)}
             </p>
 
             {/* Social Links */}
@@ -91,7 +121,7 @@ export default function Footer() {
                 { icon: FaFacebook, href: 'https://facebook.com/mahdev' },
                 { icon: FaInstagram, href: 'https://instagram.com/mahdev' },
                 { icon: FaLinkedin, href: 'https://linkedin.com/company/mahdev' },
-                { icon: FaWhatsapp, href: 'https://wa.me/94768988970' }
+                { icon: FaWhatsapp, href: `https://wa.me/${footerData.phone?.replace(/[^0-9]/g, '')}` }
               ].map((social, idx) => {
                 const Icon = social.icon;
                 return (
@@ -110,18 +140,18 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div className="lg:col-span-2 flex flex-col gap-4 text-left">
-            <h4 className="font-display text-xs font-bold uppercase text-gold-accent tracking-wider">Company</h4>
+            <h4 className="font-display text-xs font-bold uppercase text-gold-accent tracking-wider">{t('navigation')}</h4>
             <div className="flex flex-col gap-2.5 font-sans text-xs sm:text-sm">
-              <Link href="/" className="text-gray-400 hover:text-white transition-colors">Home</Link>
-              <Link href="/portfolio" className="text-gray-400 hover:text-white transition-colors">Case Studies</Link>
-              <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Branch Locations</Link>
-              <Link href="/careers" className="text-gray-400 hover:text-white transition-colors">Careers</Link>
+              <Link href="/" className="text-gray-400 hover:text-white transition-colors">{t('home')}</Link>
+              <Link href="/portfolio" className="text-gray-400 hover:text-white transition-colors">{t('portfolio')}</Link>
+              <Link href="/careers" className="text-gray-400 hover:text-white transition-colors">{t('careers')}</Link>
+              <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">{t('contact')}</Link>
             </div>
           </div>
 
           {/* Services */}
           <div className="lg:col-span-2 flex flex-col gap-4 text-left">
-            <h4 className="font-display text-xs font-bold uppercase text-gold-accent tracking-wider">Services</h4>
+            <h4 className="font-display text-xs font-bold uppercase text-gold-accent tracking-wider">{t('divisions')}</h4>
             <div className="flex flex-col gap-2.5 font-sans text-xs sm:text-sm">
               <Link href="/divisions/sws-events" className="text-gray-400 hover:text-white transition-colors">SWS Events</Link>
               <Link href="/divisions/u1-studio" className="text-gray-400 hover:text-white transition-colors">U1 Photography</Link>
@@ -133,31 +163,30 @@ export default function Footer() {
 
           {/* Contact Details & Hours */}
           <div className="lg:col-span-3 flex flex-col gap-4 text-left font-sans text-xs sm:text-sm">
-            <h4 className="font-display text-xs font-bold uppercase text-gold-accent tracking-wider">Contact & Hours</h4>
+            <h4 className="font-display text-xs font-bold uppercase text-gold-accent tracking-wider">{t('contact')}</h4>
             
             <div className="flex flex-col gap-3 text-gray-400">
               <div className="flex gap-2.5 items-start">
                 <Clock className="w-4 h-4 text-gold-accent shrink-0 mt-0.5" />
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-gray-500">Business Hours</span>
-                  <span className="text-xs text-white">Mon - Fri: 8:30AM - 5:30PM</span>
-                  <span className="block text-xs text-white">Sat: 9:00AM - 1:00PM</span>
+                  <span className="block text-[10px] uppercase font-bold text-gray-500">{t('Working Hours')}</span>
+                  <span className="text-xs text-white whitespace-pre-line">{t(footerData.businessHours)}</span>
                 </div>
               </div>
 
               <div className="flex gap-2.5 items-center">
                 <Phone className="w-4 h-4 text-gold-accent shrink-0" />
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-gray-500">Call Us</span>
-                  <span className="text-xs text-white">076 898 8970</span>
+                  <span className="block text-[10px] uppercase font-bold text-gray-500">{t('Call Us')}</span>
+                  <span className="text-xs text-white">{footerData.phone}</span>
                 </div>
               </div>
 
               <div className="flex gap-2.5 items-center">
                 <Mail className="w-4 h-4 text-gold-accent shrink-0" />
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-gray-500">Email</span>
-                  <span className="text-xs text-white">info.mahdev.lk@gmail.com</span>
+                  <span className="block text-[10px] uppercase font-bold text-gray-500">{t('Email')}</span>
+                  <span className="text-xs text-white">{footerData.email}</span>
                 </div>
               </div>
             </div>
@@ -166,12 +195,12 @@ export default function Footer() {
           {/* Google Maps & Newsletter */}
           <div className="lg:col-span-2 flex flex-col gap-5 text-left">
             <div className="flex flex-col gap-3">
-              <h4 className="font-display text-xs font-bold uppercase text-gold-accent tracking-wider">Newsletter</h4>
+              <h4 className="font-display text-xs font-bold uppercase text-gold-accent tracking-wider">{t('Newsletter')}</h4>
               
               <form onSubmit={handleSubscribe} className="relative flex items-center">
                 <input 
                   type="email" 
-                  placeholder="Enter your email" 
+                  placeholder={t('Enter your email')} 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -203,10 +232,10 @@ export default function Footer() {
 
         {/* Footer Bottom */}
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-6 font-sans text-xs text-gray-500">
-          <p>© {new Date().getFullYear()} Mahdev Pvt Ltd. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Mahdev Pvt Ltd. {t('All rights reserved.')}</p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms of Service</Link>
+            <Link href="/privacy" className="hover:text-gray-300 transition-colors">{t('Privacy Policy')}</Link>
+            <Link href="/terms" className="hover:text-gray-300 transition-colors">{t('Terms of Service')}</Link>
           </div>
         </div>
       </div>

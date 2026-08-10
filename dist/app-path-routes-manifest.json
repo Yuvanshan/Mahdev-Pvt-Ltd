@@ -1,6 +1,7 @@
 {
   "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
+  "/about/page": "/about",
   "/api/send-email/route": "/api/send-email",
   "/api/upload/route": "/api/upload",
   "/blog/[slug]/page": "/blog/[slug]",
@@ -8,12 +9,9 @@
   "/careers/page": "/careers",
   "/contact/page": "/contact",
   "/divisions/[slug]/page": "/divisions/[slug]",
-  "/divisions/erp/page": "/divisions/erp",
-  "/divisions/it-solutions/page": "/divisions/it-solutions",
-  "/divisions/sws-events/page": "/divisions/sws-events",
-  "/divisions/travels/page": "/divisions/travels",
-  "/divisions/u1-studio/page": "/divisions/u1-studio",
   "/favicon.ico/route": "/favicon.ico",
   "/page": "/",
-  "/portfolio/page": "/portfolio"
+  "/portfolio/page": "/portfolio",
+  "/privacy/page": "/privacy",
+  "/terms/page": "/terms"
 }

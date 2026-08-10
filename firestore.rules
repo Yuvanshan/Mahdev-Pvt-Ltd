@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: Checks if the user is authenticated with Firebase Auth
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // Settings (branding, homepage configurations, widgets switchboard, translation arrays)
+    match /settings/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Public Read-Only Collections (testimonials, gallery, divisions portfolio, case studies, stats)
+    match /testimonials/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /gallery/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /divisions/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /case_studies/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /awards/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /stats/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Form submission collections (contact messages, bookings, leads, job applications)
+    match /contact/{document} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    match /inquiries/{document} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    match /bookings/{document} {
+      allow read: if true; // Allowed so bookings calculator can verify duplicate slots
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    match /leads/{document} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    match /applications/{document} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Default rule: reject everything else
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

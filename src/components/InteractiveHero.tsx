@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, useAnimation, useInView } from 'framer-motion';
-import { ArrowRight, Sparkles, Play, Calendar, MapPin, PlayCircle, Volume2, VolumeX } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Sparkles, Play, MapPin, Volume2, VolumeX } from 'lucide-react';
 import * as THREE from 'three';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { getMediaType, getYouTubeId } from '@/lib/media';
+import { useLanguage } from '@/context/LanguageContext';
 
 const heroBulletTags = ['Events', 'Software', 'Media', 'Travels'];
 
@@ -56,6 +57,7 @@ const defaultHeroCards = [
 ];
 
 export default function InteractiveHero() {
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -269,8 +271,8 @@ export default function InteractiveHero() {
   } as any;
 
   const textLines = [
-    { text: heroData.title1, class: "text-white" },
-    { text: heroData.title2, class: "text-gradient-gold" }
+    { text: t(heroData.title1), class: "text-white" },
+    { text: t(heroData.title2), class: "text-gradient-gold" }
   ];
 
   return (
@@ -291,17 +293,12 @@ export default function InteractiveHero() {
         <div className="lg:col-span-7 flex flex-col gap-8 text-left" style={{ transform: `translateY(${parallaxY * -0.2}px)` }}>
           
           {/* Floating Luxury Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2.5 px-4.5 py-2 rounded-full glass border border-gold-accent/25 max-w-fit shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:border-gold-accent/40 transition-colors"
-          >
+          <div className="inline-flex items-center gap-2.5 px-4.5 py-2 rounded-full glass border border-gold-accent/25 max-w-fit shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:border-gold-accent/40 transition-colors">
             <Sparkles className="w-4.5 h-4.5 text-gold-soft animate-pulse" />
             <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gold-soft">
-              ONE PREMIUM COMPANY
+              {t('one_premium_company')}
             </span>
-          </motion.div>
+          </div>
 
           {/* Heading with sequential word fades */}
           <div className="flex flex-col gap-4">
@@ -325,13 +322,8 @@ export default function InteractiveHero() {
             </h1>
 
             {/* Division Bullet Indicators */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.8 }}
-              className="flex flex-wrap items-center gap-2.5 font-sans mt-2"
-            >
-              <span className="text-xs font-semibold text-white/50 mr-1.5">Focus Sectors:</span>
+            <div className="flex flex-wrap items-center gap-2.5 font-sans mt-2">
+              <span className="text-xs font-semibold text-white/50 mr-1.5">{t('focus_sectors')}</span>
               {heroBulletTags.map((tag, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   {idx > 0 && <span className="w-1.5 h-1.5 rounded-full bg-white/20" />}
@@ -340,40 +332,30 @@ export default function InteractiveHero() {
                   </span>
                 </div>
               ))}
-            </motion.div>
+            </div>
           </div>
 
           {/* Luxury Description Paragraph */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="font-sans text-[#BFC8E6] text-base sm:text-[17px] leading-relaxed max-w-xl text-left font-light"
-          >
-            {heroData.desc}
-          </motion.p>
+          <p className="font-sans text-[#BFC8E6] text-base sm:text-[17px] leading-relaxed max-w-xl text-left font-light">
+            {t(heroData.desc)}
+          </p>
 
           {/* Action Call to Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.9 }}
-            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 mt-3 select-none"
-          >
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 mt-3 select-none">
             <Link 
               href="#featured-projects"
               className="px-8 py-4.5 rounded-2xl flex items-center justify-center gap-2.5 luxury-btn luxury-btn-gold text-[12px] tracking-widest font-black uppercase text-center cursor-pointer shadow-lg"
             >
-              Explore Our Work
+              {t('explore_our_work')}
               <ArrowRight className="w-4.5 h-4.5" />
             </Link>
             <Link 
               href="#contact"
               className="px-8 py-4.5 rounded-2xl flex items-center justify-center gap-2.5 luxury-btn text-[12px] tracking-widest font-bold uppercase text-center cursor-pointer"
             >
-              Get a Quote
+              {t('get_quote')}
             </Link>
-          </motion.div>
+          </div>
         </div>
 
         {/* Right Side Video Showcase (3D Glass Cards Stack) */}
@@ -504,12 +486,12 @@ export default function InteractiveHero() {
                     <div className="flex items-center gap-2">
                       <div className={`w-2.5 h-2.5 rounded-full ${isFront ? 'bg-emerald-500 animate-pulse' : 'bg-white/30'}`} />
                       <span className={`text-[10px] uppercase font-black tracking-wider font-sans ${isFront ? 'text-emerald-400' : 'text-white/40'}`}>
-                        {card.label || 'DIVISION'}
+                        {t(card.label || 'DIVISION')}
                       </span>
                     </div>
                     {card.subtitle && (
                       <div className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] text-white/60 font-semibold font-sans">
-                        {card.subtitle}
+                        {t(card.subtitle)}
                       </div>
                     )}
                   </div>
@@ -590,8 +572,8 @@ export default function InteractiveHero() {
                           <Play className="w-3.5 h-3.5 fill-current translate-x-0.5" />
                         </div>
                         <div className="text-left">
-                          <h4 className="text-white text-xs font-bold font-display">{card.title}</h4>
-                          <p className="text-[9px] text-[#BFC8E6]/75 font-sans">Click to discover division</p>
+                          <h4 className="text-white text-xs font-bold font-display">{t(card.title)}</h4>
+                          <p className="text-[9px] text-[#BFC8E6]/75 font-sans">{t(card.desc || 'Click to discover division')}</p>
                         </div>
                       </div>
                     </div>
@@ -601,7 +583,7 @@ export default function InteractiveHero() {
                   <div className="flex justify-between items-center text-[10px] font-sans text-[#BFC8E6]/60 border-t border-white/5 pt-3 z-10">
                     <div className="flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5 text-gold-accent" />
-                      <span>{card.location || 'Colombo Venue'}</span>
+                      <span>{t(card.location || 'Colombo Venue')}</span>
                     </div>
                     {isFront ? (
                       <Link 
@@ -609,10 +591,10 @@ export default function InteractiveHero() {
                         className="text-gold-soft font-bold tracking-wider hover:underline"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        ENTER DIV →
+                        {t('enter_div')} →
                       </Link>
                     ) : (
-                      <span className="text-white/40 font-semibold">{card.resolution || '1080p HD'}</span>
+                      <span className="text-white/40 font-semibold">{t(card.resolution || '1080p HD')}</span>
                     )}
                   </div>
                 </motion.div>
@@ -638,7 +620,7 @@ export default function InteractiveHero() {
             className="w-1.5 h-1.5 rounded-full bg-gold-accent" 
           />
         </div>
-        <span className="text-[8px] uppercase tracking-[0.25em] text-gray-500 font-bold">SCROLL</span>
+        <span className="text-[8px] uppercase tracking-[0.25em] text-gray-500 font-bold">{t('scroll')}</span>
       </div>
 
       {/* Golden Wave separator at the bottom of hero */}

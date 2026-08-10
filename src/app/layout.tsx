@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import LenisProvider from "@/components/LenisProvider";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
   title: {
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
     ],
     locale: "en_US",
     type: "website",
-  },
+    },
   twitter: {
     card: "summary_large_image",
     title: "Mahdev Pvt Ltd | Premium Enterprise & Luxury Suite",
@@ -54,10 +55,13 @@ export default function RootLayout({
       className="h-full antialiased"
     >
       <body className="min-h-full flex flex-col bg-navy-dark text-gray-200">
-        <LenisProvider>
-          {children}
-        </LenisProvider>
+        <LanguageProvider>
+          <LenisProvider>
+            {children}
+          </LenisProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
 }
+

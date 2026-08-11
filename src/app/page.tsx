@@ -91,6 +91,7 @@ export default function Home() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [siteLoading, setSiteLoading] = useState(true);
   
   // Real-time states
   const [stats, setStats] = useState({ happyClients: 1500, projects: 1200, software: 120, vehicles: 18, experience: 10 });
@@ -198,6 +199,19 @@ export default function Home() {
 
   // Fetch stats and posters from Firestore in real-time
   useEffect(() => {
+    let resolvedCount = 0;
+    const totalCritical = 13;
+    const checkResolve = () => {
+      resolvedCount++;
+      if (resolvedCount >= totalCritical) {
+        setSiteLoading(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      setSiteLoading(false);
+    }, 1500);
+
     const unsubStats = onSnapshot(collection(db, 'stats'), (snap) => {
       if (!snap.empty) {
         const data = snap.docs[0].data();
@@ -209,6 +223,7 @@ export default function Home() {
           experience: data.yearsExperience || 10
         });
       }
+      checkResolve();
     });
 
     const unsubPosters = onSnapshot(doc(db, 'settings', 'division_posters'), (snap) => {
@@ -221,6 +236,7 @@ export default function Home() {
           it: d.it || '/images/saas_dashboard.jpg'
         });
       }
+      checkResolve();
     });
 
     const unsubGallery = onSnapshot(collection(db, 'gallery'), (snap) => {
@@ -230,6 +246,7 @@ export default function Home() {
       } else {
         setGalleryList([]);
       }
+      checkResolve();
     });
 
     const unsubFaq = onSnapshot(doc(db, 'settings', 'faqs'), (snap) => {
@@ -238,6 +255,7 @@ export default function Home() {
       } else {
         setFaqList([]);
       }
+      checkResolve();
     });
 
     const unsubDivs = onSnapshot(collection(db, 'divisions'), (snap) => {
@@ -245,24 +263,28 @@ export default function Home() {
         const list = snap.docs.map(docDoc => ({ id: docDoc.id, ...docDoc.data() }));
         setDivisionsList(list);
       }
+      checkResolve();
     });
 
     const unsubHomepageSections = onSnapshot(doc(db, 'settings', 'homepage_sections'), (snap) => {
       if (snap.exists()) {
         setHomepageContent(snap.data());
       }
+      checkResolve();
     });
 
     const unsubCaseStudies = onSnapshot(doc(db, 'settings', 'case_studies'), (snap) => {
       if (snap.exists()) {
         setCaseStudiesList(snap.data().items || []);
       }
+      checkResolve();
     });
 
     const unsubAwards = onSnapshot(doc(db, 'settings', 'awards'), (snap) => {
       if (snap.exists()) {
         setAwardsList(snap.data().items || []);
       }
+      checkResolve();
     });
 
     const unsubFeatured = onSnapshot(doc(db, 'settings', 'featured'), (snap) => {
@@ -283,6 +305,7 @@ export default function Home() {
           ]
         });
       }
+      checkResolve();
     });
 
     const unsubInstagram = onSnapshot(doc(db, 'settings', 'instagram'), (snap) => {
@@ -292,6 +315,7 @@ export default function Home() {
           setInstagramFeed(d.items);
         }
       }
+      checkResolve();
     });
 
     const unsubBrands = onSnapshot(doc(db, 'settings', 'brands'), (snap) => {
@@ -301,6 +325,7 @@ export default function Home() {
           setBrands(d.items);
         }
       }
+      checkResolve();
     });
 
     const unsubFacebook = onSnapshot(doc(db, 'settings', 'facebook'), (snap) => {
@@ -310,6 +335,7 @@ export default function Home() {
           setFacebookFeed(d.items);
         }
       }
+      checkResolve();
     });
 
     const unsubWidgets = onSnapshot(doc(db, 'settings', 'widgets'), (snap) => {
@@ -327,9 +353,11 @@ export default function Home() {
           aiConcierge: d.aiConcierge !== false
         });
       }
+      checkResolve();
     });
 
     return () => {
+      clearTimeout(timer);
       unsubStats();
       unsubPosters();
       unsubGallery();
@@ -438,6 +466,32 @@ export default function Home() {
   ];
 
   const activeFaqs = faqList.length > 0 ? faqList : fallbackFaqs;
+
+  if (siteLoading) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#050816] select-none pointer-events-none">
+        <div className="relative flex flex-col items-center gap-6">
+          {/* Outer elegant spinning gold line ring */}
+          <div className="w-16 h-16 rounded-full border-2 border-white/5 border-t-gold-accent animate-spin" />
+          
+          {/* Glowing central pulse core */}
+          <div className="absolute top-3.5 left-3.5 w-9 h-9 rounded-full bg-gold-accent/20 filter blur-md animate-pulse" />
+          
+          {/* Logo brand letters */}
+          <div className="flex flex-col items-center mt-2">
+            <span className="font-display font-black text-2xl tracking-[0.3em] text-white animate-pulse">MAHDEV</span>
+            <span className="text-[8px] font-bold tracking-[0.5em] text-gold-accent mt-1.5 uppercase">CONGLOMERATE</span>
+          </div>
+
+          {/* Micro gold sparkle text */}
+          <div className="flex items-center gap-1.5 mt-2">
+            <Sparkles className="w-3.5 h-3.5 text-gold-soft animate-bounce" />
+            <span className="text-[9px] font-sans font-semibold tracking-wider text-gray-500 uppercase">Synchronizing Real-time Systems...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

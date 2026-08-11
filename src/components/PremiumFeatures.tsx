@@ -13,6 +13,7 @@ import * as THREE from 'three';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, onSnapshot, doc } from 'firebase/firestore';
 import confetti from 'canvas-confetti';
+import { useLanguage } from '@/context/LanguageContext';
 
 // ----------------------------------------------------------------------
 // 1. Before/After Image Slider
@@ -461,15 +462,50 @@ export function Venue360Viewer() {
 // 4. Interactive Project Timeline
 // ----------------------------------------------------------------------
 export function InteractiveTimeline() {
-  const [activeItem, setActiveItem] = useState(4); // 2026 default
+  const { language } = useLanguage();
+  const [activeItem, setActiveItem] = useState(0);
 
-  const timelineData = [
-    { year: '2017', label: 'Started', desc: 'Began as a small bespoke web and custom IT solutions team in Colombo.', details: 'Initial setup of client databases, POS software tests, and local birthday planning.' },
-    { year: '2019', label: 'First 100 Clients', desc: 'Formalized SWS Events, importing high-end fabrics and backdrops.', details: 'Created back-to-back setups at luxury resorts. Extended Studio U1 creative camera operations.' },
-    { year: '2021', label: 'Software Division', desc: 'Rollout of double-entry ledger ERP modules and merchant POS terminals.', details: 'Offline-first cash registers, automated invoice generation, and real-time inventory counts.' },
-    { year: '2024', label: 'Luxury Conglomerate Brand', desc: 'Integrating travels, IT solutions, and cinematography suites.', details: 'Syndicated corporate structure to handle multi-faceted operations from single cloud console.' },
-    { year: '2026', label: '1500+ Projects', desc: 'Scaling cloud databases internationally with high-altitude drones.', details: 'Expanding software packages across Southeast Asia. Serving 1500+ couples and enterprise stores.' }
+  const defaultTimelineData = [
+    { year: '2017', label: { en: 'Started', si: 'ආරම්භය', ta: 'தொடக்கம்' }, desc: { en: 'Began as a small bespoke web and custom IT solutions team in Colombo.', si: 'කොළඹ කුඩා පරිමාණයේ වෙබ් සහ තොරතුරු තාක්ෂණ කණ්ඩායමක් ලෙස ආරම්භ කිරීම.', ta: 'கொழும்பில் ஒரு சிறிய வலை மற்றும் தகவல் தொழில்நுட்ப குழுவாக தொடங்கியது.' }, details: { en: 'Initial setup of client databases, POS software tests, and local birthday planning.', si: 'පාරිභෝගික දත්ත පද්ධති, POS මෘදුකාංග පරීක්ෂණ සහ දේශීය උත්සව සැලසුම් කිරීම.', ta: 'வாடிக்கையாளர் தரவுத்தளங்கள் மற்றும் மென்பொருள் சோதனைகள்.' } },
+    { year: '2019', label: { en: 'First 100 Clients', si: 'පළමු සේවාලාභීන් 100', ta: 'முதல் 100 வாடிக்கையாளர்கள்' }, desc: { en: 'Formalized SWS Events, importing high-end fabrics and backdrops.', si: 'SWS Events සන්නාමය යටතේ උසස් තත්ත්වයේ පසුබිම් සහ රෙදිපිළි ආනයනය කරමින් ආරම්භ කිරීම.', ta: 'உயர்தர துணிகள் மற்றும் பின்னணிகளை இறக்குமதி செய்து SWS Events முறைப்படுத்தப்பட்டது.' }, details: { en: 'Created back-to-back setups at luxury resorts. Extended Studio U1 creative camera operations.', si: 'සුඛෝපභෝගී හෝටල්වල සුවිශේෂී උත්සව සැලසුම් කිරීම සහ ඡායාරූපකරණ සේවා පුළුල් කිරීම.', ta: 'சொகுசு ரிசார்ட்டுகளில் நிகழ்வுகளை உருவாக்குதல் மற்றும் புகைப்பட சேவைகளை விரிவுபடுத்துதல்.' } },
+    { year: '2021', label: { en: 'Software Division', si: 'මෘදුකාංග අංශය', ta: 'மென்பொருள் பிரிவு' }, desc: { en: 'Rollout of double-entry ledger ERP modules and merchant POS terminals.', si: 'ද්විත්ව සටහන් ගිණුම්කරණ ERP පද්ධති සහ වෙළඳ POS පර්යන්ත හඳුන්වා දීම.', ta: 'இரட்டை பதிவு கணக்கியல் ERP மற்றும் POS முனையங்களை அறிமுகப்படுத்துதல்.' }, details: { en: 'Offline-first cash registers, automated invoice generation, and real-time inventory counts.', si: 'නොබැඳිව ක්‍රියාකරන මුදල් ලේඛන පද්ධති, ස්වයංක්‍රීය ඉන්වොයිස් සහ තත්‍ය කාලීන තොග ගණනය කිරීම්.', ta: 'ஆஃப்லைன் பணப் பதிவேடுகள், தானியங்கி விலைப்பட்டியல் தயாரிப்பு.' } },
+    { year: '2024', label: { en: 'Luxury Conglomerate Brand', si: 'සුඛෝපභෝගී සමූහ ව්‍යාපාරය', ta: 'சொகுசு கூட்டு நிறுவனம்' }, desc: { en: 'Integrating travels, IT solutions, and cinematography suites.', si: 'ප්‍රවාහන, තොරතුරු තාක්ෂණ සහ සිනමාත්මක සේවාවන් ඒකාබද්ධ කරමින් සමූහ ව්‍යාපාරයක් බවට පත්වීම.', ta: 'போக்குவரத்து, தகவல் தொழில்நுட்பம் மற்றும் திரைப்பட சேவைகளை ஒருங்கிணைத்தல்.' }, details: { en: 'Syndicated corporate structure to handle multi-faceted operations from single cloud console.', si: 'තනි වලාකුළු කොන්සෝලයකින් විවිධ මෙහෙයුම් හැසිරවීමට ආයතනික ව්‍යුහය සකස් කිරීම.', ta: 'ஒற்றை மேகக்கணி கன்சோலிலிருந்து செயல்பாடுகளை நிர்வகிக்க கார்ப்பரேட் அமைப்பு.' } },
+    { year: '2026', label: { en: '1500+ Projects', si: 'ප්‍රොජෙක්ට් 1500+', ta: '1500+ திட்டங்கள்' }, desc: { en: 'Scaling cloud databases internationally with high-altitude drones.', si: 'උසස් ඩ්‍රෝන තාක්ෂණය සහ ජාත්‍යන්තර මට්ටමේ වලාකුළු දත්ත පද්ධති භාවිතයෙන් ව්‍යාපාර කටයුතු ව්‍යාප්ත කිරීම.', ta: 'ட்ரோன் தொழில்நுட்பத்துடன் மேகக்கணி தரவுத்தளங்களை சர்வதேச அளவில் அளவிடுதல்.' }, details: { en: 'Expanding software packages across Southeast Asia. Serving 1500+ couples and enterprise stores.', si: 'ගිනිකොනදිග ආසියාව පුරා මෘදුකාංග සේවා ව්‍යාප්ත කරමින් සේවාලාභීන් 1500 කට අධික ප්‍රමාණයකට සේවය සැලසීම.', ta: 'தென்கிழக்கு ஆசியா முழுவதும் மென்பொருளை விரிவுபடுத்துதல்.' } }
   ];
+
+  const [timelineData, setTimelineData] = useState<any[]>(defaultTimelineData);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'timeline'), (snap) => {
+      if (snap.exists()) {
+        const d = snap.data();
+        if (d.items && Array.isArray(d.items)) {
+          setTimelineData(d.items);
+        }
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  const getVal = (val: any) => {
+    if (!val) return '';
+    if (typeof val === 'object') {
+      const currentLang = language.toLowerCase(); // 'en' | 'si' | 'ta'
+      return val[currentLang] || val['en'] || '';
+    }
+    return val;
+  };
+
+  // Adjust activeItem bounds if data size changes
+  useEffect(() => {
+    if (activeItem >= timelineData.length) {
+      setActiveItem(Math.max(0, timelineData.length - 1));
+    }
+  }, [timelineData]);
+
+  if (timelineData.length === 0) {
+    return null;
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto py-8 text-left">
@@ -489,7 +525,7 @@ export function InteractiveTimeline() {
           {/* Active progress bar line */}
           <div 
             className="absolute top-1/2 left-0 h-[2px] bg-gold-accent -translate-y-1/2 z-0 transition-all duration-500" 
-            style={{ width: `${(activeItem / (timelineData.length - 1)) * 100}%` }}
+            style={{ width: timelineData.length > 1 ? `${(activeItem / (timelineData.length - 1)) * 100}%` : '0%' }}
           />
 
           {timelineData.map((item, idx) => (
@@ -510,30 +546,32 @@ export function InteractiveTimeline() {
               <span className={`text-[10px] font-semibold tracking-wider transition-colors font-sans hidden sm:block ${
                 activeItem === idx ? 'text-gold-soft' : 'text-gray-500 group-hover:text-white'
               }`}>
-                {item.label}
+                {getVal(item.label)}
               </span>
             </button>
           ))}
         </div>
 
         {/* Selected Year Details Display */}
-        <div className="glass-premium rounded-3xl p-6.5 border border-gold-accent/15 min-h-[160px] flex flex-col md:flex-row gap-6 items-center shadow-xl">
-          <div className="flex-1 text-left flex flex-col gap-2">
-            <span className="text-[10px] font-bold text-gold-accent uppercase tracking-widest font-sans">
-              Checkpoint Milestone &bull; {timelineData[activeItem].year}
-            </span>
-            <h4 className="font-display font-bold text-xl text-white leading-tight">
-              {timelineData[activeItem].desc}
-            </h4>
-            <p className="text-xs text-[#BFC8E6]/85 font-sans leading-relaxed">
-              {timelineData[activeItem].details}
-            </p>
+        {timelineData[activeItem] && (
+          <div className="glass-premium rounded-3xl p-6.5 border border-gold-accent/15 min-h-[160px] flex flex-col md:flex-row gap-6 items-center shadow-xl">
+            <div className="flex-1 text-left flex flex-col gap-2">
+              <span className="text-[10px] font-bold text-gold-accent uppercase tracking-widest font-sans">
+                Checkpoint Milestone &bull; {timelineData[activeItem].year}
+              </span>
+              <h4 className="font-display font-bold text-xl text-white leading-tight">
+                {getVal(timelineData[activeItem].desc)}
+              </h4>
+              <p className="text-xs text-[#BFC8E6]/85 font-sans leading-relaxed">
+                {getVal(timelineData[activeItem].details)}
+              </p>
+            </div>
+            <div className="px-6 py-4.5 rounded-2xl bg-white/2 border border-white/5 font-display flex flex-col text-center shrink-0">
+              <span className="text-[28px] font-black text-gold-soft leading-none">{timelineData[activeItem].year}</span>
+              <span className="text-[9px] uppercase tracking-wider text-gray-500 font-bold mt-1.5 font-sans">MAHDEV LOG</span>
+            </div>
           </div>
-          <div className="px-6 py-4.5 rounded-2xl bg-white/2 border border-white/5 font-display flex flex-col text-center shrink-0">
-            <span className="text-[28px] font-black text-gold-soft leading-none">{timelineData[activeItem].year}</span>
-            <span className="text-[9px] uppercase tracking-wider text-gray-500 font-bold mt-1.5 font-sans">MAHDEV LOG</span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

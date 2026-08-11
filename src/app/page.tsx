@@ -94,7 +94,7 @@ export default function Home() {
   const [siteLoading, setSiteLoading] = useState(true);
   
   // Real-time states
-  const [stats, setStats] = useState({ happyClients: 1500, projects: 1200, software: 120, vehicles: 18, experience: 10 });
+  const [stats, setStats] = useState({ happyClients: 0, projects: 0, software: 0, vehicles: 0, experience: 0 });
   const [widgetsEnabled, setWidgetsEnabled] = useState({
     hero: true,
     divisions: true,
@@ -118,10 +118,10 @@ export default function Home() {
   const [selectedGalleryImage, setSelectedGalleryImage] = useState<string | null>(null);
 
   const [posters, setPosters] = useState({ 
-    sws: '/images/wedding_decoration_1782729925686.jpg', 
-    u1: '/images/u1_robot_camera_1783346286743.jpg', 
-    travels: '/images/travels_robot_car_1783346316762.jpg', 
-    it: '/images/saas_dashboard.jpg' 
+    sws: '', 
+    u1: '', 
+    travels: '', 
+    it: '' 
   });
 
   const [galleryList, setGalleryList] = useState<any[]>([]);
@@ -130,71 +130,38 @@ export default function Home() {
 
   // Dynamic homepage panel texts
   const [homepageContent, setHomepageContent] = useState<any>({
-    introHeading: { en: 'Premium Services', si: 'ප්‍රමුඛතම සේවාවන්', ta: 'பிரீமியம் சேவைகள்' },
-    introDesc: { en: 'We bridge physical luxury experience designs and digital system architectures to deliver uncompromised quality.', si: 'අපි භෞතික සුඛෝපභෝගී අත්දැකීම් සහ ඩිජිටල් පද්ධති ඒකාබද්ධ කරමින් ඉහළම ගුණාත්මක සේවාවන් සපයන්නෙමු.', ta: 'உயர்தர டிஜிட்டல் கட்டமைப்புகள் மற்றும் வடிவமைப்புடன் தயாரிப்புகளை வழங்குகிறோம்.' },
-    introTag: { en: 'OUR CONGLOMERATE STRUCTURE', si: 'අපගේ සමූහ ව්‍යාපාර ව්‍යුහය', ta: 'எங்கள் கூட்டு நிறுவன அமைப்பு' },
-    softwareTag: { en: 'ENTERPRISE SYSTEM INFRASTRUCTURE', si: 'ව්‍යවසාය පද්ධති යටිතල පහසුකම්', ta: 'நிறுவன கணினி உள்கட்டமைப்பு' },
-    softwareTitle: { en: 'Dual-Entry ERP Softwares', si: 'ද්විත්ව සටහන් ඊආර්පී (ERP) මෘදුකාංග', ta: 'இரட்டைப் பதிவு ஈஆர்பி (ERP) மென்பொருள்' },
-    softwareDesc: { en: 'Deploy omnichannel POS terminals, ledger accounts integration, checkouts receipts printing, and cloud inventory audits from a single administrative console dashboard.', si: 'එක් පරිපාලන කොන්සෝලයකින් POS පර්යන්ත, ගිණුම්කරණය, රිසිට්පත් මුද්‍රණය සහ ගබඩා විගණන සිදු කරන්න.', ta: 'ஒருங்கிணைந்த கணக்குகள், ரசீது அச்சிடுதல் மற்றும் களஞ்சிய கணக்கெடுப்புகளை ஒரே கட்டுப்பாட்டுப் பலகத்தில் நிர்வகிக்கவும்.' },
-    travelsTag: { en: 'VIP TRANSIT FLEETS', si: 'ප්‍රභූ ප්‍රවාහන සේවා', ta: 'விஐபி போக்குவரத்து பிரிவுகள்' },
-    travelsTitle: { en: 'Mahdev travels & tours', si: 'මහදේව් ට්‍රැවල්ස් ඇන්ඩ් ටුවර්ස්', ta: 'மஹ்தேவ் டிராவல்ஸ் அண்ட் டூர்ஸ்' },
-    travelsDesc: { en: 'Dispatch luxury wedding Mercedes hires, comfortable VIP vans, airport BIA pickups, and customized vacation travel routes across scenic tourist sites in Sri Lanka.', si: 'මනාලියන් සඳහා සුඛෝපභෝගී මෝටර් රථ, සුවපහසු වෑන් රථ, ගුවන්තොටුපළ ප්‍රවාහන සහ සංචාරක සේවාවන් සපයන්නෙමු.', ta: 'திருமணம் சொகுசு கார் வாடகை, விமான நிலைய போக்குவரத்து மற்றும் சுற்றுலா பயணங்களை வழங்குகிறோம்.' }
+    introHeading: { en: '', si: '', ta: '' },
+    introDesc: { en: '', si: '', ta: '' },
+    introTag: { en: '', si: '', ta: '' },
+    softwareTag: { en: '', si: '', ta: '' },
+    softwareTitle: { en: '', si: '', ta: '' },
+    softwareDesc: { en: '', si: '', ta: '' },
+    travelsTag: { en: '', si: '', ta: '' },
+    travelsTitle: { en: '', si: '', ta: '' },
+    travelsDesc: { en: '', si: '', ta: '' }
   });
 
   // Dynamic Case Studies list
-  const [caseStudiesList, setCaseStudiesList] = useState<any[]>([
-    {
-      client: { en: 'Hilton Ballroom Setup', si: 'හිල්ටන් උත්සව ශාලාව', ta: 'ஹில்டன் மாநாட்டு அரங்கம்' },
-      metric: { en: '60ft Stage Construct', si: 'අඩි 60 වේදිකා ඉදිකිරීම්', ta: '60 அடி மேடை அமைப்பு' },
-      desc: { en: 'Designed custom metal backdrops, importing pastel silk lilies and installing 120 uplighters in 14 hours.', si: 'පැය 14 ක් ඇතුළත අඩි 60ක සුවිශේෂී පසුබිම් නිර්මාණ සහ ආලෝකකරණ කටයුතු අවසන් කරන ලදී.', ta: '14 மணி நேரத்தில் 120 விளக்குகளை நிறுவி பிரத்யேக பின்னணியை அமைத்தல்.' }
-    },
-    {
-      client: { en: 'Singhania Ledger System', si: 'සිංහානියා ලෙජර් පද්ධතිය', ta: 'சிங்கானியா கணக்கு முறை' },
-      metric: { en: '100% Audit Integrity', si: '100% විගණන අඛණ්ඩතාව', ta: '100% தணிக்கை நேர்மை' },
-      desc: { en: 'Integrated custom dual-entry ERP accounts, sync POS checkout receipt logs with Firebase backends.', si: 'ද්විත්ව සටහන් ඊආර්පී ගිණුම් ඒකාබද්ධ කර POS ගෙවීම් වාර්තා Firebase හරහා ස්වයංක්‍රීයව සමමුහුර්ත කරන ලදී.', ta: 'ஈஆர்பி கணக்குகள் மற்றும் விற்பனை முனைய தரவுகளை ஃபயர்பேஸ் தரவுத்தளத்தில் இணைத்தல்.' }
-    },
-    {
-      client: { en: 'Ceylon Travels Dispatch', si: 'සෙලෝන් ට්‍රැවල්ස් සේවාව', ta: 'சிலோன் டிராவல்ஸ் போக்குவரத்து' },
-      metric: { en: 'BIA Transit Logistics', si: 'ගුවන්තොටුපළ ප්‍රවාහන සේවා', ta: 'விமான நிலைய தளவாடங்கள்' },
-      desc: { en: 'Managed wedding transfers using a convoy of 4 Mercedes cars and luxury KDH tour vans.', si: 'සුඛෝපභෝගී මෝටර් රථ සහ වෑන් රථ 4ක කණ්ඩායමක් යොදා ගනිමින් විවාහ මංගල ප්‍රවාහන කටයුතු මෙහෙයවීම.', ta: '4 மெர்சிடிஸ் கார்கள் மற்றும் சொகுசு வேன்களைப் பயன்படுத்தி திருமண போக்குவரத்து மேலாண்மை.' }
-    }
-  ]);
+  const [caseStudiesList, setCaseStudiesList] = useState<any[]>([]);
 
   // Dynamic Awards list
-  const [awardsList, setAwardsList] = useState<any[]>([
-    { title: { en: 'Best Decor Syndicate', si: 'හොඳම මෝස්තර කණ්ඩායම', ta: 'சிறந்த அலங்கார குழு' }, year: '2024', body: { en: 'South Asia Bridal Awards', si: 'දකුණු ආසියානු මංගල සම්මාන', ta: 'தெற்காசிய திருமண விருதுகள்' } },
-    { title: { en: 'ERP Software Laurels', si: 'ඊආර්පී මෘදුකාංග සම්මානය', ta: 'சிறந்த ஈஆர்பி மென்பொருள்' }, year: '2025', body: { en: 'Ceylon Cloud Congress', si: 'ලංකා ක්ලවුඩ් සම්මේලනය', ta: 'இலங்கை மேகக்கணி மாநாடு' } },
-    { title: { en: '5-Star Travels Fleet', si: 'තරු 5 සංචාරක සේවාව', ta: '5 நட்சத்திர வாகன குழு' }, year: '2023', body: { en: 'Tourism Association LK', si: 'ශ්‍රී ලංකා සංචාරක සංගමය', ta: 'இலங்கை சுற்றுலா சங்கம்' } },
-    { title: { en: 'Elite IT Integrators', si: 'ප්‍රමුඛ තොරතුරු තාක්ෂණ සේවාව', ta: 'சிறந்த தகவல் தொழில்நுட்ப சேவை' }, year: '2026', body: { en: 'conglomerate systems audit', si: 'සමූහ පද්ධති විගණනය', ta: 'கூட்டு கணினி தணிக்கை' } }
-  ]);
+  const [awardsList, setAwardsList] = useState<any[]>([]);
 
   // Dynamic hardcoded section states
   const [featuredData, setFeaturedData] = useState<any>({
-    bannerImg: '/images/wedding_decoration_1782729925686.jpg',
-    title: 'Featured Event Showcase',
-    bannerCategory: 'ROYAL WEDDING CATEGORY',
-    bannerTitle: 'The Mughal Imperial Stage Setup',
-    bannerDesc: 'Custom 60-foot luxury wedding backdrop featuring real gold drapes, cascading hand-picked wisterias, stabilizer drone cinematography, and BIA transport coordinates.',
-    bannerVideo: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4',
-    samples: [
-      { title: 'Hilton Keynotes Convoy', desc: 'Corporate Stage Decor', img: '/images/sws_robot_decor_1783346269673.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-beautiful-wedding-venue-decorations-40003-large.mp4' },
-      { title: 'Pre-Wedding Candle Path', desc: 'Candlelight Canopies', img: '/images/wedding_decoration_1782729925686.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4' },
-      { title: 'Church Floral Altar', desc: 'Cathedral Arch Decor', img: '/images/church_decor.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-beautiful-wedding-venue-decorations-40003-large.mp4' },
-      { title: 'Ella Greenery Tour conv', desc: 'Mercedes Travels fleet', img: '/images/van_tour.jpg', video: 'https://assets.mixkit.co/videos/preview/mixkit-decorations-at-a-wedding-reception-40002-large.mp4' }
-    ]
+    bannerImg: '',
+    title: '',
+    bannerCategory: '',
+    bannerTitle: '',
+    bannerDesc: '',
+    bannerVideo: '',
+    samples: []
   });
 
-  const [instagramFeed, setInstagramFeed] = useState([
-    '/images/wedding_decoration_1782729925686.jpg',
-    '/images/sws_robot_decor_1783346269673.jpg',
-    '/images/birthday_decor.jpg',
-    '/images/church_decor.jpg',
-    '/images/drone_photography.jpg',
-    '/images/portrait_shoot.jpg'
-  ]);
+  const [instagramFeed, setInstagramFeed] = useState<string[]>([]);
 
   const [portfolioTab, setPortfolioTab] = useState<'gallery' | 'facebook'>('gallery');
-  const [brands, setBrands] = useState<string[]>(['Royal Palms Resort', 'Hilton Colombo', 'BIA Air Transports', 'Vastra Silks', 'Ceylon Cloud Engine']);
+  const [brands, setBrands] = useState<string[]>([]);
   const [facebookFeed, setFacebookFeed] = useState<any[]>([]);
 
   // Fetch stats and posters from Firestore in real-time
@@ -383,6 +350,16 @@ export default function Home() {
     }
   }, [widgetsEnabled.portfolio, widgetsEnabled.facebook]);
 
+  // Trigger global resize layout recount when loader exits to prevent Lenis from capping scroll at 100vh
+  useEffect(() => {
+    if (!siteLoading) {
+      const timer = setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [siteLoading]);
+
   // Back to Top scroll listener
   const [showBackToTop, setShowBackToTop] = useState(false);
   useEffect(() => {
@@ -467,34 +444,66 @@ export default function Home() {
 
   const activeFaqs = faqList.length > 0 ? faqList : fallbackFaqs;
 
-  if (siteLoading) {
-    return (
-      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#050816] select-none pointer-events-none">
-        <div className="relative flex flex-col items-center gap-6">
-          {/* Outer elegant spinning gold line ring */}
-          <div className="w-16 h-16 rounded-full border-2 border-white/5 border-t-gold-accent animate-spin" />
-          
-          {/* Glowing central pulse core */}
-          <div className="absolute top-3.5 left-3.5 w-9 h-9 rounded-full bg-gold-accent/20 filter blur-md animate-pulse" />
-          
-          {/* Logo brand letters */}
-          <div className="flex flex-col items-center mt-2">
-            <span className="font-display font-black text-2xl tracking-[0.3em] text-white animate-pulse">MAHDEV</span>
-            <span className="text-[8px] font-bold tracking-[0.5em] text-gold-accent mt-1.5 uppercase">CONGLOMERATE</span>
-          </div>
-
-          {/* Micro gold sparkle text */}
-          <div className="flex items-center gap-1.5 mt-2">
-            <Sparkles className="w-3.5 h-3.5 text-gold-soft animate-bounce" />
-            <span className="text-[9px] font-sans font-semibold tracking-wider text-gray-500 uppercase">Synchronizing Real-time Systems...</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
+      <AnimatePresence>
+        {siteLoading && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.6, ease: 'easeInOut' } }}
+            className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#050816] select-none"
+          >
+            <div className="relative flex flex-col items-center gap-6">
+              {/* Outer elegant spinning gold double orbits */}
+              <div className="relative w-24 h-24 flex items-center justify-center">
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 1.8, ease: "linear" }}
+                  className="absolute w-20 h-20 rounded-full border border-white/5 border-t-gold-accent border-b-gold-soft"
+                />
+                <motion.div 
+                  animate={{ rotate: -360 }}
+                  transition={{ repeat: Infinity, duration: 2.8, ease: "linear" }}
+                  className="absolute w-16 h-16 rounded-full border border-white/5 border-l-gold-soft border-r-gold-accent opacity-60"
+                />
+                
+                {/* Glowing central pulse core */}
+                <motion.div 
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.8, 0.4] }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                  className="absolute w-10 h-10 rounded-full bg-gold-accent/20 filter blur-xl"
+                />
+              </div>
+              
+              {/* Logo brand letters */}
+              <div className="flex flex-col items-center mt-3">
+                <motion.span 
+                  initial={{ letterSpacing: "0.1em", opacity: 0.7 }}
+                  animate={{ letterSpacing: "0.3em", opacity: 1 }}
+                  transition={{ repeat: Infinity, repeatType: "reverse", duration: 1.5, ease: "easeInOut" }}
+                  className="font-display font-black text-3xl text-white tracking-[0.3em]"
+                >
+                  MAHDEV
+                </motion.span>
+                <motion.span 
+                  className="text-[9px] font-bold tracking-[0.55em] text-gold-accent mt-2 uppercase"
+                >
+                  CONGLOMERATE
+                </motion.span>
+              </div>
+
+              {/* Sparkle log message */}
+              <div className="flex items-center gap-2 mt-4 bg-white/2 px-4 py-1.5 rounded-full border border-white/5 backdrop-blur-sm">
+                <Sparkles className="w-3.5 h-3.5 text-gold-soft animate-pulse" />
+                <span className="text-[8px] font-sans font-bold tracking-widest text-[#BFC8E6]/60 uppercase">
+                  INITIALIZING SECURE SYSTEMS...
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="relative min-h-screen bg-navy-dark text-[#BFC8E6] font-sans overflow-x-hidden text-left pb-10">
         
         {/* Navigation bar */}
@@ -608,7 +617,7 @@ export default function Home() {
           </FadeUpSection>
 
           {/* 5. Featured Projects & Video Showcase (Dynamic from settings/featured) */}
-          {widgetsEnabled.featured && (
+          {widgetsEnabled.featured && featuredData && featuredData.bannerImg && (
             <FadeUpSection id="featured-projects">
               <section className="section-premium-padding bg-navy-medium relative overflow-hidden border-t border-b border-white/5">
                 <div className="glow-ball glow-ball-gold w-96 h-96 top-20 -left-10 opacity-10" />
@@ -881,7 +890,13 @@ export default function Home() {
                       </p>
                     </div>
                     <div className="relative h-44 rounded-2xl overflow-hidden border border-white/8 shadow-inner">
-                      <Image src={posters.it} alt="ERP Softwares" fill className="object-cover" />
+                      {posters.it ? (
+                        <Image src={posters.it} alt="ERP Softwares" fill className="object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-[#050816] flex items-center justify-center">
+                          <Laptop className="w-10 h-10 text-blue-500/40 animate-pulse" />
+                        </div>
+                      )}
                     </div>
                     <Link 
                       href="/divisions/it-solutions" 
@@ -904,7 +919,13 @@ export default function Home() {
                       </p>
                     </div>
                     <div className="relative h-44 rounded-2xl overflow-hidden border border-white/8 shadow-inner">
-                      <Image src={posters.travels} alt="Travel Fleet" fill className="object-cover" />
+                      {posters.travels ? (
+                        <Image src={posters.travels} alt="Travel Fleet" fill className="object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/20 to-[#050816] flex items-center justify-center">
+                          <Compass className="w-10 h-10 text-emerald-500/40 animate-pulse" />
+                        </div>
+                      )}
                     </div>
                     <Link 
                       href="/divisions/travels" 
@@ -921,58 +942,62 @@ export default function Home() {
           </FadeUpSection>
 
           {/* 8. Dynamic Interactive Case Studies (Firestore settings/case_studies) */}
-          <FadeUpSection>
-            <section className="section-premium-padding bg-navy-medium border-t border-b border-white/5 relative overflow-hidden">
-              <div className="max-w-7xl mx-auto px-6">
-                
-                <div className="flex flex-col gap-3.5 mb-14 text-center max-w-lg mx-auto">
-                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">{t('CASE ARCHIVES')}</span>
-                  <h2 className="font-display font-black text-3xl sm:text-4xl text-white">{t('Success Stories')}</h2>
-                  <p className="text-xs text-[#BFC8E6]/80 font-sans">{t('How we solved custom problems for elite organizations across Sri Lanka.')}</p>
-                </div>
+          {caseStudiesList.length > 0 && (
+            <FadeUpSection>
+              <section className="section-premium-padding bg-navy-medium border-t border-b border-white/5 relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-6">
+                  
+                  <div className="flex flex-col gap-3.5 mb-14 text-center max-w-lg mx-auto">
+                    <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">{t('CASE ARCHIVES')}</span>
+                    <h2 className="font-display font-black text-3xl sm:text-4xl text-white">{t('Success Stories')}</h2>
+                    <p className="text-xs text-[#BFC8E6]/80 font-sans">{t('How we solved custom problems for elite organizations across Sri Lanka.')}</p>
+                  </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {caseStudiesList.map((caseItem: any, idx: number) => (
-                    <div key={idx} className="glass p-6 rounded-xl border border-white/5 hover:border-gold-accent/25 transition-all text-left flex flex-col justify-between min-h-[220px]">
-                      <div className="flex flex-col gap-3">
-                        <span className="text-[9px] uppercase font-black text-gold-soft tracking-widest font-sans">{t(caseItem.metric)}</span>
-                        <h4 className="font-display font-bold text-lg text-white">{t(caseItem.client)}</h4>
-                        <p className="text-xs text-[#BFC8E6]/80 font-sans leading-relaxed">{t(caseItem.desc)}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {caseStudiesList.map((caseItem: any, idx: number) => (
+                      <div key={idx} className="glass p-6 rounded-xl border border-white/5 hover:border-gold-accent/25 transition-all text-left flex flex-col justify-between min-h-[220px]">
+                        <div className="flex flex-col gap-3">
+                          <span className="text-[9px] uppercase font-black text-gold-soft tracking-widest font-sans">{t(caseItem.metric)}</span>
+                          <h4 className="font-display font-bold text-lg text-white">{t(caseItem.client)}</h4>
+                          <p className="text-xs text-[#BFC8E6]/80 font-sans leading-relaxed">{t(caseItem.desc)}</p>
+                        </div>
+                        <span className="text-[10px] text-gray-500 font-bold font-sans uppercase mt-4">{t('read_case_study')}</span>
                       </div>
-                      <span className="text-[10px] text-gray-500 font-bold font-sans uppercase mt-4">{t('read_case_study')}</span>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
 
-              </div>
-            </section>
-          </FadeUpSection>
+                </div>
+              </section>
+            </FadeUpSection>
+          )}
 
           {/* 9. Awards & Achievements (Dynamic settings/awards) */}
-          <FadeUpSection>
-            <section className="py-20 bg-navy-dark">
-              <div className="max-w-7xl mx-auto px-6">
-                
-                <div className="flex flex-col gap-3.5 mb-12 text-center max-w-sm mx-auto">
-                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">{t('OFFICIAL ENDORSEMENTS')}</span>
-                  <h2 className="font-display font-black text-3xl text-white">{t('Awards & Achievements')}</h2>
-                </div>
+          {awardsList.length > 0 && (
+            <FadeUpSection>
+              <section className="py-20 bg-navy-dark">
+                <div className="max-w-7xl mx-auto px-6">
+                  
+                  <div className="flex flex-col gap-3.5 mb-12 text-center max-w-sm mx-auto">
+                    <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-accent">{t('OFFICIAL ENDORSEMENTS')}</span>
+                    <h2 className="font-display font-black text-3xl text-white">{t('Awards & Achievements')}</h2>
+                  </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                  {awardsList.map((aw: any, idx: number) => (
-                    <div key={idx} className="glass p-6.5 rounded-xl border border-white/5 flex flex-col gap-2 shadow-md hover:border-gold-accent/20 transition-all">
-                      <div className="w-10 h-10 rounded-full bg-gold-accent/10 border border-gold-accent/20 text-gold-soft flex items-center justify-center mx-auto mb-2">
-                        <Award className="w-5 h-5" />
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    {awardsList.map((aw: any, idx: number) => (
+                      <div key={idx} className="glass p-6.5 rounded-xl border border-white/5 flex flex-col gap-2 shadow-md hover:border-gold-accent/20 transition-all">
+                        <div className="w-10 h-10 rounded-full bg-gold-accent/10 border border-gold-accent/20 text-gold-soft flex items-center justify-center mx-auto mb-2">
+                          <Award className="w-5 h-5" />
+                        </div>
+                        <h4 className="font-display font-bold text-sm text-white leading-tight">{t(aw.title)}</h4>
+                        <span className="text-[10px] font-bold text-gold-accent uppercase font-sans mt-1">{aw.year} &bull; {t(aw.body)}</span>
                       </div>
-                      <h4 className="font-display font-bold text-sm text-white leading-tight">{t(aw.title)}</h4>
-                      <span className="text-[10px] font-bold text-gold-accent uppercase font-sans mt-1">{aw.year} &bull; {t(aw.body)}</span>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
 
-              </div>
-            </section>
-          </FadeUpSection>
+                </div>
+              </section>
+            </FadeUpSection>
+          )}
 
           {/* 10. Client Testimonials */}
           <FadeUpSection>
